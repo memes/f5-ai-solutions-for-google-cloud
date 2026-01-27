@@ -1,0 +1,40 @@
+{
+    "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "direnv",
+        "DOCKERHUB",
+        "envrc",
+        "fileignoreconfig",
+        "goarch",
+        "gofumpt",
+        "golangci",
+        "gomod",
+        "goreleaser",
+        "hadolint",
+        "hashicorp",
+        "incpatch",
+        "ldflags",
+        "markdownlint",
+        "opencontainers",
+        "pastebin",
+        "pyproject",
+        "thumbsup",
+        "trimpath",
+        "venv",
+        "wontfix",
+        "workdir",
+        "yamllint"
+    ],
+    "flagWords": [
+        "hte"
+    ],
+    "ignorePaths": [
+        ".devcontainer/devcontainer.json",
+        ".gitignore",
+        ".pre-commit-config.yaml",
+        ".github/workflows/infra-manager.yml",
+        ".github/workflows/infra-manager-wrapper.sh"
+    ]
+}

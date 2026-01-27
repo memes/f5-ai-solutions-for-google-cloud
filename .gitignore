@@ -1,0 +1,22 @@
+# Ignore my direnv setup
+.envrc
+.direnv
+.tool-versions
+.env
+!.env.example
+
+# Ignore Terraform state and automatic var files - except examples
+.terraform
+.terraform.lock.hcl
+terraform.tfstate*
+*.auto.tfvars*
+terraform.tfvars*
+!terraform.tfvars.example
+.terragrunt.cache
+
+# Ignore local venv and ephemeral python resources
+.venv
+__pycache__
+.pytest_cache
+.ruff_cache
+.coverage*

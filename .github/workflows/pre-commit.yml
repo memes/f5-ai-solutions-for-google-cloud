@@ -1,0 +1,51 @@
+# These github actions will update Terraform section(s) of README(s), and
+# perform linting using pre-commit.
+# yamllint disable rule:line-length
+# spell-checker: disable
+---
+name: pre-commit
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install talisman
+        uses: jaxxstorm/action-install-gh-release@v1
+        with:
+          repo: thoughtworks/talisman
+          extension-matching: disable
+          rename-to: talisman
+          chmod: 0755
+          tag: v1.37.0
+      - name: Install terraform-docs
+        uses: jaxxstorm/action-install-gh-release@v1
+        with:
+          repo: terraform-docs/terraform-docs
+          tag: v0.21.0
+      - name: Install tflint
+        uses: terraform-linters/setup-tflint@v6
+        with:
+          cache: true
+          tflint_version: v0.60.0
+      - name: Install opentofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.11.4
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+      - uses: astral-sh/setup-uv@v7
+      - run: uv sync --locked --all-extras --dev
+      - uses: pre-commit/action@v3.0.1

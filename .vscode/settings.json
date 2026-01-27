@@ -1,0 +1,19 @@
+{
+    "yaml.schemas": {
+        "https://json.schemastore.org/github-issue-config.json": ".github/ISSUE_TEMPLATE/config.yml"
+    },
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "/release-please-config.json"
+            ],
+            "url": "https://raw.githubusercontent.com/googleapis/release-please/refs/heads/main/schemas/config.json"
+        },
+        {
+            "fileMatch": [
+                "/.release-please-manifest.json"
+            ],
+            "url": "https://raw.githubusercontent.com/googleapis/release-please/refs/heads/main/schemas/manifest.json"
+        }
+    ]
+}
