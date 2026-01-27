@@ -19,7 +19,7 @@ terraform {
   # Change this to match the target GCS bucket that is managing Tofu/Terraform state
   backend "gcs" {
     bucket = "emes-stuff"
-    prefix = "bootstrap/f5-google-next2026"
+    prefix = "bootstrap/f5-ai-solutions-for-google-cloud"
   }
 }
 
@@ -39,9 +39,8 @@ module "bootstrap" {
   name              = var.name
   labels            = var.labels
   github_options    = var.github_options
-  gcp_options       = var.gcp_options
-  bootstrap_apis    = var.bootstrap_apis
-  iac_roles         = var.iac_roles
   iac_impersonators = var.iac_impersonators
   nginx_jwt         = var.nginx_jwt
+  bootstrap_apis    = []
+  iac_roles         = []
 }
