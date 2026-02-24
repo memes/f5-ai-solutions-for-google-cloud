@@ -24,3 +24,11 @@ fileignoreconfig:
   checksum: 21bebb49ab9cd70d37f20c1db846b6f2306dd093bece778e2c200fb9170e8753
 - filename: foundations/variables.tf
   checksum: e46d4defbb9f01c4a7f8ef34cbb61ef9f3384469f76cdd6c60fc7571926de9a5
+- filename: gke-gateway/outputs.tf
+  checksum: c3eeeea5bbe9c5f00a90414ca61026315e1e48037cfe2deb7bd844ef6a6b8eb9
+- filename: gke-gateway/pg.tf
+  checksum: 8ab5f39420c8a6b78d86f241731cdf768794c42a429893adac63c3891c7192d6
+- filename: gke-gateway/main.tf
+  checksum: 9065e349137b68099fe27f9ca21adc61209bdfb4f96ce3aaf937e07c1341378c
+- filename: gke-gateway/variables.tf
+  checksum: 7b678abf0bf64272b7d5709ad0abf398c019265cfdec33b6347ab58bb0cd8ff2
