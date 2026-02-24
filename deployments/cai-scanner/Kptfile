@@ -1,0 +1,31 @@
+apiVersion: kpt.dev/v1
+kind: Kptfile
+metadata:
+  name: cai-scanner
+  annotations:
+    config.kubernetes.io/local-config: "true"
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+info:
+  description: |-
+    TBD
+  emails:
+    - m.emes@f5.com
+  license: Apache-2.0
+  keywords:
+    - f5-ai
+    - guardrails
+pipeline:
+  mutators:
+    - image: ghcr.io/kptdev/krm-functions-catalog/apply-setters:latest
+      configMap:
+        cai-scanner-model-resource-profile: nvidia-gpu-l4:1
+    - image: ghcr.io/kptdev/krm-functions-catalog/set-namespace:latest
+      configPath: package-context.yaml
+    - image: ghcr.io/kptdev/krm-functions-catalog/set-annotations:latest
+      configPath: set-annotations.yaml
+  validators:
+    - image: ghcr.io/kptdev/krm-functions-catalog/kubeconform:latest
+      configMap:
+        strict: 'true'

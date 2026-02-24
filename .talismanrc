@@ -32,3 +32,15 @@ fileignoreconfig:
   checksum: 9065e349137b68099fe27f9ca21adc61209bdfb4f96ce3aaf937e07c1341378c
 - filename: gke-gateway/variables.tf
   checksum: 7b678abf0bf64272b7d5709ad0abf398c019265cfdec33b6347ab58bb0cd8ff2
+- filename: deployments/cai-redteam/skaffold.yaml
+  checksum: ff128f342865f6021d99103fd69bc53bdcf50bf5bfca8b58605124ef7f2dc6a6
+- filename: deployments/cai-scanner/skaffold.yaml
+  checksum: 5b82c9eaa2a0f189691bdfa498a12419c085b334585792f65918fda668a54e33
+- filename: deployments/shared-services/gateway.yaml
+  checksum: a34e63360827b9b615ba41bc3f9aa536d55910d86e4eef94561c31489b1d49c0
+- filename: deployments/cai-moderator/Kptfile
+  checksum: 4cfd409727dc9e8e2e1f0350a306c711b79227788256c575a94f2296695dfd1c
+- filename: deployments/helpers/cai-drop-dbs.yaml
+  checksum: a8f15e794c8a495cb39a59ceb07014269ff4164395776e7a10f8e3949e834bf4
+- filename: deployments/cai-moderator/skaffold.yaml
+  checksum: 9904e512974e1333cbd38f52cb86de0e6f53c11868a8ceb3bb678f2754fd81df
