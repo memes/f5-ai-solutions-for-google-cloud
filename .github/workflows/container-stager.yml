@@ -19,6 +19,7 @@ permissions:
 jobs:
   container-stager:
     runs-on: ubuntu-latest
+    if: false  # TODO(@memes): Disabled as some containers too large to reasonably process in an action.
     env:
       GCRANE_VERSION: 0.20.7
     steps:
@@ -43,5 +44,6 @@ jobs:
         run: |
           gcrane auth login "$(echo "${{ vars.OCI_REGISTRY }}" | cut -d/ -f1)" --username oauth2accesstoken --password "${{ steps.gcp_auth.outputs.access_token }}"
       - name: Copy containers to private repo
-        run: |
-          gcrane cp busybox:1.37.0 ${{ vars.OCI_REGISTRY }}/busybox:1.37.0
+        env:
+          OCI_REGISTRY: ${{ vars.OCI_REGISTRY }}
+        run: ./.github/workflows/container-stager.sh

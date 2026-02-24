@@ -2,7 +2,7 @@
 .envrc
 .direnv
 .tool-versions
-.env
+.env*
 !.env.example
 
 # Ignore Terraform state and automatic var files - except examples
@@ -20,3 +20,6 @@ __pycache__
 .pytest_cache
 .ruff_cache
 .coverage*
+
+# Ignore everything in tmp
+tmp/

@@ -18,3 +18,5 @@ fileignoreconfig:
   - filecontent
 - filename: .github/workflows/infra-manager.yml
   checksum: d70abe24c2d616050482d87ffb9e6750f05869c60d60edac8ef92f90e3fb068c
+- filename: .github/workflows/container-stager.sh
+  checksum: a3745ca12903fe511a00e02f1f7fd0a02338d4cb74701a72bc77beda80256a4d

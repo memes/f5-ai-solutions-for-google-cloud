@@ -20,14 +20,6 @@ repos:
         args:
           - '--args=--sort-by=required --hide=providers'
       - id: terraform_tflint
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.14
-    hooks:
-      - id: ruff
-        args:
-          - --fix
-          - --exit-non-zero-on-fix
-      - id: ruff-format
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.3.0
     hooks:
@@ -55,10 +47,6 @@ repos:
           - -b
           - main
       - id: trailing-whitespace
-  - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.408
-    hooks:
-      - id: pyright
   - repo: https://github.com/thoughtworks/talisman
     rev: v1.37.0
     hooks:

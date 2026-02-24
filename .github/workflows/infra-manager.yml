@@ -1,5 +1,10 @@
+# Declares an action that triggers Google Cloud Infrastructure Manager tasks on changes in the foundations/ directory.
+# The intent is to trigger a Terraform plan on PR creation and changes, and an apply on merge to main.
+#
+# NOTE: The action is disable by default to prevent issues where the default configuration does not match required
+# parameters.
 ---
-name: infra-manager
+name: infra-manager-foundations
 
 # yamllint disable-line rule:truthy
 on:
@@ -8,7 +13,7 @@ on:
       action:
         description: Infrastructure Manager action to trigger
         required: true
-        default: 'apply'
+        default: plan
         type: choice
         options:
           - plan
@@ -17,13 +22,18 @@ on:
   pull_request:
     paths:
       - 'foundations/**'
-      - scripts/infra-manager-wrapper.sh
+      - ./.github/workflows/infra_manager_foundations.yml
+      - ./.github/workflows/infra-manager-wrapper.sh
+    types:
+      - opened
+      - synchronize
   push:
     branches:
       - main
     paths:
       - 'foundations/**'
-      - scripts/infra-manager-wrapper.sh
+      - ./.github/workflows/infra_manager_foundations.yml
+      - ./.github/workflows/infra-manager-wrapper.sh
 
 permissions:
   contents: read
@@ -33,17 +43,15 @@ permissions:
 env:
   TFPLANDOC_VERSION: 0.4.1
   # These values define the properties used by Infrastructure Manager
-  DEPLOYMENT_ID: example-deployment
+  DEPLOYMENT_ID: f5-ai-solutions-for-google-cloud-foundations
   DEPLOYMENT_PROJECT_ID: ${{ vars.PROJECT_ID }}
-  DEPLOYMENT_REGION: us-west1
+  DEPLOYMENT_REGION: us-central1
   DEPLOYMENT_TF_VERSION: "1.5.7"
   DEPLOYMENT_SERVICE_ACCOUNT_NAME: "projects/${{ vars.PROJECT_ID }}/serviceAccounts/${{ secrets.IAC_SERVICE_ACCOUNT }}"
 
 jobs:
   infra-manager:
     runs-on: ubuntu-latest
-    # TODO: Modify environment as needed above and enable in real project that uses infrastructure manager
-    if: false
     env:
       DEPLOYMENT_GIT_URL: "${{ github.server_url }}/${{ github.repository }}"
       DEPLOYMENT_GIT_SHA: "${{ github.sha }}"
@@ -72,22 +80,30 @@ jobs:
           region                       = "${{ env.DEPLOYMENT_REGION }}"
           repository                   = "${{ vars.OCI_REGISTRY }}"
           cloud_deploy_service_account = "${{ secrets.DEPLOY_SERVICE_ACCOUNT }}"
-          nginx_jwt_secret_id          = "${{ vars.NGINX_JWT_SECRET }}"
-          labels                       = {}
+          labels                       = {
+            owner       = "emes"
+            email       = "m_dot_emes_at_f5_dot_com"
+            demo_source = "f5-ai-solutions-for-google-cloud"
+          }
           EOF
       - name: Generate preview plan
-        if: ${{ success() && (inputs.action || 'apply') == 'apply' }}
+        if: ${{ success() && (github.event_name == "pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan') }}
         run: ./.github/workflows/infra-manager-wrapper.sh plan
+      - name: Install tfplandoc
+        uses: jaxxstorm/action-install-gh-release@v1
+        with:
+          repo: Azure/tfplandoc
+          tag: v${{ env.TFPLANDOC_VERSION }}
       - name: Generate markdown summary of plan for PR
-        if: ${{ success() && (inputs.action || 'apply') == 'apply' && github.event.number }}
-        # yamllint disable rule:line-length
+        if: ${{ success() && (github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan') }}
         run: |
-          curl -fsSLO https://github.com/Azure/tfplandoc/releases/download/v${{ env.TFPLANDOC_VERSION }}/tfplandoc_${{ env.TFPLANDOC_VERSION }}_linux_amd64.zip
-          unzip tfplandoc_${{ env.TFPLANDOC_VERSION }}_linux_amd64.zip tfplandoc_v${{ env.TFPLANDOC_VERSION }}
-          ./tfplandoc_v${{ env.TFPLANDOC_VERSION }} generate "${{ github.sha }}.json" > "${{ github.sha }}.md"
-        # yamllint enable rule:line-length
-      - name: Add markdown output as comment in PR
-        if: ${{ success() && (inputs.action || 'apply') == 'apply' && github.event.number }}
+          tfplandoc_v${{ env.TFPLANDOC_VERSION }} generate "${{ github.sha }}.json" > "${{ github.sha }}.md"
+      - name: Echo markdown summary to stdout if not associated with a PR
+        if: ${{ success() && github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan' }}
+        run: |
+          cat "${{ github.sha }}.md"
+      - name: Add markdown output as comment if relevant
+        if: ${{ success() && github.event_name == 'pull_request' }}
         uses: actions/github-script@v8
         with:
           script: |
@@ -97,22 +113,11 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '## Proposed Changes\n\nInfrastructure Manager will make the following changes\n\n' + plan
+              body: '## Proposed Changes\n\nInfrastructure Manager will make the following changes on merge to main\n\n' + plan
             })
       - name: Apply changes
-        if: ${{ success() && (inputs.action || 'apply') == 'apply' }}
+        if: ${{ success() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'apply') }}
         run: ./.github/workflows/infra-manager-wrapper.sh apply
-      - name: Add applied comment to PR
-        if: ${{ success() && (inputs.action || 'apply') == 'apply' && github.event.number }}
-        uses: actions/github-script@v8
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '## Changes applied\n\nThe changes have been successfully applied by Infrastructure Manager'
-            })
       - name: Delete deployment
         if: ${{ success() && (inputs.action || 'apply') == 'delete' }}
         run: ./.github/workflows/infra-manager-wrapper.sh delete
