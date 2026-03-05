@@ -1,6 +1,5 @@
-# TODO: @memes - remove unused plugins for project
----
 # spell-checker:disable
+---
 repos:
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.38.0
@@ -21,13 +20,13 @@ repos:
           - '--args=--sort-by=required --hide=providers'
       - id: terraform_tflint
   - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
       - id: conventional-pre-commit
         stages:
           - commit-msg
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.20.0
+    rev: v0.21.0
     hooks:
       - id: markdownlint-cli2
   - repo: https://github.com/shellcheck-py/shellcheck-py
