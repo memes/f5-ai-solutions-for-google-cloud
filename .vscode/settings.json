@@ -17,5 +17,6 @@
             ],
             "url": "https://raw.githubusercontent.com/googleapis/release-please/refs/heads/main/schemas/manifest.json"
         }
-    ]
+    ],
+    "python.terminal.activateEnvironment": false
 }

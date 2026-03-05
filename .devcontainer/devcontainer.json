@@ -1,10 +1,11 @@
 {
     "name": "memes-f5-ai-solutions-for-google-cloud",
-    "build": {
-        "dockerfile": "Dockerfile"
-    },
+    "image": "mcr.microsoft.com/devcontainers/base:debian",
     "features": {
-        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+            "moby": false
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
             "version": "none",
             "helm": "latest",
@@ -16,8 +17,7 @@
         },
         "ghcr.io/memes/devcontainers-features/gcrane:1": {},
         "ghcr.io/memes/devcontainers-features/google-cloud-cli:1": {
-            "components": "kpt kubectl kustomize gke-gcloud-auth-plugin skaffold",
-            "installFromTarball": true
+            "components": "kpt kubectl gke-gcloud-auth-plugin skaffold"
         },
         "ghcr.io/memes/devcontainers-features/opentofu:1": {
             "version": "1.11.4"
@@ -56,9 +56,11 @@
 
     ],
     "onCreateCommand": {
-        "install-deps": "sudo sh -c 'apt update && apt install -y --no-install-recommends shellcheck netcat-openbsd postgresql-client-15 && rm -rf /var/lib/apt/lists/*'",
-        "install-pre-commit": ["/usr/local/py-utils/bin/pipx", "install", "pre-commit"],
+        "install-deps": "sudo sh -c 'apt update && apt install -y --no-install-recommends shellcheck kustomize pipx && rm -rf /var/lib/apt/lists/*'",
         "modify-default-omz-plugins": ["/usr/bin/sed", "-i.onCreateCommand" , "-e", "/^plugins=/c\\plugins=(git dotenv)", "/home/vscode/.zshrc"]
+    },
+    "updateContentCommand": {
+        "install-pipx-packages": "pipx install pre-commit huggingface_hub"
     },
     "postCreateCommand": {
         "config-pre-commit": "pre-commit install --hook-type commit-msg --hook-type pre-commit"
