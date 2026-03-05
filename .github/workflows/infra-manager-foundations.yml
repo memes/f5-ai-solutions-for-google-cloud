@@ -85,17 +85,17 @@ jobs:
         with:
           script: |
             const explicitAction = process.env.EXPLICIT_ACTION;
-            const plan = explicitAction == 'plan' || context.eventName == 'pull_request';
-            const apply = explicitAction == 'apply' || context.eventName == 'push';
-            const delete = explicitAction == 'delete';
-            const output = explicitAction == 'output' || apply;
-            core.setOutput('plan', plan);
-            core.setOutput('apply', apply);
-            core.setOutput('delete', delete);
-            core.setOutput('output', output);
+            const planAction = explicitAction == 'plan' || context.eventName == 'pull_request';
+            const applyAction = explicitAction == 'apply' || context.eventName == 'push';
+            const deleteAction = explicitAction == 'delete';
+            const outputAction = explicitAction == 'output' || apply;
+            core.setOutput('plan', planAction);
+            core.setOutput('apply', applyAction);
+            core.setOutput('delete', deleteAction);
+            core.setOutput('output', outputAction);
       - name: Debug
         run: |
-          echo "Dumping environemnt"
+          echo "Dumping environment"
           env
           echo "get_im_action_steps as JSON"
           echo "${{ toJSON(steps.get_im_action_steps.outputs) }}"
