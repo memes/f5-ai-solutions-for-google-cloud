@@ -56,3 +56,13 @@ fileignoreconfig:
   checksum: 28959f90985ae690866dfd4716058a7a74d11a4ddd5c2107e1dafef10b3a7d98
   ignore_detectors:
   - filecontent
+- filename: .bootstrap/main.tf
+  checksum: 2e5b24c63b9500764a2f30b7cddb2c5131cebb805e818ebe2fce2a6edbb36e3b
+- filename: .bootstrap/outputs.tf
+  checksum: 087471067e90bf1dc6d20e7e44016182f61f41540b5c045850be90dc7219e4bd
+- filename: .bootstrap/variables.tf
+  checksum: c53f8839597ec9de3142422808f329748308fff88a42bc233c56e87299aacfae
+- filename: .bootstrap/README.md
+  checksum: b13b48b679fb8ac48b1e992850a14eb5dcc5244d4ae17562a2cdc6561acd0eb2
+  ignore_detectors:
+  - filecontent

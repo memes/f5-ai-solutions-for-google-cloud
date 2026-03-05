@@ -74,3 +74,31 @@ variable "nginx_jwt" {
   An optional NGINX+ JWT to store in Google Secret Manager, with read-only access granted to AR service account.
   EOD
 }
+
+variable "f5_ai_license" {
+  type        = string
+  nullable    = true
+  default     = null
+  description = <<-EOD
+  An optional NGINX+ JWT to store in Google Secret Manager, with read-only access granted to AR service account.
+  EOD
+}
+
+variable "dns" {
+  type = object({
+    base_domain     = string
+    managed_zone_id = optional(string)
+  })
+  nullable = true
+  validation {
+    condition     = var.dns == null ? true : can(regex("^(?:[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\\.)+[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\\.?$", var.dns.base_domain)) && (coalesce(var.dns.managed_zone_id, "unspecified") == "unspecified" ? true : can(regex("projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/managedZones/[a-z][a-z0-9-]{0,61}[a-z0-9]?$", var.dns.managed_zone_id)))
+    error_message = "The base_domain field of dns must be a valid DNS zone name, and, if provided, the Cloud DNS Managed Zone id must be valid."
+  }
+  default     = null
+  description = <<-EOD
+  If provided, these values will be added to the GitHub repo as variables that can be used in automation actions. The
+  `base_domain` field sets the root for TLS certificate creation and DNS challenges and is required if this variable is
+  not null. The `managed_zone_id` value containing a Cloud DNS Managed Zone identifier can be provided to have the DNS
+  challenge and reserved IP addresses added automatically.
+  EOD
+}
