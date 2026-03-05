@@ -1,8 +1,6 @@
 # Declares an action that triggers Google Cloud Infrastructure Manager tasks on changes in the foundations/ directory.
 # The intent is to trigger a Terraform plan on PR creation and changes, and an apply on merge to main.
 #
-# NOTE: The action is disable by default to prevent issues where the default configuration does not match required
-# parameters.
 # yamllint disable rule:line-length
 ---
 name: infra-manager-foundations
