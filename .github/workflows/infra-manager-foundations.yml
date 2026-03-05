@@ -95,7 +95,7 @@ jobs:
           }
           EOF
       - name: Generate preview plan
-        if: ${{ success() && (github.event_name == "pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan') }}
+        if: ${{ success() && (github.event_name == "pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan')) }}
         run: ./.github/workflows/infra-manager-wrapper.sh plan
       - name: Install tfplandoc
         uses: jaxxstorm/action-install-gh-release@v1
@@ -103,7 +103,7 @@ jobs:
           repo: Azure/tfplandoc
           tag: v${{ env.TFPLANDOC_VERSION }}
       - name: Generate markdown summary of plan for PR
-        if: ${{ success() && (github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan') }}
+        if: ${{ success() && (github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan')) }}
         run: |
           tfplandoc_v${{ env.TFPLANDOC_VERSION }} generate "${{ github.sha }}.json" > "${{ github.sha }}.md"
       - name: Echo markdown summary to stdout if not associated with a PR
@@ -124,7 +124,7 @@ jobs:
               body: '## Proposed Changes\n\nInfrastructure Manager will make the following changes on merge to main\n\n' + plan
             })
       - name: Apply changes
-        if: ${{ success() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'apply') }}
+        if: ${{ success() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'apply')) }}
         run: ./.github/workflows/infra-manager-wrapper.sh apply
       - name: Delete deployment
         if: ${{ success() && (inputs.action || 'apply') == 'delete' }}
