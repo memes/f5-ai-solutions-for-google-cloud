@@ -105,7 +105,7 @@ output()
     if [ -n "$(gcloud infra-manager deployments describe "${deployment_name}" --format "value(name)" 2>/dev/null || true)" ]; then
         lock_id="$(gcloud infra-manager deployments lock "${deployment_name}" --format "value(lockId)" || true)"
         [ -z "${lock_id}" ] && error "Failed to get lock on ${deployment_name}"
-        state_url="$(gcloud infra-manager deployments export-statefile --format "get(signedUri)" || true)"
+        state_url="$(gcloud infra-manager deployments export-statefile "${deployment_name}" --format "get(signedUri)" || true)"
         [ -z "${state_url}" ] && error "Failed to get storage URL for statefile"
         curl -fsSL --output "${DEPLOYMENT_GIT_SHA}.tfstate" "${state_url}" || \
             error "Failed to retrieve state file from storage"
