@@ -64,7 +64,7 @@ jobs:
           project_id: ${{ vars.PROJECT_ID }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
       - uses: google-github-actions/setup-gcloud@v3
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: "${{ env.DEPLOYMENT_TF_VERSION}}"
       - name: Create local terraform variables file
