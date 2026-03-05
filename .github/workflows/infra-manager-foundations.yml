@@ -87,8 +87,8 @@ jobs:
             const explicitAction = process.env.EXPLICIT_ACTION;
             const plan = explicitAction == 'plan' || context.eventName == 'pull_request';
             const apply = explicitAction == 'apply' || context.eventName == 'push';
-            const delete == explicitAction == 'delete';
-            const output == explicitAction == 'output' || apply;
+            const delete = explicitAction == 'delete';
+            const output = explicitAction == 'output' || apply;
             core.setOutput('plan', plan);
             core.setOutput('apply', apply);
             core.setOutput('delete', delete);
