@@ -95,7 +95,7 @@ jobs:
           }
           EOF
       - name: Generate preview plan
-        if: ${{ success() && (github.event_name == "pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan')) }}
+        if: ${{ success() && (github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan')) }}
         run: ./.github/workflows/infra-manager-wrapper.sh plan
       - name: Install tfplandoc
         uses: jaxxstorm/action-install-gh-release@v1
