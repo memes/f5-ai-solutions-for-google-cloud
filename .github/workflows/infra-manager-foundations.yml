@@ -83,8 +83,8 @@ jobs:
         with:
           script: |
             return {
-              plan: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan')
-              apply: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'apply')
+              plan: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan'),
+              apply: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'apply'),
               delete: github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'delete',
               output: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && contains(fromJSON('["apply", "output"]'), (inputs.action || 'plan'))),
             };
