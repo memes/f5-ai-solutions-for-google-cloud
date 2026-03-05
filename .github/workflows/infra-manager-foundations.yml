@@ -71,7 +71,7 @@ jobs:
         with:
           script: |
             return (
-              await github.rest.repos.ListPullRequestsAssociatedWithCommit({
+              await github.rest.repos.listPullRequestsAssociatedWithCommit({
                 commit_sha: context.sha,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
