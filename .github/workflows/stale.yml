@@ -1,6 +1,6 @@
 # Stale issue and PR workflow
 ---
-name: stale
+name: Stale
 
 # yamllint disable-line rule:truthy
 on:
