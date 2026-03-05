@@ -70,6 +70,7 @@ module "bootstrap" {
     "roles/clouddeploy.operator",
     "roles/cloudsql.admin",
     "roles/compute.networkAdmin",
+    "roles/compute.securityAdmin",
     "roles/container.admin",
     "roles/dns.admin",
     "roles/iam.securityAdmin",
