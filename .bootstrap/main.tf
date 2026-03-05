@@ -40,7 +40,7 @@ provider "google" {
 
 module "bootstrap" {
   source            = "registry.terraform.io/memes/f5-demo-bootstrap/google"
-  version           = "0.5.0"
+  version           = "0.5.1"
   project_id        = var.project_id
   name              = var.name
   github_options    = var.github_options

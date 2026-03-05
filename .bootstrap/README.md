@@ -18,7 +18,7 @@ IAM, service account and workload identity for the running of this demo.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_bootstrap"></a> [bootstrap](#module\_bootstrap) | registry.terraform.io/memes/f5-demo-bootstrap/google | 0.5.0 |
+| <a name="module_bootstrap"></a> [bootstrap](#module\_bootstrap) | registry.terraform.io/memes/f5-demo-bootstrap/google | 0.5.1 |
 | <a name="module_f5_ai_license"></a> [f5\_ai\_license](#module\_f5\_ai\_license) | memes/secret-manager/google | 2.2.2 |
 
 ## Resources
