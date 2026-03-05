@@ -2,7 +2,7 @@
 # yamllint disable rule:line-length
 # spell-checker: disable
 ---
-name: container-stager
+name: Container stager
 
 # yamllint disable-line rule:truthy
 on:
