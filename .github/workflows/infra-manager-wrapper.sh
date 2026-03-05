@@ -111,7 +111,7 @@ output()
         curl -fsSL --output "${DEPLOYMENT_GIT_SHA}.tfstate" "${state_url}" || \
             error "Failed to retrieve state file from storage"
         [ -s "${DEPLOYMENT_GIT_SHA}.tfstate" ] || error "State file appears to be missing or empty"
-        terraform output -no-color -json -state="${DEPLOYMENT_GIT_SHA}.tfstate" > "${DEPLOYMENT_GIT_SHA}.output.json" || \
+        terraform output -no-color -state="${DEPLOYMENT_GIT_SHA}.tfstate" > "${DEPLOYMENT_GIT_SHA}.output.hcl" || \
             error "Failed to generate output from ${DEPLOYMENT_GIT_SHA}.tfstate"
     fi
 }
