@@ -3,7 +3,7 @@
 # yamllint disable rule:line-length
 # spell-checker: disable
 ---
-name: pre-commit
+name: Pre-commit
 
 # yamllint disable-line rule:truthy
 on:

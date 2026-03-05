@@ -1,6 +1,6 @@
 # spell-checker: disable
 ---
-name: release-please
+name: Release Please
 
 # yamllint disable-line rule:truthy
 on:
