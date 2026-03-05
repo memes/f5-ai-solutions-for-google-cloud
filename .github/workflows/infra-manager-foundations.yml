@@ -94,7 +94,7 @@ jobs:
             core.setOutput('exec_delete', exec_delete);
             core.setOutput('exec_output', exec_output);
       - uses: hashicorp/setup-terraform@v4
-        if: ${{ fromJson(steps.get_im_action_steps.outputs).exec_output) }}
+        if: ${{ fromJson(steps.get_im_action_steps.outputs).exec_output }}
         with:
           terraform_version: "${{ env.DEPLOYMENT_TF_VERSION}}"
       - name: Install tfplandoc
