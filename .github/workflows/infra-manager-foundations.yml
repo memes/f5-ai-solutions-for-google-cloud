@@ -72,18 +72,23 @@ jobs:
       - name: Google Cloud CLI
         id: gcloud-cli
         uses: google-github-actions/setup-gcloud@v3
-      - name: Get PR details
-        id: get_pr_details
+      - name: Get PR number
+        id: get_pr_number
         uses: actions/github-script@v8
         with:
+          result_encoding: string
           script: |
-            return (
-              await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                commit_sha: context.sha,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              })
-            ).data[0];
+            if (context.issue.number) {
+              return context.issue.number;
+            } else {
+              return (
+                await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  commit_sha: context.sha,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                })
+              ).data[0].number;
+            }
       - name: Get Infra Manager action steps
         id: get_im_action_steps
         uses: actions/github-script@v8
@@ -154,15 +159,15 @@ jobs:
           tfplandoc_v${{ env.TFPLANDOC_VERSION }} generate "${{ github.sha }}.json" > "${{ github.sha }}.plan.md"
       - name: Echo markdown plan summary to stdout if not associated with a PR
         id: cat-md-plan
-        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) && !fromJson(steps.get_pr_details.outputs.result).number }}
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) && !steps.get_pr_number.outputs.result }}
         run: |
           cat "${{ github.sha }}.plan.md"
       - name: Add markdown output as comment on PR
         id: pr-md-plan
-        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) && fromJson(steps.get_pr_details.outputs.result).number }}
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) && steps.get_pr_number.outputs.result }}
         uses: actions/github-script@v8
         env:
-          ISSUE_NUMBER: ${{ fromJson(steps.get_pr_details.outputs.result).number }}
+          ISSUE_NUMBER: ${{ steps.get_pr_number.outputs.result }}
         with:
           script: |
             const fs = require('fs');
@@ -183,15 +188,15 @@ jobs:
         run: ./.github/workflows/infra-manager-wrapper.sh output
       - name: Echo output summary to stdout if not associated with a PR
         id: cat-tf-output
-        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_output) && !fromJson(steps.get_pr_details.outputs.result).number }}
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_output) && !steps.get_pr_number.outputs.result }}
         run: |
           cat "${{ github.sha }}.output.json"
       - name: Add markdown output as comment on PR
         id: pr-tf-output
-        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_output) && fromJson(steps.get_pr_details.outputs.result).number }}
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_output) && steps.get_pr_number.outputs.result }}
         uses: actions/github-script@v8
         env:
-          ISSUE_NUMBER: ${{ fromJson(steps.get_pr_details.outputs.result).number }}
+          ISSUE_NUMBER: ${{ steps.get_pr_number.outputs.result }}
         with:
           script: |
             const fs = require('fs');
