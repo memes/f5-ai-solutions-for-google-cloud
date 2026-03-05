@@ -144,12 +144,14 @@ jobs:
       - name: Add markdown output as comment on PR
         if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) && fromJson(steps.get_pr_details.outputs.result).number }}
         uses: actions/github-script@v8
+        env:
+          ISSUE_NUMBER: ${{ fromJson(steps.get_pr_details.outputs.result).number }}
         with:
           script: |
             const fs = require('fs');
             const plan = fs.readFileSync('${{ github.sha }}.plan.md', 'utf8');
             github.rest.issues.createComment({
-              issue_number: fromJson(steps.get_pr_details.outputs.result).number,
+              issue_number: process.env.ISSUE_NUMBER,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: '## Proposed Changes\n\nInfrastructure Manager will make the following changes on merge to main\n\n' + plan,
@@ -167,12 +169,14 @@ jobs:
       - name: Add markdown output as comment on PR
         if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_output) && fromJson(steps.get_pr_details.outputs.result).number }}
         uses: actions/github-script@v8
+        env:
+          ISSUE_NUMBER: ${{ fromJson(steps.get_pr_details.outputs.result).number }}
         with:
           script: |
             const fs = require('fs');
             const output = fs.readFileSync('${{ github.sha }}.output.json', 'utf8');
             github.rest.issues.createComment({
-              issue_number: fromJson(steps.get_pr_details.outputs.result).number,
+              issue_number: process.env.ISSUE_NUMBER,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: '## Output\n\nInfrastructure Manager has made change and this is the current output:\n\n```json\n' + output + '\n```\n',
