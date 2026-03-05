@@ -154,7 +154,7 @@ jobs:
               issue_number: process.env.ISSUE_NUMBER,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '## Proposed Changes\n\nInfrastructure Manager will make the following changes on merge to main\n\n' + plan,
+              body: '## Proposed Changes\n\nInfrastructure Manager will make the following changes on merge to main, or on manual apply.\n\n' + plan,
             })
       - name: Apply changes
         if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_apply) }}
@@ -179,7 +179,7 @@ jobs:
               issue_number: process.env.ISSUE_NUMBER,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '## Output\n\nInfrastructure Manager has made change and this is the current output:\n\n```json\n' + output + '\n```\n',
+              body: '## Output\n\nJSON representation of current deployment outputs:\n\n```json\n' + output + '\n```\n',
             })
       - name: Delete deployment
         if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_delete) }}
