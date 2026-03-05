@@ -95,6 +95,7 @@ cleanup()
             echo "$0: ERROR: Failed to unlock ${deployment_name}"
     fi
     [ -f "${DEPLOYMENT_GIT_SHA}.tfstate" ] && rm "${DEPLOYMENT_GIT_SHA}.tfstate"
+    return 0
 }
 
 output()
