@@ -40,6 +40,20 @@ vllm/vllm-tpu:23194d83e8f2a6783b0d8c275f5f8a22faab9aec
 prefecthq/prefect:3.1.12-python3.11
 prefecthq/prefect:3.1.12-python3.11-kubernetes
 prefecthq/prometheus-prefect-exporter:1.6.7
+
+# vLLM and GKE Inference Gateway
+vllm/vllm-openai:v0.15.1
+registry.k8s.io/gateway-api-inference-extension/lora-syncer:v1.0.2
+registry.k8s.io/gateway-api-inference-extension/epp:v1.0.1
+
+# Arcadia Crypto
+sorinboiaf5/arcadia-frontend:v1
+sorinboiaf5/arcadia-login:v1
+sorinboiaf5/arcadia-stock_transaction:v1
+sorinboiaf5/arcadia-stocks:v1
+sorinboiaf5/arcadia-users:v1
+sorinboiaf5/arcadia-ai:v1
+sorinboiaf5/arcadia-ai-rag:v1
 EOF
 
 while read -r src; do

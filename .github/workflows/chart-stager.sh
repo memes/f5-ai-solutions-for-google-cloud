@@ -19,6 +19,7 @@ oci://ghcr.io/nginx/charts/nginx-gateway-fabric 2.4.2
 oci://harbor.calypsoai.app/calypsoai/cai-moderator 1.4.13
 oci://harbor.calypsoai.app/calypsoai/cai-scanner 2.4.0
 oci://harbor.calypsoai.app/calypsoai/cai-redteam 1.14.6
+oci://registry.k8s.io/gateway-api-inference-extension/charts/inferencepool v1.0.1
 EOF
 
 while read -r src ver; do
