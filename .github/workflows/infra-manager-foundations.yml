@@ -88,10 +88,10 @@ jobs:
             managed_zone_id = "${{ vars.DNS_MANAGED_ZONE_ID }}"
           }
           nginx_jwt_secret = {
-            id = "${{ secret.NGINX_JWT_SECRET }}"
+            id = "${{ secrets.NGINX_JWT_SECRET }}"
           }
           f5_ai_license_secret = {
-            id = "${{ secret.F5_AI_LICENSE_SECRET }}"
+            id = "${{ secrets.F5_AI_LICENSE_SECRET }}"
           }
           EOF
       - name: Generate preview plan
