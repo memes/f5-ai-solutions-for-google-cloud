@@ -91,7 +91,7 @@ cleanup()
 {
     if [ -n "${lock_id}" ]; then
         deployment_name="$(deployment_name)"
-        gcloud infra-manager deployments unlock "${deployment_name}" --lock-id "${lock_id}" || \
+        gcloud infra-manager deployments unlock --quiet "${deployment_name}" --lock-id "${lock_id}" >/dev/null || \
             echo "$0: ERROR: Failed to unlock ${deployment_name}"
     fi
     [ -f "${DEPLOYMENT_GIT_SHA}.tfstate" ] && rm "${DEPLOYMENT_GIT_SHA}.tfstate"
@@ -110,7 +110,7 @@ output()
         curl -fsSL --output "${DEPLOYMENT_GIT_SHA}.tfstate" "${state_url}" || \
             error "Failed to retrieve state file from storage"
         [ -s "${DEPLOYMENT_GIT_SHA}.tfstate" ] || error "State file appears to be missing or empty"
-        terraform output -no-color -state="${DEPLOYMENT_GIT_SHA}.tfstate" || \
+        terraform output -no-color -json -state="${DEPLOYMENT_GIT_SHA}.tfstate" > "${DEPLOYMENT_GIT_SHA}.output.json" || \
             error "Failed to generate output from ${DEPLOYMENT_GIT_SHA}.tfstate"
     fi
 }

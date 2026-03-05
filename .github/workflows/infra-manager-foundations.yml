@@ -3,7 +3,7 @@
 #
 # yamllint disable rule:line-length
 ---
-name: infra-manager-foundations
+name: 'Infra Manager: Foundations'
 
 # yamllint disable-line rule:truthy
 on:
@@ -65,10 +65,41 @@ jobs:
           project_id: ${{ vars.PROJECT_ID }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
       - uses: google-github-actions/setup-gcloud@v3
+      - name: Get PR details
+        id: get_pr_details
+        uses: actions/github-script@v8
+        with:
+          script: |
+            return (
+              await github.rest.repos.ListPullRequestsAssociatedWithCommit({
+                commit_sha: context.sha,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              })
+            ).data[0];
+      - name: Get Infra Manager action steps
+        id: get_im_action_steps
+        uses: actions/github-script@v8
+        with:
+          script: |
+            return {
+              plan: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan')
+              apply: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'apply')
+              delete: github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'delete',
+              output: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && contains(fromJSON('["apply", "output"]'), (inputs.action || 'plan'))),
+            };
       - uses: hashicorp/setup-terraform@v4
+        if: ${{ fromJson(steps.get_im_action_steps.outputs.result).output }}
         with:
           terraform_version: "${{ env.DEPLOYMENT_TF_VERSION}}"
+      - name: Install tfplandoc
+        if: ${{ fromJson(steps.get_im_action_steps.outputs.result).plan }}
+        uses: jaxxstorm/action-install-gh-release@v1
+        with:
+          repo: Azure/tfplandoc
+          tag: v${{ env.TFPLANDOC_VERSION }}
       - name: Create local terraform variables file
+        if: ${{ success() && (fromJson(steps.get_im_action_steps.outputs.result).plan ||fromJson(steps.get_im_action_steps.outputs.result).apply || fromJson(steps.get_im_action_steps.outputs.result).delete) }}
         # NOTE: This file defines the inputs for the Terraform executed by Infrastructure Manager. It mostly consists
         # of substitutions from root and job environment, but other values can be added too (e.g. labels), or can be
         # removed if not used (e.g. NGINX JWT secret identifier).
@@ -95,40 +126,52 @@ jobs:
           }
           EOF
       - name: Generate preview plan
-        if: ${{ success() && (github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan')) }}
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.result).plan }}
         run: ./.github/workflows/infra-manager-wrapper.sh plan
-      - name: Install tfplandoc
-        uses: jaxxstorm/action-install-gh-release@v1
-        with:
-          repo: Azure/tfplandoc
-          tag: v${{ env.TFPLANDOC_VERSION }}
       - name: Generate markdown summary of plan for PR
-        if: ${{ success() && (github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan')) }}
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.result).plan }}
         run: |
-          tfplandoc_v${{ env.TFPLANDOC_VERSION }} generate "${{ github.sha }}.json" > "${{ github.sha }}.md"
-      - name: Echo markdown summary to stdout if not associated with a PR
-        if: ${{ success() && github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'plan' }}
+          tfplandoc_v${{ env.TFPLANDOC_VERSION }} generate "${{ github.sha }}.json" > "${{ github.sha }}.plan.md"
+      - name: Echo markdown plan summary to stdout if not associated with a PR
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.result).plan && !fromJson(steps.get_pr_details.outputs.result).number }}
         run: |
-          cat "${{ github.sha }}.md"
-      - name: Add markdown output as comment if relevant
-        if: ${{ success() && github.event_name == 'pull_request' }}
+          cat "${{ github.sha }}.plan.md"
+      - name: Add markdown output as comment on PR
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.result).plan && fromJson(steps.get_pr_details.outputs.result).number }}
         uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
-            const plan = fs.readFileSync('${{ github.sha }}.md', 'utf8');
+            const plan = fs.readFileSync('${{ github.sha }}.plan.md', 'utf8');
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: fromJson(steps.get_pr_details.outputs.result).number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '## Proposed Changes\n\nInfrastructure Manager will make the following changes on merge to main\n\n' + plan
+              body: '## Proposed Changes\n\nInfrastructure Manager will make the following changes on merge to main\n\n' + plan,
             })
       - name: Apply changes
-        if: ${{ success() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'apply')) }}
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.result).apply }}
         run: ./.github/workflows/infra-manager-wrapper.sh apply
       - name: Generate a markdown output summary
-        if: ${{ success() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && contains(fromJSON('["apply", "output"]'), (inputs.action || 'plan')))) }}
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.result).output }}
         run: ./.github/workflows/infra-manager-wrapper.sh output
+      - name: Echo output summary to stdout if not associated with a PR
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.result).output && !fromJson(steps.get_pr_details.outputs.result).number }}
+        run: |
+          cat "${{ github.sha }}.output.json"
+      - name: Add markdown output as comment on PR
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.result).output && fromJson(steps.get_pr_details.outputs.result).number }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('${{ github.sha }}.output.json', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: fromJson(steps.get_pr_details.outputs.result).number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## Output\n\nInfrastructure Manager has made change and this is the current output:\n\n```json\n' + output + '\n```\n',
+            })
       - name: Delete deployment
         if: ${{ success() && (inputs.action || 'apply') == 'delete' }}
         run: ./.github/workflows/infra-manager-wrapper.sh delete
