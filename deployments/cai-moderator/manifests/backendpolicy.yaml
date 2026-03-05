@@ -1,0 +1,16 @@
+apiVersion: networking.gke.io/v1
+kind: GCPBackendPolicy
+metadata:
+  name: default
+  namespace: cai-moderator
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+spec:
+  default:
+    securityPolicy: ai-demo-us-ce1  # kpt-set: ${cai-moderator-security-policy}
+  targetRef:
+    group: ""
+    kind: Service
+    name: cai-moderator

@@ -1,8 +1,11 @@
 {
     "name": "memes-f5-ai-solutions-for-google-cloud",
-    "image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
+    "image": "mcr.microsoft.com/devcontainers/base:debian",
     "features": {
-        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+            "moby": false
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
             "version": "none",
             "helm": "latest",
@@ -12,9 +15,9 @@
         "ghcr.io/memes/devcontainers-features/hashicorp:1": {
             "terraform": "1.5.7"
         },
+        "ghcr.io/memes/devcontainers-features/gcrane:1": {},
         "ghcr.io/memes/devcontainers-features/google-cloud-cli:1": {
-            "components": "kpt kubectl kustomize gke-gcloud-auth-plugin",
-            "installFromTarball": true
+            "components": "kpt kubectl gke-gcloud-auth-plugin skaffold"
         },
         "ghcr.io/memes/devcontainers-features/opentofu:1": {
             "version": "1.11.4"
@@ -28,43 +31,38 @@
         },
         "ghcr.io/memes/devcontainers-features/tflint:1": {
             "version": "0.60.0"
-        },
-        "ghcr.io/memes/devcontainers-features/vesctl:1": {}
+        }
     },
     "customizations": {
         "vscode": {
             "extensions": [
                 "Gruntfuggly.todo-tree",
-                "ms-python.vscode-pylance",
-                "ms-python.python",
-                "ms-python.debugpy",
-                "ms-python.vscode-python-envs",
                 "redhat.vscode-yaml",
                 "streetsidesoftware.code-spell-checker",
-                "tamasfe.event-better-toml",
                 "opentofu.vscode-opentofu",
                 "esbenp.prettier-vscode",
                 "DavidAnson.vscode-markdownlint",
                 "hashicorp.hcl",
-                "charliermarsh.ruff",
                 "ms-kubernetes-tools.vscode-kubernetes-tools"
             ]
         }
     },
     "containerUser": "vscode",
-    "containerEnv": {
-        "UV_LINK_MODE": "copy"
-    },
     "updateRemoteUserUID": true,
     "mounts": [
-        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.config/gcloud,target=/home/vscode/.config/gcloud,type=bind,consistency=cached"
+        "source=${localEnv:HOME}/.config/gcloud,target=/home/vscode/.config/gcloud,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/projects/oss/terraform-google-private-gke-cluster,target=/home/vscode/terraform-google-private-gke-cluster,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/projects/automation/google-demo-helper-modules,target=/home/vscode/google-demo-helper-modules,type=bind,consistency=cached"
+
     ],
     "onCreateCommand": {
-        "install-deps": "sudo sh -c 'apt update && apt install -y --no-install-recommends shellcheck && rm -rf /var/lib/apt/lists/*'",
-        "install-uv": ["/usr/local/py-utils/bin/pipx", "install", "uv"],
+        "install-deps": "sudo sh -c 'apt update && apt install -y --no-install-recommends shellcheck kustomize pipx && rm -rf /var/lib/apt/lists/*'",
         "modify-default-omz-plugins": ["/usr/bin/sed", "-i.onCreateCommand" , "-e", "/^plugins=/c\\plugins=(git dotenv)", "/home/vscode/.zshrc"]
     },
+    "updateContentCommand": {
+        "install-pipx-packages": "pipx install pre-commit huggingface_hub"
+    },
     "postCreateCommand": {
-        "uv-sync": "uv sync --link-mode=copy --all-extras --all-packages && uv run pre-commit install --hook-type commit-msg --hook-type pre-commit"
+        "config-pre-commit": "pre-commit install --hook-type commit-msg --hook-type pre-commit"
     }
 }

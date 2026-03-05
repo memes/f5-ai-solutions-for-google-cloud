@@ -1,6 +1,8 @@
 {
     "yaml.schemas": {
-        "https://json.schemastore.org/github-issue-config.json": ".github/ISSUE_TEMPLATE/config.yml"
+        "https://json.schemastore.org/github-issue-config.json": ".github/ISSUE_TEMPLATE/config.yml",
+        "https://kpt.dev/reference/schema/kptfile/kptfile.yaml": "Kptfile",
+        "https://raw.githubusercontent.com/GoogleContainerTools/skaffold/refs/heads/main/docs-v2/content/en/schemas/v4beta13.json": "skaffold.yaml"
     },
     "json.schemas": [
         {
@@ -15,5 +17,6 @@
             ],
             "url": "https://raw.githubusercontent.com/googleapis/release-please/refs/heads/main/schemas/manifest.json"
         }
-    ]
+    ],
+    "python.terminal.activateEnvironment": false
 }

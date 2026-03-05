@@ -1,0 +1,35 @@
+apiVersion: kpt.dev/v1
+kind: Kptfile
+metadata:
+  name: cai-moderator
+  annotations:
+    config.kubernetes.io/local-config: "true"
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+info:
+  description: |-
+    TBD
+  emails:
+    - m.emes@f5.com
+  license: Apache-2.0
+  keywords:
+    - guardrails
+pipeline:
+  mutators:
+    - image: ghcr.io/kptdev/krm-functions-catalog/apply-setters:latest
+      configMap:
+        cai-moderator-console-base-url: https://f5-ai.strangelambda.com
+        cai-moderator-db-admin-username: "{{ .DB_ADMIN_USER }}"
+        cai-moderator-db-admin-password: "{{ .DB_ADMIN_PASSWORD }}"
+        cai-moderator-db-host: "{{ .DB_HOST }}"
+        cai-moderator-license-token: "{{ .F5_AI_LICENSE }}"
+        cai-moderator-security-policy: ai-demo-us-ce1
+    - image: ghcr.io/kptdev/krm-functions-catalog/set-annotations:latest
+      configPath: set-annotations.yaml
+    - image: ghcr.io/kptdev/krm-functions-catalog/set-namespace:latest
+      configPath: package-context.yaml
+  validators:
+    - image: ghcr.io/kptdev/krm-functions-catalog/kubeconform:latest
+      configMap:
+        strict: 'true'

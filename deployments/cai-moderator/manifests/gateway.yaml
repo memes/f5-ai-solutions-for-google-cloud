@@ -1,0 +1,58 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cai-moderator
+  namespace: cai-moderator
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+spec:
+  parentRefs:
+    - name: cluster-gw
+      namespace: shared-services
+      sectionName: f5-ai
+  rules:
+    - name: auth
+      matches:
+        - path:
+            type: PathPrefix
+            value: /auth
+      backendRefs:
+        - name: cai-moderator
+          port: 8080
+    - name: default
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: cai-moderator
+          port: 5500
+---
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: cai-moderator
+  namespace: cai-moderator
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+spec:
+  default:
+    checkIntervalSec: 15
+    timeoutSec: 10
+    healthyThreshold: 1
+    unhealthyThreshold: 3
+    logConfig:
+      enabled: false
+    config:
+      type: HTTP
+      httpHealthCheck:
+        port: 5500
+        requestPath: /
+  targetRef:
+    group: ""
+    kind: Service
+    name: cai-moderator

@@ -1,0 +1,61 @@
+---
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: f5-ai-demo-pre-reqs
+  annotations:
+    config.kubernetes.io/local-config: "true"
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+requires:
+  - path: deployments/shared-services
+  - path: deployments/cai-crds
+build: {}
+manifests: {}
+deploy: {}
+---
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: f5-ai-demo-cai-moderator
+  annotations:
+    config.kubernetes.io/local-config: "true"
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+requires:
+  - path: deployments/cai-moderator
+build: {}
+manifests: {}
+deploy: {}
+---
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: f5-ai-demo-cai-scanner
+  annotations:
+    config.kubernetes.io/local-config: "true"
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+requires:
+  - path: deployments/cai-scanner
+build: {}
+manifests: {}
+deploy: {}
+---
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: f5-ai-demo-cai-redteam
+  annotations:
+    config.kubernetes.io/local-config: "true"
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+requires:
+  - path: deployments/cai-redteam
+build: {}
+manifests: {}
+deploy: {}
