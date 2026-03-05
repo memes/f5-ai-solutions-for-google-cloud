@@ -104,7 +104,7 @@ jobs:
           repo: Azure/tfplandoc
           tag: v${{ env.TFPLANDOC_VERSION }}
       - name: Create local terraform variables file
-        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs).exec_plan || fromJson(steps.get_im_action_steps.outputs).exec_apply || fromJson(steps.get_im_action_steps.outputs).exec_delete) }}
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs).exec_plan || fromJson(steps.get_im_action_steps.outputs).exec_apply || fromJson(steps.get_im_action_steps.outputs).exec_delete }}
         # NOTE: This file defines the inputs for the Terraform executed by Infrastructure Manager. It mostly consists
         # of substitutions from root and job environment, but other values can be added too (e.g. labels), or can be
         # removed if not used (e.g. NGINX JWT secret identifier).
