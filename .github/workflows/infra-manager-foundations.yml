@@ -18,10 +18,11 @@ on:
           - plan
           - apply
           - delete
+          - output
   pull_request:
     paths:
       - 'foundations/**'
-      - ./.github/workflows/infra_manager_foundations.yml
+      - ./.github/workflows/infra-manager-foundations.yml
       - ./.github/workflows/infra-manager-wrapper.sh
     types:
       - opened
@@ -31,7 +32,7 @@ on:
       - main
     paths:
       - 'foundations/**'
-      - ./.github/workflows/infra_manager_foundations.yml
+      - ./.github/workflows/infra-manager-foundations.yml
       - ./.github/workflows/infra-manager-wrapper.sh
 
 permissions:
@@ -125,6 +126,9 @@ jobs:
       - name: Apply changes
         if: ${{ success() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.action || 'plan') == 'apply')) }}
         run: ./.github/workflows/infra-manager-wrapper.sh apply
+      - name: Generate a markdown output summary
+        if: ${{ success() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && contains(fromJSON('["apply", "output"]'), (inputs.action || 'plan')))) }}
+        run: ./.github/workflows/infra-manager-wrapper.sh output
       - name: Delete deployment
         if: ${{ success() && (inputs.action || 'apply') == 'delete' }}
         run: ./.github/workflows/infra-manager-wrapper.sh delete
