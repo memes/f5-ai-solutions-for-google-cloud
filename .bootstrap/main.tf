@@ -98,22 +98,40 @@ module "f5_ai_license" {
   accessors  = []
 }
 
+locals {
+  repo_name = reverse(split("/", module.bootstrap.github_repo))[0]
+}
+
 resource "github_actions_variable" "f5_ai_license" {
   for_each      = { for secret in module.f5_ai_license : "F5_AI_LICENSE_SECRET" => secret.id }
-  repository    = reverse(split("/", module.bootstrap.github_repo))[0]
+  repository    = local.repo_name
   variable_name = each.key
   value         = each.value
 }
 
-# Add the base domain to the GitHub repo as a variable, but let
+# Add the base domain to the GitHub repo as a variable, but let the value be changed from the initial value as needed.
 resource "github_actions_variable" "dns" {
   for_each = merge(
     coalesce(try(var.dns.base_domain, null), "unspecified") == "unspecified" ? {} : { "DNS_BASE_DOMAIN" = var.dns.base_domain },
     coalesce(try(var.dns.managed_zone_id, null), "unspecified") == "unspecified" ? {} : { "DNS_MANAGED_ZONE_ID" = var.dns.managed_zone_id },
   )
-  repository    = reverse(split("/", module.bootstrap.github_repo))[0]
+  repository    = local.repo_name
   variable_name = each.key
   value         = each.value
+  lifecycle {
+    ignore_changes = [
+      value,
+    ]
+  }
+}
+
+
+# Add the initial CIDR allow list to the GitHub repo as a variable, but let the value be changed from the initial value
+# as needed.
+resource "github_actions_variable" "allowlist_cidrs" {
+  repository    = local.repo_name
+  variable_name = "ALLOWLIST_CIDRS"
+  value         = jsonencode(try(length(var.allowlist_cidrs), 0) == 0 ? [] : var.allowlist_cidrs)
   lifecycle {
     ignore_changes = [
       value,

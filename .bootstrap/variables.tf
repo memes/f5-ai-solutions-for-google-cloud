@@ -102,3 +102,17 @@ variable "dns" {
   challenge and reserved IP addresses added automatically.
   EOD
 }
+
+variable "allowlist_cidrs" {
+  type     = list(string)
+  nullable = true
+  validation {
+    condition     = var.allowlist_cidrs == null ? true : alltrue([for cidr in var.allowlist_cidrs : can(cidrhost(cidr, 0))])
+    error_message = "Each allowlist_cidrs entry mus be a valid IPv4 or IPv6 cidr."
+  }
+  default     = null
+  description = <<-EOD
+  An optional list of CIDRs to be passed to Infra Manager and Cloud Deploy invocations. E.g. the foundations module will
+  create a Cloud Armor policy blocking access unless this variable contains an allow list.
+  EOD
+}

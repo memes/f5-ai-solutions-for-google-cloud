@@ -81,6 +81,7 @@ jobs:
             owner       = "emes"
             email       = "m_dot_emes_at_f5_dot_com"
           }
+          allowlist_cidrs = ${{ vars.ALLOWLIST_CIDRS || "[]" }}
           dns = {
             base_domain = "${{ vars.DNS_BASE_DOMAIN }}"
             managed_zone_id = "${{ vars.DNS_MANAGED_ZONE_ID }}"
