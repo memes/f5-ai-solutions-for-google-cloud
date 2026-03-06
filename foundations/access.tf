@@ -102,7 +102,7 @@ resource "google_dns_record_set" "gw" {
   project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
   managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
   name         = format("%s.", each.key)
-  type         = A
+  type         = "A"
   ttl          = 300
   rrdatas      = each.value
 }

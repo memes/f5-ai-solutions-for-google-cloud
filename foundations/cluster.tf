@@ -9,11 +9,11 @@ module "sa" {
 }
 
 module "cluster" {
-  for_each = { for k, value in local.regional_names : region => {
+  for_each = { for k, v in local.regional_names : k => {
     name        = v
     subnet      = module.vpc.subnets_by_region[k].self_link
     master_cidr = cidrsubnet("192.168.0.0/24", 4, index(keys(local.regional_names), k))
-    description = format("F5 AI Solutions for Google Cloud in %s", region)
+    description = format("F5 AI Solutions for Google Cloud in %s", k)
     # external_dns_domain = format("%s.%s", var.name, module.region_detail.results[region].abbreviation)
     }
   }
