@@ -77,7 +77,7 @@ module "managed_cert" {
 # If a Cloud DNS managed zone identifier has been provided we can add the supporting entries for Certificate Manager DNS
 # challenges.
 resource "google_dns_record_set" "challenges" {
-  for_each     = coalesce(var.dns.managed_zone_id, "unspecified") == "unspecified" ? {} : { for i, entry in setproduct(keys(local.regional_names), local.effective_domains) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => try(module.cert[entry[0]].dns_challenges[entry[1]], null) if try(module.managed_cert[entry[0]].dns_challenges[entry[1]], null) != null }
+  for_each     = coalesce(var.dns.managed_zone_id, "unspecified") == "unspecified" ? {} : { for i, entry in setproduct(keys(local.regional_names), local.effective_domains) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => try(module.managed_cert[entry[0]].dns_challenges[entry[1]], null) if try(module.managed_cert[entry[0]].dns_challenges[entry[1]], null) != null }
   project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
   managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
   name         = one(distinct([for challenge in each.value : challenge.name]))

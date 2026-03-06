@@ -37,7 +37,7 @@ output "hugging_face_secret" {
 }
 
 output "dns_challenges" {
-  value       = { for k, v in module.cert : k => v.dns_challenges }
+  value       = { for k, v in module.managed_cert : k => v.dns_challenges }
   description = <<-EOD
   A map of Compute Engine region names to DNS challenge records that may need to be inserted in a DNS zone to satisfy
   Certificate Manager and have it provision certificates. If the input variable `dns.managed_zone_id` was provided this
@@ -46,14 +46,14 @@ output "dns_challenges" {
 }
 
 output "cert_manager_certs" {
-  value       = { for k, v in module.cert : k => v.certificate_manager_id }
+  value       = { for k, v in module.managed_cert : k => v.certificate_manager_id }
   description = <<-EOD
   A map of Compute Engine region names to Certificate Manager certificate identifiers, if any were created.
   EOD
 }
 
 output "ssl_policies" {
-  value       = { for k, v in module.cert : k => v.ssl_policy_self_link }
+  value       = { for k, v in module.managed_cert : k => v.ssl_policy_self_link }
   description = <<-EOD
   A map of Compute Engine region names to Compute Engine SSL Policy self-links, if any were created.
   EOD
