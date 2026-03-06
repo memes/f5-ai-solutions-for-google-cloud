@@ -76,7 +76,7 @@ jobs:
         id: get_pr_number
         uses: actions/github-script@v8
         with:
-          result_encoding: string
+          result-encoding: string
           script: |
             if (context.issue.number) {
               return context.issue.number;
