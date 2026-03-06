@@ -77,13 +77,16 @@ module "managed_cert" {
 # If a Cloud DNS managed zone identifier has been provided we can add the supporting entries for Certificate Manager DNS
 # challenges.
 resource "google_dns_record_set" "challenges" {
-  for_each     = coalesce(var.dns.managed_zone_id, "unspecified") == "unspecified" ? {} : { for i, entry in setproduct(keys(local.regional_names), local.effective_domains) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => try(module.managed_cert[entry[0]].dns_challenges[entry[1]], null) if try(module.managed_cert[entry[0]].dns_challenges[entry[1]], null) != null }
+  for_each = coalesce(var.dns.managed_zone_id, "unspecified") == "unspecified" ? {} : { for entry in setproduct(keys(local.regional_names), local.effective_domains) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+    region = entry[0]
+    domain = entry[1]
+  } }
   project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
   managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
-  name         = one(distinct([for challenge in each.value : challenge.name]))
-  type         = one(distinct([for challenge in each.value : challenge.type]))
+  name         = one(distinct([for challenge in try(module.managed_cert[each.value.region].dns_challenges[each.value.domain], []) : challenge.name]))
+  type         = one(distinct([for challenge in try(module.managed_cert[each.value.region].dns_challenges[each.value.domain], []) : challenge.type]))
   ttl          = 300
-  rrdatas      = [for challenge in each.value : challenge.data]
+  rrdatas      = [for challenge in try(module.managed_cert[each.value.region].dns_challenges[each.value.domain], []) : challenge.data]
 }
 
 resource "google_compute_address" "gw" {
@@ -98,11 +101,11 @@ resource "google_compute_address" "gw" {
 # If a Cloud DNS managed zone identifier has been provided we can add the supporting A records for each public reserved
 # address.
 resource "google_dns_record_set" "gw" {
-  for_each     = var.provision_external_gw_address && coalesce(var.dns.managed_zone_id, "unspecified") != "unspecified" ? { for i, entry in setproduct(keys(local.regional_names), local.effective_domains) : entry[1] => try(google_compute_address.gw[entry[0]].address, null)... if try(google_compute_address.gw[entry[0]].address, null) } : {}
+  for_each     = var.provision_external_gw_address && coalesce(var.dns.managed_zone_id, "unspecified") != "unspecified" ? local.effective_domains : {}
   project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
   managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
   name         = format("%s.", each.key)
   type         = "A"
   ttl          = 300
-  rrdatas      = each.value
+  rrdatas      = compact([for k, v in local.regional_names : try(google_compute_address.gw[k].address, null)])
 }

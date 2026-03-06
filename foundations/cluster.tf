@@ -35,7 +35,7 @@ module "cluster" {
 }
 
 resource "google_clouddeploy_target" "cluster" {
-  for_each = { for k, v in local.regional_names : k => {
+  for_each = { for k, v in module.cluster : k => {
     name       = v.name
     cluster_id = v.id
     }
