@@ -217,7 +217,6 @@ variable "model_bucket_accessors" {
   EOD
 }
 
-
 variable "repository" {
   type     = string
   nullable = false
@@ -228,5 +227,30 @@ variable "repository" {
   description = <<-EOD
   An existing private Artifact Registry that will be used for deployments. The service account for the clusters will be
   given automatic IAM role to pull from this registry if it is not empty.
+  EOD
+}
+
+# tflint-ignore: terraform_unused_declarations # TODO(@memes): This will be used when pipelines are ready
+variable "cloud_deploy_service_account" {
+  type     = string
+  nullable = true
+  validation {
+    condition     = can(regex("(?:[a-z][a-z0-9-]{4,28}[a-z0-9]@[a-z][a-z0-9-]{4,28}\\.iam|[1-9][0-9]+-compute@developer)\\.gserviceaccount\\.com$", var.cloud_deploy_service_account))
+    error_message = "The cloud_deploy_service_account variable must be a valid GCP service account email address."
+  }
+  default     = null
+  description = <<-EOD
+  An optional Cloud Deploy execution service account that will deploy resources to GKE. If null or empty, Cloud Deploy
+  pipelines will not be created.
+  EOD
+}
+
+variable "provision_external_gw_address" {
+  type        = bool
+  nullable    = false
+  default     = false
+  description = <<-EOD
+  If true, public IP addresses will be reserved for cluster Gateways, along with Cloud Armor policies for access. If
+  false (default), no public IP addresses will be reserved.
   EOD
 }

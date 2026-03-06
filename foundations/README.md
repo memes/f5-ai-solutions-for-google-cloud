@@ -17,9 +17,10 @@ This module establishes the foundational Google Cloud resources used by clusters
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_cert"></a> [cert](#module\_cert) | registry.terraform.io/memes/tls-certificate/google//modules/managed | 0.1.1 |
+| <a name="module_cluster"></a> [cluster](#module\_cluster) | git::https://github.com/memes/terraform-google-private-gke-cluster//modules/autopilot | feat%2fv3_refactor |
 | <a name="module_googleapis-dns"></a> [googleapis-dns](#module\_googleapis-dns) | memes/restricted-apis-dns/google | 2.0.1 |
 | <a name="module_hugging_face_token"></a> [hugging\_face\_token](#module\_hugging\_face\_token) | memes/secret-manager/google | 2.2.2 |
+| <a name="module_managed_cert"></a> [managed\_cert](#module\_managed\_cert) | registry.terraform.io/memes/tls-certificate/google//modules/managed | 0.1.1 |
 | <a name="module_pg_admin"></a> [pg\_admin](#module\_pg\_admin) | memes/secret-manager/google | 2.2.2 |
 | <a name="module_region_detail"></a> [region\_detail](#module\_region\_detail) | memes/region-detail/google | 1.1.7 |
 | <a name="module_sa"></a> [sa](#module\_sa) | git::https://github.com/memes/terraform-google-private-gke-cluster//modules/sa | feat%2fv3_refactor |
@@ -29,12 +30,15 @@ This module establishes the foundational Google Cloud resources used by clusters
 
 | Name | Type |
 |------|------|
+| [google_clouddeploy_target.cluster](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/clouddeploy_target) | resource |
+| [google_compute_address.gw](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
 | [google_compute_address.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
 | [google_compute_forwarding_rule.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_forwarding_rule) | resource |
 | [google_compute_region_security_policy.allowlist](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_security_policy) | resource |
 | [google_compute_subnetwork.proxy_subnet](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork) | resource |
 | [google_dns_managed_zone.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_managed_zone) | resource |
 | [google_dns_record_set.challenges](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
+| [google_dns_record_set.gw](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
 | [google_dns_record_set.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
 | [google_secret_manager_secret_iam_member.f5_ai_license](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
 | [google_secret_manager_secret_iam_member.hugging_face](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
@@ -58,6 +62,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | The Google Cloud project identifier that will contain the resources. | `string` | n/a | yes |
 | <a name="input_repository"></a> [repository](#input\_repository) | An existing private Artifact Registry that will be used for deployments. The service account for the clusters will be<br/>given automatic IAM role to pull from this registry if it is not empty. | `string` | n/a | yes |
 | <a name="input_allowlist_cidrs"></a> [allowlist\_cidrs](#input\_allowlist\_cidrs) | An optional list of CIDRs to be included in source lists. If empty (default) or blank, the module will use the public<br/>IP address obtained from a third-party lookup service. | `list(string)` | `null` | no |
+| <a name="input_cloud_deploy_service_account"></a> [cloud\_deploy\_service\_account](#input\_cloud\_deploy\_service\_account) | An optional Cloud Deploy execution service account that will deploy resources to GKE. If null or empty, Cloud Deploy<br/>pipelines will not be created. | `string` | `null` | no |
 | <a name="input_f5_ai_license_secret"></a> [f5\_ai\_license\_secret](#input\_f5\_ai\_license\_secret) | An existing Secret Manager secret containing an F5 AI Guardrails/Red Team license token, with an optional list of<br/>Kubernetes service accounts to which read-only access will be granted. Each accessor must be a valid KSA name in<br/>default namespace, or a qualified namespace/name. Default is empty. | <pre>object({<br/>    id        = string<br/>    accessors = optional(list(string))<br/>  })</pre> | `null` | no |
 | <a name="input_global_cidrs"></a> [global\_cidrs](#input\_global\_cidrs) | An optional set of CIDRs to use for primary IP allocation, pods, etc. If null or empty, the default, then a fixed set<br/>of values will be used by the module. | <pre>object({<br/>    primary  = optional(string)<br/>    pods     = optional(string)<br/>    services = optional(string)<br/>    proxy    = optional(string)<br/>    psc      = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_hugging_face"></a> [hugging\_face](#input\_hugging\_face) | An optional Hugging Face token with access to models to store in Google Secret Manager. Each accessor must be a valid<br/>KSA name in default namespace, or a qualified namespace/name. Default is empty, because access to Hugging Face should<br/>not be required by deployments. | <pre>object({<br/>    token     = string<br/>    accessors = optional(list(string))<br/>  })</pre> | `null` | no |
@@ -66,6 +71,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 | <a name="input_nat_tags"></a> [nat\_tags](#input\_nat\_tags) | An optional list of Compute Engine tags that will be permitted to NAT to public internet through Cloud NAT. Default is<br/>empty.<br/>NOTE: The intent of this demo is to show F5 AI solutions in an isolated environment without access to the internet so<br/>setting this value invalidates that assumption. | `list(string)` | `null` | no |
 | <a name="input_nginx_jwt_secret"></a> [nginx\_jwt\_secret](#input\_nginx\_jwt\_secret) | An existing Secret Manager secret containing an NGINX+ JWT token, with an optional list of Kubernetes service<br/>accounts to which read-only access will be granted. Each accessor must be a valid KSA name in default namespace, or<br/>a qualified namespace/name. Default is empty. | <pre>object({<br/>    id        = string<br/>    accessors = optional(list(string))<br/>  })</pre> | `null` | no |
 | <a name="input_pg_admin_accessors"></a> [pg\_admin\_accessors](#input\_pg\_admin\_accessors) | An optional list of Kubernetes service accounts to which read-only access will be granted. Each reader must be a valid<br/>KSA name in default namespace, or a qualified namespace/name. The default allows Kubernetes service account `pg-admin`<br/>in namespace `shared-services` to read the secret value. | `list(string)` | <pre>[<br/>  "shared-services/pg-admin"<br/>]</pre> | no |
+| <a name="input_provision_external_gw_address"></a> [provision\_external\_gw\_address](#input\_provision\_external\_gw\_address) | If true, public IP addresses will be reserved for cluster Gateways, along with Cloud Armor policies for access. If<br/>false (default), no public IP addresses will be reserved. | `bool` | `false` | no |
 | <a name="input_regions"></a> [regions](#input\_regions) | The Compute Engine region names in which to create resources. Default is the single region 'us-central1'. | `list(string)` | <pre>[<br/>  "us-central1"<br/>]</pre> | no |
 
 ## Outputs
@@ -74,8 +80,11 @@ This module establishes the foundational Google Cloud resources used by clusters
 |------|-------------|
 | <a name="output_allowlist_policies"></a> [allowlist\_policies](#output\_allowlist\_policies) | A map of Compute Engine region names to Cloud Armor source CIDR policies, if any were created. |
 | <a name="output_cert_manager_certs"></a> [cert\_manager\_certs](#output\_cert\_manager\_certs) | A map of Compute Engine region names to Certificate Manager certificate identifiers, if any were created. |
+| <a name="output_clusters"></a> [clusters](#output\_clusters) | A map of Compute Engine region names to GKE Autopilot cluster identifiers. |
+| <a name="output_deploy_target_ids"></a> [deploy\_target\_ids](#output\_deploy\_target\_ids) | A map of Compute Engine region names to Cloud Deploy targets. |
 | <a name="output_dns_challenges"></a> [dns\_challenges](#output\_dns\_challenges) | A map of Compute Engine region names to DNS challenge records that may need to be inserted in a DNS zone to satisfy<br/>Certificate Manager and have it provision certificates. If the input variable `dns.managed_zone_id` was provided this<br/>may have already been completed. Provided anyway for manual verification of DNS CNAME records. |
 | <a name="output_gke_service_account"></a> [gke\_service\_account](#output\_gke\_service\_account) | The GKE Service Account to use for clusters, with minimal roles assigned to be effective. |
+| <a name="output_gw_addresses"></a> [gw\_addresses](#output\_gw\_addresses) | A map of Compute Engine region names to reserved public IP addresses for cluster Gateways, if provisioned. |
 | <a name="output_hugging_face_secret"></a> [hugging\_face\_secret](#output\_hugging\_face\_secret) | If a Hugging Face token was provided as input this output will contain the Secret Manager secret identifier that<br/>contains the token value. |
 | <a name="output_labels"></a> [labels](#output\_labels) | A map of the effective labels that were applied to Google Cloud resources that take labels. Can be reused by<br/>subordinate modules if needed. |
 | <a name="output_model_cache_buckets"></a> [model\_cache\_buckets](#output\_model\_cache\_buckets) | A map of Compute Engine region names to Storage bucket names to be used for model caching. |
