@@ -101,7 +101,7 @@ resource "google_compute_address" "gw" {
 # If a Cloud DNS managed zone identifier has been provided we can add the supporting A records for each public reserved
 # address.
 resource "google_dns_record_set" "gw" {
-  for_each     = var.provision_external_gw_address && coalesce(var.dns.managed_zone_id, "unspecified") != "unspecified" ? local.effective_domains : {}
+  for_each     = var.provision_external_gw_address && coalesce(var.dns.managed_zone_id, "unspecified") != "unspecified" ? local.effective_domains : []
   project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
   managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
   name         = format("%s.", each.key)
