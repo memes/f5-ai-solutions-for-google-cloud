@@ -86,3 +86,27 @@ output "pg_instances" {
   identifier containing authentication details.
   EOD
 }
+
+output "clusters" {
+  value       = { for k, v in module.cluster : k => v.id }
+  description = <<-EOD
+  A map of Compute Engine region names to GKE Autopilot cluster identifiers.
+  EOD
+}
+
+output "gw_addresses" {
+  value = { for k, v in google_compute_address.gw : k => {
+    name = v.name
+    ip   = v.address
+  } }
+  description = <<-EOD
+  A map of Compute Engine region names to reserved public IP addresses for cluster Gateways, if provisioned.
+  EOD
+}
+
+output "deploy_target_ids" {
+  value       = { for k, v in google_clouddeploy_target.cluster : k => v.target_id }
+  description = <<-EOD
+  A map of Compute Engine region names to Cloud Deploy targets.
+  EOD
+}

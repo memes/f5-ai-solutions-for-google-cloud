@@ -55,13 +55,3 @@ module "region_detail" {
   version = "1.1.7"
   regions = var.regions
 }
-
-module "sa" {
-  # TODO(@memes): Pin version on release, still testing updates
-  source       = "git::https://github.com/memes/terraform-google-private-gke-cluster//modules/sa?ref=feat%2fv3_refactor"
-  project_id   = var.project_id
-  name         = format("%s-gke", var.name)
-  description  = "Service account for F5 AI Solutions example GKE clusters"
-  display_name = "F5 AI Solutions cluster service account"
-  repositories = compact([var.repository])
-}

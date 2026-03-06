@@ -1,14 +1,17 @@
 #
-# Provide
+# If direct external provisioning is enabled through the `provision_external_gw_address` variable, create resources to
+# expose and control access to the applications via Google ALBs.
+#
+# NOTE: The ALBs will be provisioned through GatewayClass selection in kubernetes manifest(s).
 
 # Create a VPC subnet for Google ALBs with /23 CIDR.
 resource "google_compute_subnetwork" "proxy_subnet" {
-  for_each = { for i, region in var.regions :
+  for_each = var.provision_external_gw_address ? { for i, region in var.regions :
     format("%s-proxy", local.regional_names[region]) => {
       region            = region
       primary_ipv4_cidr = cidrsubnet(local.global_proxy_cidr, 23 - tonumber(split("/", local.global_proxy_cidr)[1]), i)
     }
-  }
+  } : {}
   project       = var.project_id
   name          = each.key
   network       = module.vpc.self_link
@@ -19,7 +22,7 @@ resource "google_compute_subnetwork" "proxy_subnet" {
 }
 
 resource "google_compute_region_security_policy" "allowlist" {
-  for_each    = local.regional_names
+  for_each    = var.provision_external_gw_address ? local.regional_names : {}
   project     = var.project_id
   name        = each.value
   description = "Security policy to allow access to applications from permitted CIDRs."
@@ -51,8 +54,8 @@ resource "google_compute_region_security_policy" "allowlist" {
   }
 }
 
-module "cert" {
-  for_each   = local.regional_names
+module "managed_cert" {
+  for_each   = var.provision_external_gw_address ? local.regional_names : {}
   source     = "registry.terraform.io/memes/tls-certificate/google//modules/managed"
   version    = "0.1.1"
   project_id = var.project_id
@@ -74,11 +77,32 @@ module "cert" {
 # If a Cloud DNS managed zone identifier has been provided we can add the supporting entries for Certificate Manager DNS
 # challenges.
 resource "google_dns_record_set" "challenges" {
-  for_each     = coalesce(var.dns.managed_zone_id, "unspecified") == "unspecified" ? {} : { for i, entry in setproduct(keys(local.regional_names), local.effective_domains) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => module.cert[entry[0]].dns_challenges[entry[1]] }
+  for_each     = coalesce(var.dns.managed_zone_id, "unspecified") == "unspecified" ? {} : { for i, entry in setproduct(keys(local.regional_names), local.effective_domains) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => try(module.cert[entry[0]].dns_challenges[entry[1]], null) if try(module.managed_cert[entry[0]].dns_challenges[entry[1]], null) != null }
   project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
   managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
   name         = one(distinct([for challenge in each.value : challenge.name]))
   type         = one(distinct([for challenge in each.value : challenge.type]))
   ttl          = 300
   rrdatas      = [for challenge in each.value : challenge.data]
+}
+
+resource "google_compute_address" "gw" {
+  for_each     = var.provision_external_gw_address ? local.regional_names : {}
+  project      = var.project_id
+  name         = format("%s-gw", each.value)
+  description  = format("External IP for %s cluster Gateway", each.value)
+  address_type = "EXTERNAL"
+  region       = each.key
+}
+
+# If a Cloud DNS managed zone identifier has been provided we can add the supporting A records for each public reserved
+# address.
+resource "google_dns_record_set" "gw" {
+  for_each     = var.provision_external_gw_address && coalesce(var.dns.managed_zone_id, "unspecified") != "unspecified" ? { for i, entry in setproduct(keys(local.regional_names), local.effective_domains) : entry[1] => try(google_compute_address.gw[entry[0]].address, null)... if try(google_compute_address.gw[entry[0]].address, null) } : {}
+  project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
+  managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
+  name         = format("%s.", each.key)
+  type         = A
+  ttl          = 300
+  rrdatas      = each.value
 }
