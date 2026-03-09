@@ -74,12 +74,9 @@ resource "google_secret_manager_secret_iam_member" "nginx_jwt" {
 }
 
 data "google_secret_manager_secret_version_access" "f5_ai_license" {
-  for_each = var.f5_ai_license_secret == null ? {} : {
-    project_id = coalesce(try(reverse(split("/", var.f5_ai_license_secret.id))[2], null), var.project_id)
-    secret_id  = reverse(split("/", var.f5_ai_license_secret.id))[0]
-  }
-  project = each.value.project_id
-  secret  = each.value.secret_id
+  for_each = var.f5_ai_license_secret == null ? {} : { global = true }
+  project  = coalesce(try(reverse(split("/", var.f5_ai_license_secret.id))[2], null), var.project_id)
+  secret   = reverse(split("/", var.f5_ai_license_secret.id))[0]
 }
 
 module "cai_moderator_auth" {
@@ -94,7 +91,7 @@ module "cai_moderator_auth" {
   CAI_MODERATOR_AUTH_IDP_ISSUER: ""
   CAI_MODERATOR_DB_ADMIN_PASSWORD: ${random_password.pg_admin[each.key].result}
   CAI_MODERATOR_DB_MODERATOR_PASSWORD: "moderator"
-  CAI_MODERATOR_DEFAULT_LICENSE: ${data.google_secret_manager_secret_version_access.f5_ai_license.secret_data}
+  CAI_MODERATOR_DEFAULT_LICENSE: ${data.google_secret_manager_secret_version_access.f5_ai_license["global"].secret_data}
   CAI_MODERATOR_EMAIL_PASSWORD: ""
   CAI_MODERATOR_EMAIL_USER: ""
   EOS
@@ -102,12 +99,13 @@ module "cai_moderator_auth" {
 }
 
 resource "google_secret_manager_secret_iam_member" "cai_moderator_auth" {
-  for_each = var.f5_ai_license_secret == null ? {} : { for ksa in try(var.f5_ai_license_secret.accessors, ["cai-moderator/cai-moderator-sa"]) == null ? [] : var.f5_ai_license_secret.accessors : ksa => {
-    name      = reverse(split("/", ksa))[0]
-    namespace = try(reverse(split("/", ksa))[1], "default")
+  for_each = { for i, entry in setproduct([for k, v in module.cai_moderator_auth : k], try(var.f5_ai_license_secret.accessors, ["cai-moderator/cai-moderator-sa"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+    name      = reverse(split("/", entry[1]))[0]
+    namespace = try(reverse(split("/", entry[1]))[1], "default")
+    secret_id = module.cai_moderator_auth[entry[0]].secret_id
   } }
   project   = var.project_id
-  secret_id = module.cai_moderator_auth.secret_id
+  secret_id = each.value.secret_id
   role      = "roles/secretmanager.secretAccessor"
   member    = format("principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/%s/sa/%s", data.google_project.project.number, data.google_project.project.project_id, each.value.namespace, each.value.name)
 }
