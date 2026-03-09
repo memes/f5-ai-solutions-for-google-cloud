@@ -196,6 +196,40 @@ variable "cai_moderator_auth_accessors" {
   EOD
 }
 
+variable "prefect_server_auth_accessors" {
+  type     = list(string)
+  nullable = true
+  validation {
+    condition     = var.prefect_server_auth_accessors == null ? true : alltrue([for accessor in var.prefect_server_auth_accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))])
+    error_message = "If provided, each prefect_server_auth_accessors value must be a valid Kubernetes service account"
+  }
+  default = [
+    "cai-redteam/prefect-server",
+  ]
+  description = <<-EOD
+  An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`
+  secret. Each reader must be a valid KSA name in default namespace, or a qualified namespace/name. The default allows
+  Kubernetes service account `prefect-server` in namespace `cai-redteam` to read the secret value.
+  EOD
+}
+
+variable "cai_workflows_auth_accessors" {
+  type     = list(string)
+  nullable = true
+  validation {
+    condition     = var.cai_workflows_auth_accessors == null ? true : alltrue([for accessor in var.cai_workflows_auth_accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))])
+    error_message = "If provided, each cai_workflows_auth_accessors value must be a valid Kubernetes service account"
+  }
+  default = [
+    "cai-redteam/default",
+  ]
+  description = <<-EOD
+  An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`
+  secret. Each reader must be a valid KSA name in default namespace, or a qualified namespace/name. The default allows
+  Kubernetes service account `default` in namespace `cai-redteam` to read the secret value.
+  EOD
+}
+
 variable "pg_admin_accessors" {
   type     = list(string)
   nullable = true

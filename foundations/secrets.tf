@@ -75,8 +75,8 @@ resource "google_secret_manager_secret_iam_member" "nginx_jwt" {
 
 data "google_secret_manager_secret_version_access" "f5_ai_license" {
   for_each = var.f5_ai_license_secret == null ? {} : { global = true }
-  project  = coalesce(try(reverse(split("/", var.f5_ai_license_secret.id))[2], null), var.project_id)
-  secret   = reverse(split("/", var.f5_ai_license_secret.id))[0]
+  project  = coalesce(try(reverse(split("/", var.f5_ai_license_secret))[2], null), var.project_id)
+  secret   = reverse(split("/", var.f5_ai_license_secret))[0]
 }
 
 module "cai_moderator_auth" {
@@ -103,6 +103,55 @@ resource "google_secret_manager_secret_iam_member" "cai_moderator_auth" {
     name      = reverse(split("/", entry[1]))[0]
     namespace = try(reverse(split("/", entry[1]))[1], "default")
     secret_id = module.cai_moderator_auth[entry[0]].secret_id
+  } }
+  project   = var.project_id
+  secret_id = each.value.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = format("principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/%s/sa/%s", data.google_project.project.number, data.google_project.project.project_id, each.value.namespace, each.value.name)
+}
+
+module "prefect_server_auth" {
+  for_each   = local.regional_names
+  source     = "memes/secret-manager/google"
+  version    = "2.2.2"
+  project_id = var.project_id
+  id         = format("%s-prefect-server-auth", each.key)
+  secret     = <<-EOS
+  connection-string: ${format("postgresql+asyncpg://prefect:prefect@%s:5432/prefect", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))}
+  EOS
+  accessors  = []
+}
+
+resource "google_secret_manager_secret_iam_member" "prefect_server_auth" {
+  for_each = { for i, entry in setproduct([for k, v in module.prefect_server_auth : k], coalescelist(var.prefect_server_auth_accessors == null ? [] : var.prefect_server_auth_accessors, ["cai-redteam/prefect-server"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+    name      = reverse(split("/", entry[1]))[0]
+    namespace = try(reverse(split("/", entry[1]))[1], "default")
+    secret_id = module.prefect_server_auth[entry[0]].secret_id
+  } }
+  project   = var.project_id
+  secret_id = each.value.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = format("principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/%s/sa/%s", data.google_project.project.number, data.google_project.project.project_id, each.value.namespace, each.value.name)
+}
+
+module "cai_workflows_auth" {
+  for_each   = local.regional_names
+  source     = "memes/secret-manager/google"
+  version    = "2.2.2"
+  project_id = var.project_id
+  id         = format("%s-cai-workflows-auth", each.key)
+  secret     = <<-EOS
+  CAI_WORKFLOWS_ENCRYPTION_KEY: ISJ9GCvWB3l1YUXjw4jvTeuFDHlcsD_W77VvM9QpLgE=
+  connection-string: ${format("postgresql+asyncpg://prefect:prefect-rocks@%s:5432/postgres", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))}
+  EOS
+  accessors  = []
+}
+
+resource "google_secret_manager_secret_iam_member" "cai_workflows_auth" {
+  for_each = { for i, entry in setproduct([for k, v in module.cai_workflows_auth : k], coalescelist(var.cai_workflows_auth_accessors == null ? [] : var.cai_workflows_auth_accessors, ["cai-redteam/default"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+    name      = reverse(split("/", entry[1]))[0]
+    namespace = try(reverse(split("/", entry[1]))[1], "default")
+    secret_id = module.cai_workflows_auth[entry[0]].secret_id
   } }
   project   = var.project_id
   secret_id = each.value.secret_id
