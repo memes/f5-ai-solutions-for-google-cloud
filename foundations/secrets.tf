@@ -84,7 +84,7 @@ module "cai_moderator_auth" {
   source     = "memes/secret-manager/google"
   version    = "2.2.2"
   project_id = var.project_id
-  id         = format("%s-cai-auth", each.key)
+  id         = format("%s-cai-auth", each.value)
   secret     = <<-EOS
   CAI_MODERATOR_AUTH_IDP_CLIENT_ID: ""
   CAI_MODERATOR_AUTH_IDP_CLIENT_SECRET: ""
@@ -115,7 +115,7 @@ module "prefect_server_auth" {
   source     = "memes/secret-manager/google"
   version    = "2.2.2"
   project_id = var.project_id
-  id         = format("%s-prefect-server-auth", each.key)
+  id         = format("%s-prefect-server-auth", each.value)
   secret     = <<-EOS
   connection-string: ${format("postgresql+asyncpg://prefect:prefect@%s:5432/prefect", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))}
   EOS
@@ -139,7 +139,7 @@ module "cai_workflows_auth" {
   source     = "memes/secret-manager/google"
   version    = "2.2.2"
   project_id = var.project_id
-  id         = format("%s-cai-workflows-auth", each.key)
+  id         = format("%s-cai-workflows-auth", each.value)
   secret     = <<-EOS
   CAI_WORKFLOWS_ENCRYPTION_KEY: ISJ9GCvWB3l1YUXjw4jvTeuFDHlcsD_W77VvM9QpLgE=
   connection-string: ${format("postgresql+asyncpg://prefect:prefect-rocks@%s:5432/postgres", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))}
