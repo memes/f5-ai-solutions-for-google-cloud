@@ -117,3 +117,17 @@ output "cai_moderator_auth_secret" {
   The Secret Manager secret identifiers for cai-moderator-auth secret injection.
   EOD
 }
+
+output "prefect_server_auth_secret" {
+  value       = one([for k, v in module.prefect_server_auth : v.id])
+  description = <<-EOD
+  The Secret Manager secret identifiers for prefect-server-auth secret injection.
+  EOD
+}
+
+output "cai_workflows_auth" {
+  value       = one([for k, v in module.cai_workflows_auth : v.id])
+  description = <<-EOD
+  The Secret Manager secret identifiers for cai-workflows-auth secret injection.
+  EOD
+}

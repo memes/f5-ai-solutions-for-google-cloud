@@ -89,6 +89,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 |------|-------------|
 | <a name="output_allowlist_policies"></a> [allowlist\_policies](#output\_allowlist\_policies) | A map of Compute Engine region names to Cloud Armor source CIDR policies, if any were created. |
 | <a name="output_cai_moderator_auth_secret"></a> [cai\_moderator\_auth\_secret](#output\_cai\_moderator\_auth\_secret) | The Secret Manager secret identifiers for cai-moderator-auth secret injection. |
+| <a name="output_cai_workflows_auth"></a> [cai\_workflows\_auth](#output\_cai\_workflows\_auth) | The Secret Manager secret identifiers for cai-workflows-auth secret injection. |
 | <a name="output_cert_manager_certs"></a> [cert\_manager\_certs](#output\_cert\_manager\_certs) | A map of Compute Engine region names to Certificate Manager certificate identifiers, if any were created. |
 | <a name="output_clusters"></a> [clusters](#output\_clusters) | A map of Compute Engine region names to GKE Autopilot cluster identifiers. |
 | <a name="output_deploy_target_ids"></a> [deploy\_target\_ids](#output\_deploy\_target\_ids) | A map of Compute Engine region names to Cloud Deploy targets. |
@@ -99,6 +100,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 | <a name="output_labels"></a> [labels](#output\_labels) | A map of the effective labels that were applied to Google Cloud resources that take labels. Can be reused by<br/>subordinate modules if needed. |
 | <a name="output_model_cache_buckets"></a> [model\_cache\_buckets](#output\_model\_cache\_buckets) | A map of Compute Engine region names to Storage bucket names to be used for model caching. |
 | <a name="output_pg_instances"></a> [pg\_instances](#output\_pg\_instances) | A map of Compute Engine region names to Cloud SQL Postgresql instance attributes, admin user and Secret Manager secret<br/>identifier containing authentication details. |
+| <a name="output_prefect_server_auth_secret"></a> [prefect\_server\_auth\_secret](#output\_prefect\_server\_auth\_secret) | The Secret Manager secret identifiers for prefect-server-auth secret injection. |
 | <a name="output_regional_names"></a> [regional\_names](#output\_regional\_names) | A map of Compute Engine region names to prefixes used in this foundations module, to keep a consistent naming standard<br/>for subordinate modules, like cluster creators. |
 | <a name="output_ssl_policies"></a> [ssl\_policies](#output\_ssl\_policies) | A map of Compute Engine region names to Compute Engine SSL Policy self-links, if any were created. |
 | <a name="output_subnets"></a> [subnets](#output\_subnets) | A map of Compute Engine region names to Compute Engine Subnetwork resource self-links. |
