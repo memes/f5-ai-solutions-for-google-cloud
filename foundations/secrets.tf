@@ -85,17 +85,17 @@ module "cai_moderator_auth" {
   version    = "2.2.2"
   project_id = var.project_id
   id         = format("%s-cai-auth", each.value)
-  secret     = <<-EOS
-  CAI_MODERATOR_AUTH_IDP_CLIENT_ID: ""
-  CAI_MODERATOR_AUTH_IDP_CLIENT_SECRET: ""
-  CAI_MODERATOR_AUTH_IDP_ISSUER: ""
-  CAI_MODERATOR_DB_ADMIN_PASSWORD: ${random_password.pg_admin[each.key].result}
-  CAI_MODERATOR_DB_MODERATOR_PASSWORD: "moderator"
-  CAI_MODERATOR_DEFAULT_LICENSE: ${data.google_secret_manager_secret_version_access.f5_ai_license["global"].secret_data}
-  CAI_MODERATOR_EMAIL_PASSWORD: ""
-  CAI_MODERATOR_EMAIL_USER: ""
-  EOS
-  accessors  = []
+  secret = jsonencode({
+    CAI_MODERATOR_AUTH_IDP_CLIENT_ID     = ""
+    CAI_MODERATOR_AUTH_IDP_CLIENT_SECRET = ""
+    CAI_MODERATOR_AUTH_IDP_ISSUER        = ""
+    CAI_MODERATOR_DB_ADMIN_PASSWORD      = random_password.pg_admin[each.key].result
+    CAI_MODERATOR_DB_MODERATOR_PASSWORD  = "moderator"
+    CAI_MODERATOR_DEFAULT_LICENSE        = data.google_secret_manager_secret_version_access.f5_ai_license["global"].secret_data
+    CAI_MODERATOR_EMAIL_PASSWORD         = ""
+    CAI_MODERATOR_EMAIL_USER             = ""
+  })
+  accessors = []
 }
 
 resource "google_secret_manager_secret_iam_member" "cai_moderator_auth" {
@@ -116,10 +116,10 @@ module "prefect_server_auth" {
   version    = "2.2.2"
   project_id = var.project_id
   id         = format("%s-prefect-server-auth", each.value)
-  secret     = <<-EOS
-  connection-string: ${format("postgresql+asyncpg://prefect:prefect@%s:5432/prefect", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))}
-  EOS
-  accessors  = []
+  secret = jsonencode({
+    connection-string = format("postgresql+asyncpg://prefect:prefect@%s:5432/prefect", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))
+  })
+  accessors = []
 }
 
 resource "google_secret_manager_secret_iam_member" "prefect_server_auth" {
@@ -140,11 +140,11 @@ module "cai_workflows_auth" {
   version    = "2.2.2"
   project_id = var.project_id
   id         = format("%s-cai-workflows-auth", each.value)
-  secret     = <<-EOS
-  CAI_WORKFLOWS_ENCRYPTION_KEY: ISJ9GCvWB3l1YUXjw4jvTeuFDHlcsD_W77VvM9QpLgE=
-  connection-string: ${format("postgresql+asyncpg://prefect:prefect-rocks@%s:5432/postgres", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))}
-  EOS
-  accessors  = []
+  secret = jsonencode({
+    CAI_WORKFLOWS_ENCRYPTION_KEY = "ISJ9GCvWB3l1YUXjw4jvTeuFDHlcsD_W77VvM9QpLgE="
+    connection-string            = format("postgresql+asyncpg://prefect:prefect-rocks@%s:5432/postgres", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))
+  })
+  accessors = []
 }
 
 resource "google_secret_manager_secret_iam_member" "cai_workflows_auth" {
