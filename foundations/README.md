@@ -17,6 +17,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_cai_moderator_auth"></a> [cai\_moderator\_auth](#module\_cai\_moderator\_auth) | memes/secret-manager/google | 2.2.2 |
 | <a name="module_cluster"></a> [cluster](#module\_cluster) | git::https://github.com/memes/terraform-google-private-gke-cluster//modules/autopilot | feat%2fv3_refactor |
 | <a name="module_googleapis-dns"></a> [googleapis-dns](#module\_googleapis-dns) | memes/restricted-apis-dns/google | 2.0.1 |
 | <a name="module_hugging_face_token"></a> [hugging\_face\_token](#module\_hugging\_face\_token) | memes/secret-manager/google | 2.2.2 |
@@ -40,7 +41,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 | [google_dns_record_set.challenges](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
 | [google_dns_record_set.gw](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
 | [google_dns_record_set.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
-| [google_secret_manager_secret_iam_member.f5_ai_license](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
+| [google_secret_manager_secret_iam_member.cai_moderator_auth](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
 | [google_secret_manager_secret_iam_member.hugging_face](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
 | [google_secret_manager_secret_iam_member.nginx_jwt](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
 | [google_secret_manager_secret_iam_member.pg_admin](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
@@ -51,6 +52,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 | [google_storage_bucket_iam_member.bucket](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket_iam_member) | resource |
 | [random_password.pg_admin](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 | [google_project.project](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/project) | data source |
+| [google_secret_manager_secret_version_access.f5_ai_license](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_secret_version_access) | data source |
 | [http_http.my_address](https://registry.terraform.io/providers/hashicorp/http/latest/docs/data-sources/http) | data source |
 
 ## Inputs
@@ -79,6 +81,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 | Name | Description |
 |------|-------------|
 | <a name="output_allowlist_policies"></a> [allowlist\_policies](#output\_allowlist\_policies) | A map of Compute Engine region names to Cloud Armor source CIDR policies, if any were created. |
+| <a name="output_cai_moderator_auth_secret"></a> [cai\_moderator\_auth\_secret](#output\_cai\_moderator\_auth\_secret) | The Secret Manager secret identifiers for cai-moderator-auth secret injection. |
 | <a name="output_cert_manager_certs"></a> [cert\_manager\_certs](#output\_cert\_manager\_certs) | A map of Compute Engine region names to Certificate Manager certificate identifiers, if any were created. |
 | <a name="output_clusters"></a> [clusters](#output\_clusters) | A map of Compute Engine region names to GKE Autopilot cluster identifiers. |
 | <a name="output_deploy_target_ids"></a> [deploy\_target\_ids](#output\_deploy\_target\_ids) | A map of Compute Engine region names to Cloud Deploy targets. |

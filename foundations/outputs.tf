@@ -110,3 +110,10 @@ output "deploy_target_ids" {
   A map of Compute Engine region names to Cloud Deploy targets.
   EOD
 }
+
+output "cai_moderator_auth_secret" {
+  value       = one([for k, v in module.cai_moderator_auth : v.id])
+  description = <<-EOD
+  The Secret Manager secret identifiers for cai-moderator-auth secret injection.
+  EOD
+}
