@@ -99,7 +99,7 @@ module "cai_moderator_auth" {
 }
 
 resource "google_secret_manager_secret_iam_member" "cai_moderator_auth" {
-  for_each = { for i, entry in setproduct([for k, v in module.cai_moderator_auth : k], coalescelist(try(var.f5_ai_license_secret.accessors, null) == null ? [] : var.f5_ai_license_secret.accessors, ["cai-moderator/cai-moderator-sa"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+  for_each = { for i, entry in setproduct([for k, v in module.cai_moderator_auth : k], coalescelist(var.cai_moderator_auth_accessors == null ? [] : var.cai_moderator_auth_accessors, ["cai-moderator/cai-moderator-sa"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
     name      = reverse(split("/", entry[1]))[0]
     namespace = try(reverse(split("/", entry[1]))[1], "default")
     secret_id = module.cai_moderator_auth[entry[0]].secret_id

@@ -23,7 +23,7 @@ fileignoreconfig:
 - filename: foundations/main.tf
   checksum: 21bebb49ab9cd70d37f20c1db846b6f2306dd093bece778e2c200fb9170e8753
 - filename: foundations/variables.tf
-  checksum: d800874378de2be21248148c6bf6b0889d2a6612ff5eac18d0225bac92de5939
+  checksum: 050f5396b4e6cd4f46a8029def8972df9531fa3a8f490ef160cab0edb4d9a4ba
 - filename: gke-gateway/outputs.tf
   checksum: c3eeeea5bbe9c5f00a90414ca61026315e1e48037cfe2deb7bd844ef6a6b8eb9
 - filename: gke-gateway/pg.tf
@@ -66,3 +66,5 @@ fileignoreconfig:
   checksum: b13b48b679fb8ac48b1e992850a14eb5dcc5244d4ae17562a2cdc6561acd0eb2
   ignore_detectors:
   - filecontent
+- filename: .github/workflows/infra-manager-foundations.yml
+  checksum: 610bdfb85f4e95307dc59010dfb64bf96cb2a0d25724fe22bf0103217537f03e
