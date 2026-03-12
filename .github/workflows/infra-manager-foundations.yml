@@ -81,13 +81,14 @@ jobs:
             if (context.issue.number) {
               return context.issue.number;
             } else {
-              return (
+              data = (
                 await github.rest.repos.listPullRequestsAssociatedWithCommit({
                   commit_sha: context.sha,
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                 })
-              ).data[0].number;
+              ).data;
+              return data.length > 0 ? data[0].number : undefined;
             }
       - name: Get Infra Manager action steps
         id: get_im_action_steps
@@ -120,7 +121,7 @@ jobs:
           tag: v${{ env.TFPLANDOC_VERSION }}
       - name: Create local terraform variables file
         id: create-tf-vars-file
-        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) || fromJson(steps.get_im_action_steps.outputs.exec_apply) || fromJson(steps.get_im_action_steps.outputs.exec_delete) }}
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) || fromJson(steps.get_im_action_steps.outputs.exec_apply) }}
         # NOTE: This file defines the inputs for the Terraform executed by Infrastructure Manager. It mostly consists
         # of substitutions from root and job environment, but other values can be added too (e.g. labels), or can be
         # removed if not used (e.g. NGINX JWT secret identifier).
