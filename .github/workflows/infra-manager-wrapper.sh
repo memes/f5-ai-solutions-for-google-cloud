@@ -84,7 +84,7 @@ apply()
 
 delete()
 {
-    gcloud infra-manager deployments delete "$(deployment_name)"
+    gcloud infra-manager deployments delete --quiet "$(deployment_name)"
 }
 
 cleanup()
