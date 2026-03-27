@@ -29,7 +29,7 @@ output "subnets" {
 }
 
 output "hugging_face_secret" {
-  value       = one([for k, v in module.hugging_face_token : v.id])
+  value       = one([for k, v in google_secret_manager_secret.hugging_face : v.id])
   description = <<-EOD
   If a Hugging Face token was provided as input this output will contain the Secret Manager secret identifier that
   contains the token value.
@@ -78,7 +78,7 @@ output "pg_instances" {
     self_link          = v.self_link
     dns_name           = trimsuffix(v.dns_name, ".")
     ip_address         = google_compute_address.pg[k].address
-    pg_admin_secret_id = module.pg_admin[k].id
+    pg_admin_secret_id = google_secret_manager_secret.pg_admin[k].id
     pg_admin_user      = google_sql_user.pg_admin[k].name
   } }
   description = <<-EOD
@@ -112,21 +112,21 @@ output "deploy_target_ids" {
 }
 
 output "cai_moderator_auth_secret" {
-  value       = { for k, v in module.cai_moderator_auth : k => v.id }
+  value       = { for k, v in google_secret_manager_secret.cai_moderator_auth : k => v.id }
   description = <<-EOD
   A map of Compute Engine region names to the Secret Manager secret identifiers for cai-moderator-auth secret injection.
   EOD
 }
 
 output "prefect_server_auth_secret" {
-  value       = { for k, v in module.prefect_server_auth : k => v.id }
+  value       = { for k, v in google_secret_manager_secret.prefect_server_auth : k => v.id }
   description = <<-EOD
   A map of Compute Engine region names to the Secret Manager secret identifiers for prefect-server-auth secret injection.
   EOD
 }
 
 output "cai_workflows_auth" {
-  value       = { for k, v in module.cai_workflows_auth : k => v.id }
+  value       = { for k, v in google_secret_manager_secret.cai_workflows_auth : k => v.id }
   description = <<-EOD
   A map of Compute Engine region names to the Secret Manager secret identifiers for cai-workflows-auth secret injection.
   EOD

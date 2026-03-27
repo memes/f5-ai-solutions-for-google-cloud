@@ -83,10 +83,16 @@ resource "google_dns_record_set" "challenges" {
   } }
   project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
   managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
-  name         = one(distinct([for challenge in try(module.managed_cert[each.value.region].dns_challenges[each.value.domain], []) : challenge.name]))
-  type         = one(distinct([for challenge in try(module.managed_cert[each.value.region].dns_challenges[each.value.domain], []) : challenge.type]))
-  ttl          = 300
-  rrdatas      = [for challenge in try(module.managed_cert[each.value.region].dns_challenges[each.value.domain], []) : challenge.data]
+  # NOTE: The use of example.com. and CNAME as fallback entries is to ensure that tofu/terraform plan does not fail when
+  # building entire infrastructure from scratch.
+  name    = one(distinct(concat([for challenge in try(module.managed_cert[each.value.region].dns_challenges[each.value.domain], []) : challenge.name], ["example.com."])))
+  type    = one(distinct(concat([for challenge in try(module.managed_cert[each.value.region].dns_challenges[each.value.domain], []) : challenge.type], ["CNAME"])))
+  ttl     = 300
+  rrdatas = [for challenge in try(module.managed_cert[each.value.region].dns_challenges[each.value.domain], []) : challenge.data]
+
+  depends_on = [
+    module.managed_cert,
+  ]
 }
 
 resource "google_compute_address" "gw" {

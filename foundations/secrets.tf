@@ -1,21 +1,31 @@
 # Create Secret Manager secrets for keys and items that may need to be consumed by deployments.
 #
 
-module "hugging_face_token" {
-  for_each   = coalesce(try(var.hugging_face.token, null), "unspecified") == "unspecified" ? {} : { global = var.hugging_face.token }
-  source     = "memes/secret-manager/google"
-  version    = "2.2.2"
-  project_id = var.project_id
-  id         = format("%s-hugging-face", var.name)
-  secret     = each.value
-  accessors  = []
+resource "google_secret_manager_secret" "hugging_face" {
+  for_each  = coalesce(try(var.hugging_face.token, null), "unspecified") == "unspecified" ? {} : { global = format("%s-hugging-face", var.name) }
+  project   = var.project_id
+  secret_id = each.value
+  replication {
+    auto {}
+  }
+  lifecycle {
+    ignore_changes = [
+      version_aliases,
+    ]
+  }
+}
+
+resource "google_secret_manager_secret_version" "hugging_face" {
+  for_each    = { for k, v in google_secret_manager_secret.hugging_face : k => var.hugging_face.token }
+  secret      = each.value.secret_id
+  secret_data = each.value
 }
 
 resource "google_secret_manager_secret_iam_member" "hugging_face" {
-  for_each = { for i, entry in setproduct([for k, v in module.hugging_face_token : k], try(var.hugging_face.accessors, null) == null ? [] : var.hugging_face.accessors) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.hugging_face : k], try(var.hugging_face.accessors, null) == null ? [] : var.hugging_face.accessors) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
     name      = reverse(split("/", entry[1]))[0]
     namespace = try(reverse(split("/", entry[1]))[1], "default")
-    secret_id = module.hugging_face_token[entry[0]].secret_id
+    secret_id = google_secret_manager_secret.hugging_face[entry[0]].secret_id
   } }
   project   = var.project_id
   secret_id = each.value.secret_id
@@ -23,18 +33,22 @@ resource "google_secret_manager_secret_iam_member" "hugging_face" {
   member    = format("principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/%s/sa/%s", data.google_project.project.number, data.google_project.project.project_id, each.value.namespace, each.value.name)
 }
 
-module "pg_admin" {
-  for_each   = { for k, v in google_sql_user.pg_admin : k => v.name }
-  source     = "memes/secret-manager/google"
-  version    = "2.2.2"
-  project_id = var.project_id
-  id         = each.value
-  secret     = null
-  accessors  = []
+resource "google_secret_manager_secret" "pg_admin" {
+  for_each  = { for k, v in google_sql_user.pg_admin : k => v.name }
+  project   = var.project_id
+  secret_id = each.value
+  replication {
+    auto {}
+  }
+  lifecycle {
+    ignore_changes = [
+      version_aliases,
+    ]
+  }
 }
 
 resource "google_secret_manager_secret_version" "pg_admin" {
-  for_each = { for k, v in module.pg_admin : k => {
+  for_each = { for k, v in google_secret_manager_secret.pg_admin : k => {
     secret_id = v.id
     user      = google_sql_user.pg_admin[k].name
     password  = random_password.pg_admin[k].result
@@ -49,10 +63,10 @@ resource "google_secret_manager_secret_version" "pg_admin" {
 }
 
 resource "google_secret_manager_secret_iam_member" "pg_admin" {
-  for_each = { for i, entry in setproduct([for k, v in module.pg_admin : k], var.pg_admin_accessors == null ? [] : var.pg_admin_accessors) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.pg_admin : k], var.pg_admin_accessors == null ? [] : var.pg_admin_accessors) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
     name      = reverse(split("/", entry[1]))[0]
     namespace = try(reverse(split("/", entry[1]))[1], "default")
-    secret_id = module.pg_admin[entry[0]].secret_id
+    secret_id = google_secret_manager_secret.pg_admin[entry[0]].secret_id
   } }
   project   = var.project_id
   secret_id = each.value.secret_id
@@ -79,30 +93,40 @@ data "google_secret_manager_secret_version_access" "f5_ai_license" {
   secret   = reverse(split("/", var.f5_ai_license_secret))[0]
 }
 
-module "cai_moderator_auth" {
-  for_each   = try(length(data.google_secret_manager_secret_version_access.f5_ai_license), 0) == 0 ? {} : local.regional_names
-  source     = "memes/secret-manager/google"
-  version    = "2.2.2"
-  project_id = var.project_id
-  id         = format("%s-cai-auth", each.value)
-  secret = jsonencode({
+resource "google_secret_manager_secret" "cai_moderator_auth" {
+  for_each  = { for k, v in local.regional_names : k => format("%s-cai-moderator-auth", v) }
+  project   = var.project_id
+  secret_id = each.value
+  replication {
+    auto {}
+  }
+  lifecycle {
+    ignore_changes = [
+      version_aliases,
+    ]
+  }
+}
+
+resource "google_secret_manager_secret_version" "cai_moderator_auth" {
+  for_each = google_secret_manager_secret.cai_moderator_auth
+  secret   = each.value.secret_id
+  secret_data = jsonencode({
     CAI_MODERATOR_AUTH_IDP_CLIENT_ID     = ""
     CAI_MODERATOR_AUTH_IDP_CLIENT_SECRET = ""
     CAI_MODERATOR_AUTH_IDP_ISSUER        = ""
     CAI_MODERATOR_DB_ADMIN_PASSWORD      = random_password.pg_admin[each.key].result
     CAI_MODERATOR_DB_MODERATOR_PASSWORD  = "moderator"
-    CAI_MODERATOR_DEFAULT_LICENSE        = data.google_secret_manager_secret_version_access.f5_ai_license["global"].secret_data
+    CAI_MODERATOR_DEFAULT_LICENSE        = try(data.google_secret_manager_secret_version_access.f5_ai_license["global"].secret_data, "")
     CAI_MODERATOR_EMAIL_PASSWORD         = ""
     CAI_MODERATOR_EMAIL_USER             = ""
   })
-  accessors = []
 }
 
 resource "google_secret_manager_secret_iam_member" "cai_moderator_auth" {
-  for_each = { for i, entry in setproduct([for k, v in module.cai_moderator_auth : k], coalescelist(var.cai_moderator_auth_accessors == null ? [] : var.cai_moderator_auth_accessors, ["cai-moderator/cai-moderator-sa"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.cai_moderator_auth : k], coalescelist(var.cai_moderator_auth_accessors == null ? [] : var.cai_moderator_auth_accessors, ["f5-ai-moderator/cai-moderator-sa"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
     name      = reverse(split("/", entry[1]))[0]
     namespace = try(reverse(split("/", entry[1]))[1], "default")
-    secret_id = module.cai_moderator_auth[entry[0]].secret_id
+    secret_id = google_secret_manager_secret.cai_moderator_auth[entry[0]].secret_id
   } }
   project   = var.project_id
   secret_id = each.value.secret_id
@@ -110,23 +134,33 @@ resource "google_secret_manager_secret_iam_member" "cai_moderator_auth" {
   member    = format("principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/%s/sa/%s", data.google_project.project.number, data.google_project.project.project_id, each.value.namespace, each.value.name)
 }
 
-module "prefect_server_auth" {
-  for_each   = local.regional_names
-  source     = "memes/secret-manager/google"
-  version    = "2.2.2"
-  project_id = var.project_id
-  id         = format("%s-prefect-server-auth", each.value)
-  secret = jsonencode({
+resource "google_secret_manager_secret" "prefect_server_auth" {
+  for_each  = { for k, v in local.regional_names : k => format("%s-prefect-server-auth", v) }
+  project   = var.project_id
+  secret_id = each.value
+  replication {
+    auto {}
+  }
+  lifecycle {
+    ignore_changes = [
+      version_aliases,
+    ]
+  }
+}
+
+resource "google_secret_manager_secret_version" "prefect_server_auth" {
+  for_each = google_secret_manager_secret.prefect_server_auth
+  secret   = each.value.secret_id
+  secret_data = jsonencode({
     connection-string = format("postgresql+asyncpg://prefect:prefect@%s:5432/prefect", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))
   })
-  accessors = []
 }
 
 resource "google_secret_manager_secret_iam_member" "prefect_server_auth" {
-  for_each = { for i, entry in setproduct([for k, v in module.prefect_server_auth : k], coalescelist(var.prefect_server_auth_accessors == null ? [] : var.prefect_server_auth_accessors, ["cai-redteam/prefect-server"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.prefect_server_auth : k], coalescelist(var.prefect_server_auth_accessors == null ? [] : var.prefect_server_auth_accessors, ["f5-ai-redteam/prefect-server"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
     name      = reverse(split("/", entry[1]))[0]
     namespace = try(reverse(split("/", entry[1]))[1], "default")
-    secret_id = module.prefect_server_auth[entry[0]].secret_id
+    secret_id = google_secret_manager_secret.prefect_server_auth[entry[0]].secret_id
   } }
   project   = var.project_id
   secret_id = each.value.secret_id
@@ -134,24 +168,34 @@ resource "google_secret_manager_secret_iam_member" "prefect_server_auth" {
   member    = format("principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/%s/sa/%s", data.google_project.project.number, data.google_project.project.project_id, each.value.namespace, each.value.name)
 }
 
-module "cai_workflows_auth" {
-  for_each   = local.regional_names
-  source     = "memes/secret-manager/google"
-  version    = "2.2.2"
-  project_id = var.project_id
-  id         = format("%s-cai-workflows-auth", each.value)
-  secret = jsonencode({
+resource "google_secret_manager_secret" "cai_workflows_auth" {
+  for_each  = { for k, v in local.regional_names : k => format("%s-cai-workflows-auth", v) }
+  project   = var.project_id
+  secret_id = each.value
+  replication {
+    auto {}
+  }
+  lifecycle {
+    ignore_changes = [
+      version_aliases,
+    ]
+  }
+}
+
+resource "google_secret_manager_secret_version" "cai_workflows_auth" {
+  for_each = google_secret_manager_secret.cai_workflows_auth
+  secret   = each.value.secret_id
+  secret_data = jsonencode({
     CAI_WORKFLOWS_ENCRYPTION_KEY = "ISJ9GCvWB3l1YUXjw4jvTeuFDHlcsD_W77VvM9QpLgE="
     connection-string            = format("postgresql+asyncpg://prefect:prefect-rocks@%s:5432/postgres", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))
   })
-  accessors = []
 }
 
 resource "google_secret_manager_secret_iam_member" "cai_workflows_auth" {
-  for_each = { for i, entry in setproduct([for k, v in module.cai_workflows_auth : k], coalescelist(var.cai_workflows_auth_accessors == null ? [] : var.cai_workflows_auth_accessors, ["cai-redteam/default"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.cai_workflows_auth : k], coalescelist(var.cai_workflows_auth_accessors == null ? [] : var.cai_workflows_auth_accessors, ["f5-ai-redteam/default"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
     name      = reverse(split("/", entry[1]))[0]
     namespace = try(reverse(split("/", entry[1]))[1], "default")
-    secret_id = module.cai_workflows_auth[entry[0]].secret_id
+    secret_id = google_secret_manager_secret.cai_workflows_auth[entry[0]].secret_id
   } }
   project   = var.project_id
   secret_id = each.value.secret_id
