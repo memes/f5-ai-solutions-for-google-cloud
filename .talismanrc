@@ -51,7 +51,7 @@ fileignoreconfig:
 - filename: foundations/outputs.tf
   checksum: 30f16cc346d100543000175d342e25f0e7a47460e13162255c17c46fe1b1ac86
 - filename: foundations/secrets.tf
-  checksum: b5c61a145ef72a6bcf600885a2487926f8b4d04dbd2dd58dedac61c06d19af79
+  checksum: fb3957d3fb92a84f722a5f540f7f551dc49b2daec2e9cf077ce2e3d6e5190a1e
 - filename: foundations/README.md
   checksum: 28959f90985ae690866dfd4716058a7a74d11a4ddd5c2107e1dafef10b3a7d98
   ignore_detectors:
