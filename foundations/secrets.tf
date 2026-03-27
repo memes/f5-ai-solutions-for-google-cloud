@@ -17,6 +17,7 @@ resource "google_secret_manager_secret" "hugging_face" {
 
 resource "google_secret_manager_secret_version" "hugging_face" {
   for_each    = { for k, v in google_secret_manager_secret.hugging_face : k => var.hugging_face.token }
+  project     = each.value.project
   secret      = each.value.secret_id
   secret_data = each.value
 }
@@ -50,11 +51,13 @@ resource "google_secret_manager_secret" "pg_admin" {
 resource "google_secret_manager_secret_version" "pg_admin" {
   for_each = { for k, v in google_secret_manager_secret.pg_admin : k => {
     secret_id = v.id
+    project   = v.project
     user      = google_sql_user.pg_admin[k].name
     password  = random_password.pg_admin[k].result
     host      = trimsuffix(google_sql_database_instance.pg[k].dns_name, ".")
   } }
-  secret = each.value.secret_id
+  project = each.value.project
+  secret  = each.value.secret_id
   secret_data = jsonencode({
     user     = each.value.user
     password = each.value.password
@@ -67,8 +70,9 @@ resource "google_secret_manager_secret_iam_member" "pg_admin" {
     name      = reverse(split("/", entry[1]))[0]
     namespace = try(reverse(split("/", entry[1]))[1], "default")
     secret_id = google_secret_manager_secret.pg_admin[entry[0]].secret_id
+    project   = google_secret_manager_secret.pg_admin[entry[0]].project
   } }
-  project   = var.project_id
+  project   = each.value.project
   secret_id = each.value.secret_id
   role      = "roles/secretmanager.secretAccessor"
   member    = format("principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/%s/sa/%s", data.google_project.project.number, data.google_project.project.project_id, each.value.namespace, each.value.name)
@@ -109,6 +113,7 @@ resource "google_secret_manager_secret" "cai_moderator_auth" {
 
 resource "google_secret_manager_secret_version" "cai_moderator_auth" {
   for_each = google_secret_manager_secret.cai_moderator_auth
+  project  = each.value.project
   secret   = each.value.secret_id
   secret_data = jsonencode({
     CAI_MODERATOR_AUTH_IDP_CLIENT_ID     = ""
@@ -150,6 +155,7 @@ resource "google_secret_manager_secret" "prefect_server_auth" {
 
 resource "google_secret_manager_secret_version" "prefect_server_auth" {
   for_each = google_secret_manager_secret.prefect_server_auth
+  project  = each.value.project
   secret   = each.value.secret_id
   secret_data = jsonencode({
     connection-string = format("postgresql+asyncpg://prefect:prefect@%s:5432/prefect", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))
@@ -184,6 +190,7 @@ resource "google_secret_manager_secret" "cai_workflows_auth" {
 
 resource "google_secret_manager_secret_version" "cai_workflows_auth" {
   for_each = google_secret_manager_secret.cai_workflows_auth
+  project  = each.value.project
   secret   = each.value.secret_id
   secret_data = jsonencode({
     CAI_WORKFLOWS_ENCRYPTION_KEY = "ISJ9GCvWB3l1YUXjw4jvTeuFDHlcsD_W77VvM9QpLgE="
