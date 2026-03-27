@@ -187,12 +187,12 @@ variable "cai_moderator_auth_accessors" {
     error_message = "If provided, each cai_moderator_auth_accessors value must be a valid Kubernetes service account"
   }
   default = [
-    "cai-moderator/cai-moderator-sa",
+    "f5-ai-moderator/cai-moderator-sa",
   ]
   description = <<-EOD
   An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`
   secret. Each reader must be a valid KSA name in default namespace, or a qualified namespace/name. The default allows
-  Kubernetes service account `cai-moderator-sa` in namespace `cai-moderator` to read the secret value.
+  Kubernetes service account `cai-moderator-sa` in namespace `f5-ai-moderator` to read the secret value.
   EOD
 }
 
@@ -204,12 +204,12 @@ variable "prefect_server_auth_accessors" {
     error_message = "If provided, each prefect_server_auth_accessors value must be a valid Kubernetes service account"
   }
   default = [
-    "cai-redteam/prefect-server",
+    "f5-ai-redteam/prefect-server",
   ]
   description = <<-EOD
   An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`
   secret. Each reader must be a valid KSA name in default namespace, or a qualified namespace/name. The default allows
-  Kubernetes service account `prefect-server` in namespace `cai-redteam` to read the secret value.
+  Kubernetes service account `prefect-server` in namespace `f5-ai-redteam` to read the secret value.
   EOD
 }
 
@@ -221,12 +221,12 @@ variable "cai_workflows_auth_accessors" {
     error_message = "If provided, each cai_workflows_auth_accessors value must be a valid Kubernetes service account"
   }
   default = [
-    "cai-redteam/default",
+    "f5-ai-redteam/default",
   ]
   description = <<-EOD
   An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`
   secret. Each reader must be a valid KSA name in default namespace, or a qualified namespace/name. The default allows
-  Kubernetes service account `default` in namespace `cai-redteam` to read the secret value.
+  Kubernetes service account `default` in namespace `f5-ai-redteam` to read the secret value.
   EOD
 }
 
@@ -282,7 +282,7 @@ variable "cloud_deploy_service_account" {
   type     = string
   nullable = true
   validation {
-    condition     = can(regex("(?:[a-z][a-z0-9-]{4,28}[a-z0-9]@[a-z][a-z0-9-]{4,28}\\.iam|[1-9][0-9]+-compute@developer)\\.gserviceaccount\\.com$", var.cloud_deploy_service_account))
+    condition     = coalesce(var.cloud_deploy_service_account, "unspecified") == "unspecified" ? true : can(regex("(?:[a-z][a-z0-9-]{4,28}[a-z0-9]@[a-z][a-z0-9-]{4,28}\\.iam|[1-9][0-9]+-compute@developer)\\.gserviceaccount\\.com$", var.cloud_deploy_service_account))
     error_message = "The cloud_deploy_service_account variable must be a valid GCP service account email address."
   }
   default     = null
