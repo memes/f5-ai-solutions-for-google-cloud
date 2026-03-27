@@ -23,7 +23,7 @@ command -v gcloud >/dev/null 2>/dev/null || error "$0: gcloud is required on pat
 # hf auth login --token "${HF_TOKEN}" --no-add-to-git-credential
 
 awk '!/^($|#)/ {print}' <<EOF |
-# meta-llama/Llama-3.1-8B
+meta-llama/Llama-3.1-8B
 google/gemma-3-1b-it
 EOF
 
