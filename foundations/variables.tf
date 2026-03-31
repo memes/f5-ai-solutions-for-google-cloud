@@ -93,7 +93,7 @@ variable "global_cidrs" {
     primary  = optional(string)
     pods     = optional(string)
     services = optional(string)
-    proxy    = optional(string)
+    peering  = optional(string)
     psc      = optional(string)
   })
   nullable = true
@@ -105,7 +105,7 @@ variable "global_cidrs" {
       ) && (
       var.global_cidrs.services == null ? true : can(cidrhost(var.global_cidrs.services, 1))
       ) && (
-      var.global_cidrs.proxy == null ? true : can(cidrhost(var.global_cidrs.proxy, 1))
+      var.global_cidrs.peering == null ? true : can(cidrhost(var.global_cidrs.peering, 1))
       ) && (
       var.global_cidrs.psc == null ? true : can(cidrhost(var.global_cidrs.psc, 1))
     )

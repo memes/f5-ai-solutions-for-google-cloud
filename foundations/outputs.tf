@@ -131,3 +131,10 @@ output "cai_workflows_auth" {
   A map of Compute Engine region names to the Secret Manager secret identifiers for cai-workflows-auth secret injection.
   EOD
 }
+
+output "cache_hosts" {
+  value       = { for k, v in google_redis_instance.cache : k => v.host }
+  description = <<-EOD
+  A map of Compute Engine region names to a Redis host name.
+  EOD
+}
