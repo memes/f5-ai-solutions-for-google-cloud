@@ -195,7 +195,7 @@ resource "google_secret_manager_secret_version" "cai_workflows_auth" {
   secret   = each.value.secret_id
   secret_data = jsonencode({
     CAI_WORKFLOWS_ENCRYPTION_KEY = "ISJ9GCvWB3l1YUXjw4jvTeuFDHlcsD_W77VvM9QpLgE="
-    connection-string            = format("postgresql+asyncpg://prefect:prefect-rocks@%s:5432/postgres", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))
+    connection-string            = format("postgresql+asyncpg://prefect:prefect@%s:5432/prefect", trimsuffix(google_sql_database_instance.pg[each.key].dns_name, "."))
   })
 }
 
