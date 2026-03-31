@@ -116,14 +116,15 @@ resource "google_secret_manager_secret_version" "cai_moderator_auth" {
   project  = each.value.project
   secret   = each.value.secret_id
   secret_data = jsonencode({
-    CAI_MODERATOR_AUTH_IDP_CLIENT_ID     = ""
-    CAI_MODERATOR_AUTH_IDP_CLIENT_SECRET = ""
-    CAI_MODERATOR_AUTH_IDP_ISSUER        = ""
-    CAI_MODERATOR_DB_ADMIN_PASSWORD      = random_password.pg_admin[each.key].result
-    CAI_MODERATOR_DB_MODERATOR_PASSWORD  = "moderator"
-    CAI_MODERATOR_DEFAULT_LICENSE        = try(data.google_secret_manager_secret_version_access.f5_ai_license["global"].secret_data, "")
-    CAI_MODERATOR_EMAIL_PASSWORD         = ""
-    CAI_MODERATOR_EMAIL_USER             = ""
+    CAI_MODERATOR_AUTH_IDP_CLIENT_ID         = ""
+    CAI_MODERATOR_AUTH_IDP_CLIENT_SECRET     = ""
+    CAI_MODERATOR_AUTH_IDP_ISSUER            = ""
+    CAI_MODERATOR_DB_ADMIN_PASSWORD          = random_password.pg_admin[each.key].result
+    CAI_MODERATOR_DB_MODERATOR_PASSWORD      = "moderator"
+    CAI_MODERATOR_DEFAULT_LICENSE            = try(data.google_secret_manager_secret_version_access.f5_ai_license["global"].secret_data, "")
+    CAI_MODERATOR_EMAIL_PASSWORD             = ""
+    CAI_MODERATOR_EMAIL_USER                 = ""
+    CAI_MODERATOR_JOB_MANAGER_ENCRYPTION_KEY = "ISJ9GCvWB3l1YUXjw4jvTeuFDHlcsD_W77VvM9QpLgE="
   })
 }
 
