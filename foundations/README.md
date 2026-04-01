@@ -32,12 +32,14 @@ This module establishes the foundational Google Cloud resources used by clusters
 | [google_compute_address.gw](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
 | [google_compute_address.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
 | [google_compute_forwarding_rule.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_forwarding_rule) | resource |
+| [google_compute_global_address.cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_address) | resource |
 | [google_compute_region_security_policy.allowlist](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_security_policy) | resource |
 | [google_compute_subnetwork.proxy_subnet](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork) | resource |
 | [google_dns_managed_zone.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_managed_zone) | resource |
 | [google_dns_record_set.challenges](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
 | [google_dns_record_set.gw](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
 | [google_dns_record_set.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
+| [google_redis_instance.cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/redis_instance) | resource |
 | [google_secret_manager_secret.cai_moderator_auth](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret) | resource |
 | [google_secret_manager_secret.cai_workflows_auth](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret) | resource |
 | [google_secret_manager_secret.hugging_face](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret) | resource |
@@ -54,11 +56,13 @@ This module establishes the foundational Google Cloud resources used by clusters
 | [google_secret_manager_secret_version.hugging_face](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
 | [google_secret_manager_secret_version.pg_admin](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
 | [google_secret_manager_secret_version.prefect_server_auth](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
+| [google_service_networking_connection.cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_networking_connection) | resource |
 | [google_sql_database_instance.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance) | resource |
 | [google_sql_user.pg_admin](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_user) | resource |
 | [google_storage_bucket.model_cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket) | resource |
 | [google_storage_bucket_iam_member.bucket](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket_iam_member) | resource |
 | [random_password.pg_admin](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
+| [google_compute_zones.zones](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/compute_zones) | data source |
 | [google_project.project](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/project) | data source |
 | [google_secret_manager_secret_version_access.f5_ai_license](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_secret_version_access) | data source |
 | [http_http.my_address](https://registry.terraform.io/providers/hashicorp/http/latest/docs/data-sources/http) | data source |
@@ -92,6 +96,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 | Name | Description |
 |------|-------------|
 | <a name="output_allowlist_policies"></a> [allowlist\_policies](#output\_allowlist\_policies) | A map of Compute Engine region names to Cloud Armor source CIDR policies, if any were created. |
+| <a name="output_cache_hosts"></a> [cache\_hosts](#output\_cache\_hosts) | A map of Compute Engine region names to a Redis host name. |
 | <a name="output_cai_moderator_auth_secret"></a> [cai\_moderator\_auth\_secret](#output\_cai\_moderator\_auth\_secret) | A map of Compute Engine region names to the Secret Manager secret identifiers for cai-moderator-auth secret injection. |
 | <a name="output_cai_workflows_auth"></a> [cai\_workflows\_auth](#output\_cai\_workflows\_auth) | A map of Compute Engine region names to the Secret Manager secret identifiers for cai-workflows-auth secret injection. |
 | <a name="output_cert_manager_certs"></a> [cert\_manager\_certs](#output\_cert\_manager\_certs) | A map of Compute Engine region names to Certificate Manager certificate identifiers, if any were created. |
