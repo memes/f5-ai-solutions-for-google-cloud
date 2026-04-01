@@ -140,3 +140,32 @@ resource "github_actions_variable" "allowlist_cidrs" {
     ]
   }
 }
+
+resource "google_storage_bucket" "model_cache" {
+  project                     = var.project_id
+  name                        = format("%s-model-cache", var.name)
+  force_destroy               = true
+  location                    = "US"
+  storage_class               = "STANDARD"
+  uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+  versioning {
+    enabled = false
+  }
+  soft_delete_policy {
+    retention_duration_seconds = 0
+  }
+}
+
+# Add the model cache bucket to the GitHub repo as a variable,  but let the
+# value be changed from the initial value as needed.
+resource "github_actions_variable" "model_cache_bucket" {
+  repository    = local.repo_name
+  variable_name = "MODEL_CACHE_BUCKET"
+  value         = google_storage_bucket.model_cache.name
+  lifecycle {
+    ignore_changes = [
+      value,
+    ]
+  }
+}

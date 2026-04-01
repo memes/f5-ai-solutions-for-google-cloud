@@ -1,28 +1,10 @@
-# Create regional buckets for Hugging Face models; since each cluster is isolated from public internet the models will be
-# consumed by vLLM pods as ephemeral FUSE mounts.
-
-resource "google_storage_bucket" "model_cache" {
-  for_each                    = { for region in var.regions : region => format("%s-cache-%s", var.name, module.region_detail.results[region].abbreviation) }
-  project                     = var.project_id
-  name                        = each.value
-  force_destroy               = true
-  location                    = each.key
-  storage_class               = "STANDARD"
-  uniform_bucket_level_access = true
-  public_access_prevention    = "enforced"
-  versioning {
-    enabled = false
-  }
-  soft_delete_policy {
-    retention_duration_seconds = 0
-  }
-}
+# Since each cluster is isolated from public internet the models will be consumed by vLLM pods as ephemeral FUSE mounts.
 
 resource "google_storage_bucket_iam_member" "bucket" {
-  for_each = { for i, entry in setproduct(var.regions, var.model_bucket_accessors == null ? [] : var.model_bucket_accessors) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
-    name      = reverse(split("/", entry[1]))[0]
-    namespace = try(reverse(split("/", entry[1]))[1], "default")
-    bucket    = google_storage_bucket.model_cache[entry[0]].name
+  for_each = var.model_cache_bucket == null ? {} : { for ksa in coalescelist(try(var.model_cache_bucket.accessors, []), ["vllm/vllm"]) : ksa => {
+    name      = reverse(split("/", ksa))[0]
+    namespace = try(reverse(split("/", ksa))[1], "default")
+    bucket    = var.model_cache_bucket.name
   } }
   bucket = each.value.bucket
   role   = "roles/storage.objectViewer"
