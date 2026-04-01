@@ -254,7 +254,7 @@ variable "model_cache_bucket" {
   })
   nullable = true
   validation {
-    condition     = var.model_cache_bucket == null ? true : can(regex("projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/secrets/[a-zA-Z0-9_-]{1,255}$", var.model_cache_bucket.name)) && (try(length(var.model_cache_bucket.accessors), 0) == 0 ? true : alltrue([for accessor in var.model_cache_bucket.accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))]))
+    condition     = var.model_cache_bucket == null ? true : can(regex("^[a-z][a-z0-9-_]{2,62}$", var.model_cache_bucket.name)) && (try(length(var.model_cache_bucket.accessors), 0) == 0 ? true : alltrue([for accessor in var.model_cache_bucket.accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))]))
     error_message = "The model_cache_bucket name field must be a valid GCS Bucket name."
   }
   default     = null
