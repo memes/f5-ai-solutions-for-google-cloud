@@ -1,24 +1,24 @@
 # Setup regional Memorystore cache in each region.
 
-resource "google_compute_global_address" "cache" {
-  project       = var.project_id
-  name          = format("%s-cache", var.name)
-  description   = "Reserved range for Redis peering"
-  purpose       = "VPC_PEERING"
-  ip_version    = "IPV4"
-  address_type  = "INTERNAL"
-  network       = module.vpc.id
-  address       = cidrhost(local.global_cache_cidr, 0)
-  prefix_length = tonumber(split("/", local.global_cache_cidr)[1])
-}
+# resource "google_compute_global_address" "cache" {
+#   project       = var.project_id
+#   name          = format("%s-cache", var.name)
+#   description   = "Reserved range for Redis peering"
+#   purpose       = "VPC_PEERING"
+#   ip_version    = "IPV4"
+#   address_type  = "INTERNAL"
+#   network       = module.vpc.id
+#   address       = cidrhost(local.global_cache_cidr, 0)
+#   prefix_length = tonumber(split("/", local.global_cache_cidr)[1])
+# }
 
-resource "google_service_networking_connection" "cache" {
-  network = module.vpc.id
-  service = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [
-    google_compute_global_address.cache.name,
-  ]
-}
+# resource "google_service_networking_connection" "cache" {
+#   network = module.vpc.id
+#   service = "servicenetworking.googleapis.com"
+#   reserved_peering_ranges = [
+#     google_compute_global_address.cache.name,
+#   ]
+# }
 
 # resource "google_redis_instance" "cache" {
 #   for_each                = local.regional_names

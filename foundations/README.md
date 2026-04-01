@@ -32,7 +32,6 @@ This module establishes the foundational Google Cloud resources used by clusters
 | [google_compute_address.gw](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
 | [google_compute_address.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
 | [google_compute_forwarding_rule.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_forwarding_rule) | resource |
-| [google_compute_global_address.cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_address) | resource |
 | [google_compute_region_security_policy.allowlist](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_security_policy) | resource |
 | [google_compute_subnetwork.proxy_subnet](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork) | resource |
 | [google_dns_managed_zone.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_managed_zone) | resource |
@@ -55,7 +54,6 @@ This module establishes the foundational Google Cloud resources used by clusters
 | [google_secret_manager_secret_version.hugging_face](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
 | [google_secret_manager_secret_version.pg_admin](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
 | [google_secret_manager_secret_version.prefect_server_auth](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
-| [google_service_networking_connection.cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_networking_connection) | resource |
 | [google_sql_database_instance.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance) | resource |
 | [google_sql_user.pg_admin](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_user) | resource |
 | [google_storage_bucket.model_cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket) | resource |
