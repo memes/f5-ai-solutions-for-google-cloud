@@ -20,7 +20,8 @@ resource "google_sql_database_instance" "pg" {
       }
       ipv4_enabled = false
     }
-    tier = "db-custom-2-8192"
+    edition = "ENTERPRISE"
+    tier    = "db-custom-2-8192"
   }
 }
 
