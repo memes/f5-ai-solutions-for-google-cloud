@@ -1,11 +1,6 @@
 # Create regional buckets for Hugging Face models; since each cluster is isolated from public internet the models will be
 # consumed by vLLM pods as ephemeral FUSE mounts.
 
-import {
-  to = google_storage_bucket.model_cache["us-central1"]
-  id = "f5-gcs-4138-sales-cloudnext25/f5-ai-demo-cache-us-ce1"
-}
-
 resource "google_storage_bucket" "model_cache" {
   for_each                    = { for region in var.regions : region => format("%s-cache-%s", var.name, module.region_detail.results[region].abbreviation) }
   project                     = var.project_id
