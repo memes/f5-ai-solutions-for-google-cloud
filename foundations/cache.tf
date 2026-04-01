@@ -8,9 +8,8 @@ resource "google_compute_global_address" "cache" {
   ip_version    = "IPV4"
   address_type  = "INTERNAL"
   network       = module.vpc.id
-  address       = local.global_cache_cidr
+  address       = cidrhost(local.global_cache_cidr, 0)
   prefix_length = tonumber(split("/", local.global_cache_cidr)[1])
-
 }
 
 resource "google_service_networking_connection" "cache" {
