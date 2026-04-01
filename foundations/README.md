@@ -94,7 +94,6 @@ This module establishes the foundational Google Cloud resources used by clusters
 | Name | Description |
 |------|-------------|
 | <a name="output_allowlist_policies"></a> [allowlist\_policies](#output\_allowlist\_policies) | A map of Compute Engine region names to Cloud Armor source CIDR policies, if any were created. |
-| <a name="output_cache_hosts"></a> [cache\_hosts](#output\_cache\_hosts) | A map of Compute Engine region names to a Redis host name. |
 | <a name="output_cai_moderator_auth_secret"></a> [cai\_moderator\_auth\_secret](#output\_cai\_moderator\_auth\_secret) | A map of Compute Engine region names to the Secret Manager secret identifiers for cai-moderator-auth secret injection. |
 | <a name="output_cai_workflows_auth"></a> [cai\_workflows\_auth](#output\_cai\_workflows\_auth) | A map of Compute Engine region names to the Secret Manager secret identifiers for cai-workflows-auth secret injection. |
 | <a name="output_cert_manager_certs"></a> [cert\_manager\_certs](#output\_cert\_manager\_certs) | A map of Compute Engine region names to Certificate Manager certificate identifiers, if any were created. |
