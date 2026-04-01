@@ -20,26 +20,26 @@ resource "google_service_networking_connection" "cache" {
   ]
 }
 
-resource "google_redis_instance" "cache" {
-  for_each                = local.regional_names
-  project                 = var.project_id
-  name                    = format("%s-cache", each.value)
-  display_name            = ""
-  region                  = each.key
-  redis_version           = "REDIS_7_2"
-  tier                    = "STANDARD_HA"
-  memory_size_gb          = 8
-  authorized_network      = module.vpc.id
-  connect_mode            = "PRIVATE_SERVICE_ACCESS"
-  deletion_protection     = false
-  location_id             = element(data.google_compute_zones.zones[each.key].names, 0)
-  alternative_location_id = element(data.google_compute_zones.zones[each.key].names, 1)
-  persistence_config {
-    persistence_mode = "DISABLED"
-  }
-  replica_count      = 1
-  read_replicas_mode = "READ_REPLICAS_DISABLED"
-  depends_on = [
-    google_service_networking_connection.cache,
-  ]
-}
+# resource "google_redis_instance" "cache" {
+#   for_each                = local.regional_names
+#   project                 = var.project_id
+#   name                    = format("%s-cache", each.value)
+#   display_name            = ""
+#   region                  = each.key
+#   redis_version           = "REDIS_7_2"
+#   tier                    = "STANDARD_HA"
+#   memory_size_gb          = 8
+#   authorized_network      = module.vpc.id
+#   connect_mode            = "PRIVATE_SERVICE_ACCESS"
+#   deletion_protection     = false
+#   location_id             = element(data.google_compute_zones.zones[each.key].names, 0)
+#   alternative_location_id = element(data.google_compute_zones.zones[each.key].names, 1)
+#   persistence_config {
+#     persistence_mode = "DISABLED"
+#   }
+#   replica_count      = 1
+#   read_replicas_mode = "READ_REPLICAS_DISABLED"
+#   depends_on = [
+#     google_service_networking_connection.cache,
+#   ]
+# }

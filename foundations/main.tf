@@ -53,12 +53,12 @@ data "http" "my_address" {
   }
 }
 
-data "google_compute_zones" "zones" {
-  for_each = { for region in var.regions : region => "UP" }
-  project  = var.project_id
-  region   = each.key
-  status   = each.value
-}
+# data "google_compute_zones" "zones" {
+#   for_each = { for region in var.regions : region => "UP" }
+#   project  = var.project_id
+#   region   = each.key
+#   status   = each.value
+# }
 
 module "region_detail" {
   source  = "memes/region-detail/google"
