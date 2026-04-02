@@ -68,15 +68,15 @@ output "allowlist_policies" {
 
 output "pg_instances" {
   value = { for k, v in google_sql_database_instance.pg : v.region => {
-    self_link          = v.self_link
-    dns_name           = trimsuffix(v.dns_name, ".")
-    ip_address         = google_compute_address.pg[k].address
-    pg_admin_secret_id = google_secret_manager_secret.pg_admin[k].id
-    pg_admin_user      = google_sql_user.pg_admin[k].name
+    self_link        = v.self_link
+    dns_name         = trimsuffix(v.dns_name, ".")
+    ip_address       = google_compute_address.pg[k].address
+    pgpass_secret_id = google_secret_manager_secret.pgpass[k].id
+    pg_admin_user    = google_sql_user.pg_admin[k].name
   } }
   description = <<-EOD
   A map of Compute Engine region names to Cloud SQL Postgresql instance attributes, admin user and Secret Manager secret
-  identifier containing authentication details.
+  identifier containing .pgpass authentication details.
   EOD
 }
 
