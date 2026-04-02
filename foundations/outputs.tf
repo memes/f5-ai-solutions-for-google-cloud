@@ -66,13 +66,6 @@ output "allowlist_policies" {
   EOD
 }
 
-output "model_cache_buckets" {
-  value       = { for k, v in google_storage_bucket.model_cache : k => v.name }
-  description = <<-EOD
-  A map of Compute Engine region names to Storage bucket names to be used for model caching.
-  EOD
-}
-
 output "pg_instances" {
   value = { for k, v in google_sql_database_instance.pg : v.region => {
     self_link          = v.self_link
@@ -129,5 +122,12 @@ output "cai_workflows_auth" {
   value       = { for k, v in google_secret_manager_secret.cai_workflows_auth : k => v.id }
   description = <<-EOD
   A map of Compute Engine region names to the Secret Manager secret identifiers for cai-workflows-auth secret injection.
+  EOD
+}
+
+output "cache_hosts" {
+  value       = { for k, v in google_redis_instance.cache : k => v.host }
+  description = <<-EOD
+  A map of Compute Engine region names to a Redis host name.
   EOD
 }

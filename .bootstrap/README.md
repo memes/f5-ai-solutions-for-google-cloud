@@ -82,6 +82,8 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 | [github_actions_variable.allowlist_cidrs](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [github_actions_variable.dns](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [github_actions_variable.f5_ai_license](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
+| [github_actions_variable.model_cache_bucket](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
+| [google_storage_bucket.model_cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket) | resource |
 
 ## Inputs
 
@@ -104,6 +106,7 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 | <a name="output_ar_repo"></a> [ar\_repo](#output\_ar\_repo) | The Artifact Registry created for OCI artifacts. |
 | <a name="output_cloud_deploy_sa"></a> [cloud\_deploy\_sa](#output\_cloud\_deploy\_sa) | The fully-qualified email address of the Cloud Deploy execution service account. |
 | <a name="output_f5_ai_license"></a> [f5\_ai\_license](#output\_f5\_ai\_license) | If an F5 AI Guardrails/Red Team secret was created during bootstrap, return the fully-qualified and local identifiers,<br/>and expiration timestamp, if appropriate. |
+| <a name="output_model_cache_bucket"></a> [model\_cache\_bucket](#output\_model\_cache\_bucket) | The Google Cloud Storage bucket names to be used for model caching. |
 | <a name="output_nginx_jwt"></a> [nginx\_jwt](#output\_nginx\_jwt) | If an NGINX JWT secret was created during bootstrap, return the fully-qualified and local identifiers, and expiration<br/>timestamp, if appropriate. |
 <!-- END_TF_DOCS -->
 <!-- markdownlint-enable MD033 MD034 MD060 -->

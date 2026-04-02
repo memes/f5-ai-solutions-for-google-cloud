@@ -59,6 +59,7 @@ module "bootstrap" {
     "modelarmor.googleapis.com",
     "monitoring.googleapis.com",
     "networkservices.googleapis.com",
+    "redis.googleapis.com",
     "secretmanager.googleapis.com",
     "serviceusage.googleapis.com",
     "sql-component.googleapis.com",
@@ -77,6 +78,7 @@ module "bootstrap" {
     "roles/iam.serviceAccountAdmin",
     "roles/iam.serviceAccountUser",
     "roles/iam.serviceAccountTokenCreator",
+    "roles/redis.admin",
     "roles/secretmanager.admin",
     "roles/serviceusage.serviceUsageAdmin",
     "roles/storage.admin",
@@ -132,6 +134,35 @@ resource "github_actions_variable" "allowlist_cidrs" {
   repository    = local.repo_name
   variable_name = "ALLOWLIST_CIDRS"
   value         = jsonencode(try(length(var.allowlist_cidrs), 0) == 0 ? [] : var.allowlist_cidrs)
+  lifecycle {
+    ignore_changes = [
+      value,
+    ]
+  }
+}
+
+resource "google_storage_bucket" "model_cache" {
+  project                     = var.project_id
+  name                        = format("%s-model-cache", var.name)
+  force_destroy               = true
+  location                    = "US"
+  storage_class               = "STANDARD"
+  uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+  versioning {
+    enabled = false
+  }
+  soft_delete_policy {
+    retention_duration_seconds = 0
+  }
+}
+
+# Add the model cache bucket to the GitHub repo as a variable,  but let the
+# value be changed from the initial value as needed.
+resource "github_actions_variable" "model_cache_bucket" {
+  repository    = local.repo_name
+  variable_name = "MODEL_CACHE_BUCKET"
+  value         = google_storage_bucket.model_cache.name
   lifecycle {
     ignore_changes = [
       value,

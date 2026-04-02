@@ -93,7 +93,7 @@ variable "global_cidrs" {
     primary  = optional(string)
     pods     = optional(string)
     services = optional(string)
-    proxy    = optional(string)
+    peering  = optional(string)
     psc      = optional(string)
   })
   nullable = true
@@ -105,7 +105,7 @@ variable "global_cidrs" {
       ) && (
       var.global_cidrs.services == null ? true : can(cidrhost(var.global_cidrs.services, 1))
       ) && (
-      var.global_cidrs.proxy == null ? true : can(cidrhost(var.global_cidrs.proxy, 1))
+      var.global_cidrs.peering == null ? true : can(cidrhost(var.global_cidrs.peering, 1))
       ) && (
       var.global_cidrs.psc == null ? true : can(cidrhost(var.global_cidrs.psc, 1))
     )
@@ -247,20 +247,21 @@ variable "pg_admin_accessors" {
   EOD
 }
 
-variable "model_bucket_accessors" {
-  type     = list(string)
+variable "model_cache_bucket" {
+  type = object({
+    name      = string
+    accessors = optional(list(string))
+  })
   nullable = true
   validation {
-    condition     = var.model_bucket_accessors == null ? true : alltrue([for accessor in var.model_bucket_accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))])
-    error_message = "If provided, each model_bucket_accessors value must be a valid Kubernetes service account"
+    condition     = var.model_cache_bucket == null ? true : can(regex("^[a-z][a-z0-9-_]{2,62}$", var.model_cache_bucket.name)) && (try(length(var.model_cache_bucket.accessors), 0) == 0 ? true : alltrue([for accessor in var.model_cache_bucket.accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))]))
+    error_message = "The model_cache_bucket name field must be a valid GCS Bucket name."
   }
-  default = [
-    "vllm/vllm",
-  ]
+  default     = null
   description = <<-EOD
   An optional list of Kubernetes service accounts to which read-only access will be granted to objects in the bucket.
-  Each reader must be a valid KSA name in default namespace, or a qualified namespace/name. The default allows
-  Kubernetes service account `vllm` in namespace `vllm` to read the bucket contents.
+  Each reader must be a valid KSA name in default namespace, or a qualified namespace/name. If none are provided the
+  module will grant access to Kubernetes service account `vllm` in namespace `vllm` to read the bucket contents.
   EOD
 }
 

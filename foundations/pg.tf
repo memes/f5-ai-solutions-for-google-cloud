@@ -5,7 +5,7 @@ resource "google_sql_database_instance" "pg" {
   name                = each.value
   region              = each.key
   deletion_protection = false
-  database_version    = "POSTGRES_15"
+  database_version    = "POSTGRES_17"
   settings {
     availability_type = "REGIONAL"
     backup_configuration {
@@ -20,7 +20,8 @@ resource "google_sql_database_instance" "pg" {
       }
       ipv4_enabled = false
     }
-    tier = "db-custom-2-8192"
+    edition = "ENTERPRISE"
+    tier    = "db-custom-2-8192"
   }
 }
 

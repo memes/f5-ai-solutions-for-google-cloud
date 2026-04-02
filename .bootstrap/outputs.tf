@@ -31,3 +31,10 @@ output "f5_ai_license" {
   and expiration timestamp, if appropriate.
   EOD
 }
+
+output "model_cache_bucket" {
+  value       = google_storage_bucket.model_cache.name
+  description = <<-EOD
+  The Google Cloud Storage bucket names to be used for model caching.
+  EOD
+}

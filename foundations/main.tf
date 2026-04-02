@@ -27,8 +27,11 @@ locals {
     "arcadia",
     "f5-ai",
   ], var.dns.base_domain)
-  global_proxy_cidr        = coalesce(try(var.global_cidrs.proxy, null), "198.18.0.0/15")
-  restricted_apis_psc_host = cidrhost(coalesce(try(var.global_cidrs.psc, null), "203.0.113.0/24"), 10)
+  global_peering_cidr      = coalesce(try(var.global_cidrs.peering, null), "198.18.0.0/15")
+  global_proxy_cidr        = cidrsubnet(local.global_peering_cidr, 20 - tonumber(split("/", local.global_peering_cidr)[1]), 0)
+  global_cache_cidr        = cidrsubnet(local.global_peering_cidr, 20 - tonumber(split("/", local.global_peering_cidr)[1]), 1)
+  global_psc_cidr          = coalesce(try(var.global_cidrs.psc, null), "203.0.113.0/24")
+  restricted_apis_psc_host = cidrhost(local.global_psc_cidr, 10)
   allowlist_cidrs          = coalescelist(try(length(var.allowlist_cidrs), 0) > 0 ? var.allowlist_cidrs : [], [format("%s/32", trimspace(data.http.my_address.response_body))])
 }
 
@@ -48,6 +51,13 @@ data "http" "my_address" {
       error_message = "Failed to get local IP address"
     }
   }
+}
+
+data "google_compute_zones" "zones" {
+  for_each = { for region in var.regions : region => "UP" }
+  project  = var.project_id
+  region   = each.key
+  status   = each.value
 }
 
 module "region_detail" {
