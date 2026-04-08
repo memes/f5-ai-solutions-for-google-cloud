@@ -61,6 +61,7 @@ resource "google_secret_manager_secret_version" "pgpass" {
   secret_data = jsonencode({
     user     = each.value.user
     password = each.value.password
+    host     = each.value.host
     pgpass   = format("%s:5432:postgres:%s:%s", each.value.host, each.value.user, each.value.password)
   })
 }
