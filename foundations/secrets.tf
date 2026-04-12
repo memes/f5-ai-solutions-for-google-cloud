@@ -125,6 +125,7 @@ resource "google_secret_manager_secret_version" "cai_moderator_auth" {
     CAI_MODERATOR_DEFAULT_LICENSE            = try(data.google_secret_manager_secret_version_access.f5_ai_license["global"].secret_data, "")
     CAI_MODERATOR_EMAIL_PASSWORD             = ""
     CAI_MODERATOR_EMAIL_USER                 = ""
+    CAI_MODERATOR_ENCRYPTION_KEY             = "gtcktxD8M-hkUAdj7Pk22khjC2Bv8xSA2oyNCEG0ZpQ="
     CAI_MODERATOR_JOB_MANAGER_ENCRYPTION_KEY = "ISJ9GCvWB3l1YUXjw4jvTeuFDHlcsD_W77VvM9QpLgE="
   })
 }
