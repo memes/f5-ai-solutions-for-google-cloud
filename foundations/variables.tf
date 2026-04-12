@@ -230,12 +230,12 @@ variable "cai_workflows_auth_accessors" {
   EOD
 }
 
-variable "pg_admin_accessors" {
+variable "pgpass_accessors" {
   type     = list(string)
   nullable = true
   validation {
-    condition     = var.pg_admin_accessors == null ? true : alltrue([for accessor in var.pg_admin_accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))])
-    error_message = "If provided, each pg_admin_accessors value must be a valid Kubernetes service account"
+    condition     = var.pgpass_accessors == null ? true : alltrue([for accessor in var.pgpass_accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))])
+    error_message = "If provided, each pgpass_accessors value must be a valid Kubernetes service account"
   }
   default = [
     "shared-services/pg-admin",

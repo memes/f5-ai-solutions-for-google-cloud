@@ -34,7 +34,7 @@ resource "google_secret_manager_secret_iam_member" "hugging_face" {
   member    = format("principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/%s/sa/%s", data.google_project.project.number, data.google_project.project.project_id, each.value.namespace, each.value.name)
 }
 
-resource "google_secret_manager_secret" "pg_admin" {
+resource "google_secret_manager_secret" "pgpass" {
   for_each  = { for k, v in google_sql_user.pg_admin : k => v.name }
   project   = var.project_id
   secret_id = each.value
@@ -48,8 +48,8 @@ resource "google_secret_manager_secret" "pg_admin" {
   }
 }
 
-resource "google_secret_manager_secret_version" "pg_admin" {
-  for_each = { for k, v in google_secret_manager_secret.pg_admin : k => {
+resource "google_secret_manager_secret_version" "pgpass" {
+  for_each = { for k, v in google_secret_manager_secret.pgpass : k => {
     secret_id = v.id
     project   = v.project
     user      = google_sql_user.pg_admin[k].name
@@ -61,16 +61,17 @@ resource "google_secret_manager_secret_version" "pg_admin" {
   secret_data = jsonencode({
     user     = each.value.user
     password = each.value.password
+    host     = each.value.host
     pgpass   = format("%s:5432:postgres:%s:%s", each.value.host, each.value.user, each.value.password)
   })
 }
 
-resource "google_secret_manager_secret_iam_member" "pg_admin" {
-  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.pg_admin : k], var.pg_admin_accessors == null ? [] : var.pg_admin_accessors) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+resource "google_secret_manager_secret_iam_member" "pgpass" {
+  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.pgpass : k], var.pgpass_accessors == null ? [] : var.pgpass_accessors) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
     name      = reverse(split("/", entry[1]))[0]
     namespace = try(reverse(split("/", entry[1]))[1], "default")
-    secret_id = google_secret_manager_secret.pg_admin[entry[0]].secret_id
-    project   = google_secret_manager_secret.pg_admin[entry[0]].project
+    secret_id = google_secret_manager_secret.pgpass[entry[0]].secret_id
+    project   = google_secret_manager_secret.pgpass[entry[0]].project
   } }
   project   = each.value.project
   secret_id = each.value.secret_id
@@ -124,6 +125,7 @@ resource "google_secret_manager_secret_version" "cai_moderator_auth" {
     CAI_MODERATOR_DEFAULT_LICENSE            = try(data.google_secret_manager_secret_version_access.f5_ai_license["global"].secret_data, "")
     CAI_MODERATOR_EMAIL_PASSWORD             = ""
     CAI_MODERATOR_EMAIL_USER                 = ""
+    CAI_MODERATOR_ENCRYPTION_KEY             = "gtcktxD8M-hkUAdj7Pk22khjC2Bv8xSA2oyNCEG0ZpQ="
     CAI_MODERATOR_JOB_MANAGER_ENCRYPTION_KEY = "ISJ9GCvWB3l1YUXjw4jvTeuFDHlcsD_W77VvM9QpLgE="
   })
 }
