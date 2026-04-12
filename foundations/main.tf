@@ -37,6 +37,10 @@ locals {
 
 provider "google" {
   default_labels = local.effective_labels
+  # google_vertex_ai_endpoint_with_model_garden_deployment resource does not expose a `region` or `zone` field as it
+  # uses `location` but the underlying implementation fails if a region or zone is not provided. Use the first region
+  # in provided as the default, even though all resources explicitly declare which one to use.
+  region = var.regions[0]
 }
 
 data "google_project" "project" {
