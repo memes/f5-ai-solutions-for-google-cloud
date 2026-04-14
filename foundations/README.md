@@ -116,5 +116,6 @@ This module establishes the foundational Google Cloud resources used by clusters
 | <a name="output_regional_names"></a> [regional\_names](#output\_regional\_names) | A map of Compute Engine region names to prefixes used in this foundations module, to keep a consistent naming standard<br/>for subordinate modules, like cluster creators. |
 | <a name="output_ssl_policies"></a> [ssl\_policies](#output\_ssl\_policies) | A map of Compute Engine region names to Compute Engine SSL Policy self-links, if any were created. |
 | <a name="output_subnets"></a> [subnets](#output\_subnets) | A map of Compute Engine region names to Compute Engine Subnetwork resource self-links. |
+| <a name="output_vertex_ai_endpoints"></a> [vertex\_ai\_endpoints](#output\_vertex\_ai\_endpoints) | A map of model endpoint display names to resolver values. |
 <!-- END_TF_DOCS -->
 <!-- markdownlint-enable MD033 MD034 MD060 -->
