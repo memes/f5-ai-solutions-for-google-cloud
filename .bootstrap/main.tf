@@ -67,6 +67,7 @@ module "bootstrap" {
     "telemetry.googleapis.com",
   ]
   iac_roles = [
+    "roles/aiplatform.user",
     "roles/certificatemanager.owner",
     "roles/clouddeploy.operator",
     "roles/cloudsql.admin",
@@ -168,4 +169,15 @@ resource "github_actions_variable" "model_cache_bucket" {
       value,
     ]
   }
+}
+
+
+module "nginxaas_combined_pem" {
+  for_each   = var.nginxaas_combined_pems == null ? {} : var.nginxaas_combined_pems
+  source     = "memes/secret-manager/google"
+  version    = "2.2.2"
+  project_id = var.project_id
+  id         = format("%s-%s", var.name, replace(each.key, "/[^a-z0-9_-]/", "-"))
+  secret     = each.value
+  accessors  = []
 }
