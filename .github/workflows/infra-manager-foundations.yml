@@ -155,8 +155,7 @@ jobs:
           workload_identity_pool_id = "${{ secrets.WORKLOAD_IDENTITY_POOL_ID }}"
           nginxaas = {
             "us-central1" = {
-              service_attachment = ""
-              service_account_id = ""
+              service_attachment = "depl-az2setlafegp6m-zsimiew"
               tls_certificate_secrets = ${{ vars.NGINXAAS_COMBINED_PEM_SECRETS || '[]' }}
             }
           }
