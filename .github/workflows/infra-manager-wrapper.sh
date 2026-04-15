@@ -41,6 +41,7 @@ preview_name()
 {
     [ -z "${DEPLOYMENT_PROJECT_ID}" ] && error "DEPLOYMENT_PROJECT_ID environment variable must be set"
     [ -z "${DEPLOYMENT_REGION}" ] && error "DEPLOYMENT_REGION environment variable must be set"
+    [ -z "${DEPLOYMENT_GIT_SOURCE_DIRECTORY}" ] && error "DEPLOYMENT_GIT_SOURCE_DIRECTORY environment variable must be set"
     [ -z "${DEPLOYMENT_RUN_ID}" ] && error "DEPLOYMENT_RUN_ID environment variable must be set"
     echo "projects/${DEPLOYMENT_PROJECT_ID}/locations/${DEPLOYMENT_REGION}/previews/${DEPLOYMENT_GIT_SOURCE_DIRECTORY}-${DEPLOYMENT_RUN_ID}"
 }
