@@ -33,15 +33,16 @@ module "region_detail" {
 
 locals {
   regional_names = { for k, v in data.google_compute_subnetwork.subnets : v.region => format("%s-%s", var.name, module.region_detail.results[v.region].abbreviation) }
+  regional_models = { for entry in setproduct(keys(local.regional_names), var.publisher_models == null ? [] : var.publisher_models) : format("%s-%s", local.regional_names[entry[0]], endswith(entry[1], "@001") ? trimsuffix(reverse(split("/", entry[1]))[0], "@001") : reverse(split("@", entry[1]))[0]) => {
+    location = entry[0]
+    model    = entry[1]
+  } }
 }
 
 # Deploy model(s) to Vertex AI endpoints with PSC
 
 resource "google_vertex_ai_endpoint_with_model_garden_deployment" "model" {
-  for_each = { for entry in setproduct(keys(local.regional_names), var.publisher_models == null ? [] : var.publisher_models) : format("%s-%s", local.regional_names[entry[0]], replace(reverse(split("/", entry[1]))[0]), "@", "_") => {
-    location = entry[0]
-    model    = entry[1]
-  } }
+  for_each             = local.regional_models
   project              = var.project_id
   publisher_model_name = each.value.model
   location             = each.value.location
@@ -89,7 +90,7 @@ resource "google_compute_forwarding_rule" "gemma" {
     target  = v.endpoint_config[0].private_service_connect_config[0].service_attachment
   } }
   project               = var.project_id
-  name                  = each.value.name
+  name                  = each.key
   description           = "PSC endpoint for Vertex AI model"
   region                = each.value.region
   ip_address            = each.value.address
@@ -114,7 +115,7 @@ resource "google_dns_managed_zone" "vertex_ai" {
     dynamic "networks" {
       for_each = data.google_compute_subnetwork.subnets
       content {
-        network_url = each.value.network
+        network_url = networks.value.network
       }
     }
   }
