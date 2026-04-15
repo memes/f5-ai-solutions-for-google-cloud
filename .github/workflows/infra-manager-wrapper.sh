@@ -42,7 +42,8 @@ preview_name()
     [ -z "${DEPLOYMENT_PROJECT_ID}" ] && error "DEPLOYMENT_PROJECT_ID environment variable must be set"
     [ -z "${DEPLOYMENT_REGION}" ] && error "DEPLOYMENT_REGION environment variable must be set"
     [ -z "${DEPLOYMENT_GIT_SHA}" ] && error "DEPLOYMENT_GIT_SHA environment variable must be set"
-    echo "projects/${DEPLOYMENT_PROJECT_ID}/locations/${DEPLOYMENT_REGION}/previews/${DEPLOYMENT_GIT_SHA}"
+    [ -z "${DEPLOYMENT_GIT_SOURCE_DIRECTORY}" ] && error "DEPLOYMENT_GIT_SOURCE_DIRECTORY environment variable must be set"
+    echo "projects/${DEPLOYMENT_PROJECT_ID}/locations/${DEPLOYMENT_REGION}/previews/${DEPLOYMENT_GIT_SOURCE_DIRECTORY}-${DEPLOYMENT_GIT_SHA}"
 }
 
 # Generates the fully-qualified Infrastructure Manager name for this deployment
