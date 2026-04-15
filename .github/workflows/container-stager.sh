@@ -18,7 +18,8 @@ awk '!/^($|#)/ {print}' <<EOF |
 busybox:1.37.0
 curlimages/curl:8.18.0
 ghcr.io/memes/terraform-google-private-bastion/forward-proxy:4.0.2
-postgres:15.16-alpine
+postgres:17.9-alpine
+redis:7.2-alpine
 
 # NGINX Instance Manager
 private-registry.nginx.com/nms/apigw:2.21.0
@@ -42,9 +43,10 @@ prefecthq/prefect:3.1.12-python3.11-kubernetes
 prefecthq/prometheus-prefect-exporter:1.6.7
 
 # vLLM and GKE Inference Gateway
-vllm/vllm-openai:v0.15.1
-registry.k8s.io/gateway-api-inference-extension/lora-syncer:v1.0.2
-registry.k8s.io/gateway-api-inference-extension/epp:v1.0.1
+vllm/vllm-openai:v0.19.0
+registry.k8s.io/gateway-api-inference-extension/lora-syncer:v1.2.1
+registry.k8s.io/gateway-api-inference-extension/epp:v1.4.0
+registry.k8s.io/gateway-api-inference-extension/bbr:v1.4.0
 
 # Arcadia Crypto
 sorinboiaf5/arcadia-frontend:v1

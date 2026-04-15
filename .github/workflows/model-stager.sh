@@ -25,6 +25,8 @@ command -v gcloud >/dev/null 2>/dev/null || error "$0: gcloud is required on pat
 awk '!/^($|#)/ {print}' <<EOF |
 meta-llama/Llama-3.1-8B
 google/gemma-3-1b-it
+google/gemma-3-4b-it
+google/gemma-4-E4B-it
 EOF
 
 while read -r model; do
@@ -33,6 +35,6 @@ while read -r model; do
 done
 for bucket in ${MODEL_BUCKETS}; do
     gcloud storage rsync --recursive --preserve-posix --no-ignore-symlinks --checksums-only \
-        "${HOME}/.cache/huggingface/hub/" "gs://${bucket}/" || \
-            error "Failed to sync contents of ${HOME}/.cache/huggingface/hub/ to gs://${bucket}/"
+        "${HF_HOME:-"${HOME}/.cache/huggingface"}/hub/" "gs://${bucket}/" || \
+            error "Failed to sync contents of ${HF_HOME:-"${HOME}/.cache/huggingface"}/hub/ to gs://${bucket}/"
 done
