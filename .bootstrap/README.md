@@ -80,6 +80,7 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 
 | Name | Type |
 |------|------|
+| [github_actions_secret.pool_id](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_secret) | resource |
 | [github_actions_variable.allowlist_cidrs](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [github_actions_variable.dns](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [github_actions_variable.f5_ai_license](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |

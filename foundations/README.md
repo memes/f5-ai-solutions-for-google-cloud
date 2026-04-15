@@ -20,6 +20,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 | <a name="module_cluster"></a> [cluster](#module\_cluster) | git::https://github.com/memes/terraform-google-private-gke-cluster//modules/autopilot | feat%2fv3_refactor |
 | <a name="module_googleapis-dns"></a> [googleapis-dns](#module\_googleapis-dns) | memes/restricted-apis-dns/google | 2.0.1 |
 | <a name="module_managed_cert"></a> [managed\_cert](#module\_managed\_cert) | registry.terraform.io/memes/tls-certificate/google//modules/managed | 0.1.1 |
+| <a name="module_nginxaas"></a> [nginxaas](#module\_nginxaas) | git::https://github.com/memes/terraform-google-nginxaas | release%2f0.1.0 |
 | <a name="module_region_detail"></a> [region\_detail](#module\_region\_detail) | memes/region-detail/google | 1.1.7 |
 | <a name="module_sa"></a> [sa](#module\_sa) | git::https://github.com/memes/terraform-google-private-gke-cluster//modules/sa | feat%2fv3_refactor |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | memes/multi-region-private-network/google | 5.2.0 |
@@ -89,6 +90,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 | <a name="input_prefect_server_auth_accessors"></a> [prefect\_server\_auth\_accessors](#input\_prefect\_server\_auth\_accessors) | An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`<br/>secret. Each reader must be a valid KSA name in default namespace, or a qualified namespace/name. The default allows<br/>Kubernetes service account `prefect-server` in namespace `f5-ai-redteam` to read the secret value. | `list(string)` | <pre>[<br/>  "f5-ai-redteam/prefect-server"<br/>]</pre> | no |
 | <a name="input_provision_managed_access"></a> [provision\_managed\_access](#input\_provision\_managed\_access) | If true, public IP addresses will be reserved for cluster Gateways, along with Cloud Armor policies for access. If<br/>false (default), no public IP addresses will be reserved. | `bool` | `false` | no |
 | <a name="input_regions"></a> [regions](#input\_regions) | The Compute Engine region names in which to create resources. Default is the single region 'us-central1'. | `list(string)` | <pre>[<br/>  "us-central1"<br/>]</pre> | no |
+| <a name="input_workload_identity_pool_id"></a> [workload\_identity\_pool\_id](#input\_workload\_identity\_pool\_id) | An optional identifier of an *existing* Workload Identity pool to which a new provider for NGINXaaS will be created. | `string` | `null` | no |
 
 ## Outputs
 

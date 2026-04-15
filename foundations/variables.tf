@@ -302,3 +302,16 @@ variable "provision_managed_access" {
   false (default), no public IP addresses will be reserved.
   EOD
 }
+
+variable "workload_identity_pool_id" {
+  type     = string
+  nullable = true
+  default  = null
+  validation {
+    condition     = coalesce(var.workload_identity_pool_id, "unspecified") == "unspecified" ? true : can(regex("^projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/locations/global/workloadIdentityPools/[a-z0-9-]{4,32}$", var.workload_identity_pool_id))
+    error_message = "The workload_identity_pool_id must be empty or a valid Workload Identity name or id."
+  }
+  description = <<-EOD
+    An optional identifier of an *existing* Workload Identity pool to which a new provider for NGINXaaS will be created.
+    EOD
+}

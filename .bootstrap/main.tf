@@ -187,3 +187,14 @@ resource "github_actions_variable" "nginxaas_combined_pem_secrets" {
   variable_name = "NGINXAAS_COMBINED_PEM_SECRETS"
   value         = jsonencode([for secret in module.nginxaas_combined_pem : secret.secret_id])
 }
+
+# For NGINXaaS integration the workload identity pool identifier is needed.
+resource "github_actions_secret" "pool_id" {
+  repository      = local.repo_name
+  secret_name     = "WORKLOAD_IDENTITY_POOL_ID"
+  plaintext_value = module.bootstrap.workload_identity_pool_id
+
+  depends_on = [
+    module.bootstrap,
+  ]
+}
