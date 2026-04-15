@@ -74,7 +74,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v3
       - name: Get PR number
         id: get_pr_number
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           result-encoding: string
           script: |
@@ -92,7 +92,7 @@ jobs:
             }
       - name: Get Infra Manager action steps
         id: get_im_action_steps
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           EXPLICIT_ACTION: ${{ case(github.event_name == 'workflow_dispatch', inputs.action || 'plan', '') }}
         with:
@@ -170,7 +170,7 @@ jobs:
       - name: Add markdown output as comment on PR
         id: pr-md-plan
         if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) && steps.get_pr_number.outputs.result }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           ISSUE_NUMBER: ${{ steps.get_pr_number.outputs.result }}
         with:
@@ -199,7 +199,7 @@ jobs:
       - name: Add markdown output as comment on PR
         id: pr-tf-output
         if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_output) && steps.get_pr_number.outputs.result }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           ISSUE_NUMBER: ${{ steps.get_pr_number.outputs.result }}
         with:
