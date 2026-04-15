@@ -1,12 +1,12 @@
 #
-# If direct external provisioning is enabled through the `provision_external_gw_address` variable, create resources to
+# If direct external provisioning is enabled through the `provision_managed_access` variable, create resources to
 # expose and control access to the applications via Google ALBs.
 #
 # NOTE: The ALBs will be provisioned through GatewayClass selection in kubernetes manifest(s).
 
 # Create a VPC subnet for Google ALBs with /23 CIDR.
 resource "google_compute_subnetwork" "proxy_subnet" {
-  for_each = var.provision_external_gw_address ? { for i, region in var.regions :
+  for_each = var.provision_managed_access ? { for i, region in var.regions :
     format("%s-proxy", local.regional_names[region]) => {
       region            = region
       primary_ipv4_cidr = cidrsubnet(local.global_proxy_cidr, 23 - tonumber(split("/", local.global_proxy_cidr)[1]), i)
@@ -22,7 +22,7 @@ resource "google_compute_subnetwork" "proxy_subnet" {
 }
 
 resource "google_compute_region_security_policy" "allowlist" {
-  for_each    = var.provision_external_gw_address ? local.regional_names : {}
+  for_each    = var.provision_managed_access ? local.regional_names : {}
   project     = var.project_id
   name        = each.value
   description = "Security policy to allow access to applications from permitted CIDRs."
@@ -55,7 +55,7 @@ resource "google_compute_region_security_policy" "allowlist" {
 }
 
 module "managed_cert" {
-  for_each   = var.provision_external_gw_address ? local.regional_names : {}
+  for_each   = var.provision_managed_access ? local.regional_names : {}
   source     = "registry.terraform.io/memes/tls-certificate/google//modules/managed"
   version    = "0.1.1"
   project_id = var.project_id
@@ -93,25 +93,4 @@ resource "google_dns_record_set" "challenges" {
   depends_on = [
     module.managed_cert,
   ]
-}
-
-resource "google_compute_address" "gw" {
-  for_each     = var.provision_external_gw_address ? local.regional_names : {}
-  project      = var.project_id
-  name         = format("%s-gw", each.value)
-  description  = format("External IP for %s cluster Gateway", each.value)
-  address_type = "EXTERNAL"
-  region       = each.key
-}
-
-# If a Cloud DNS managed zone identifier has been provided we can add the supporting A records for each public reserved
-# address.
-resource "google_dns_record_set" "gw" {
-  for_each     = var.provision_external_gw_address && coalesce(var.dns.managed_zone_id, "unspecified") != "unspecified" ? toset(local.effective_domains) : []
-  project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
-  managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
-  name         = format("%s.", each.key)
-  type         = "A"
-  ttl          = 300
-  rrdatas      = compact([for k, v in local.regional_names : try(google_compute_address.gw[k].address, null)])
 }

@@ -87,13 +87,13 @@ output "clusters" {
   EOD
 }
 
-output "gw_addresses" {
-  value = { for k, v in google_compute_address.gw : k => {
+output "ext_addresses" {
+  value = { for k, v in google_compute_address.ext : k => {
     name = v.name
     ip   = v.address
   } }
   description = <<-EOD
-  A map of Compute Engine region names to reserved public IP addresses for cluster Gateways, if provisioned.
+  A map of Compute Engine region names to reserved public IP addresses..
   EOD
 }
 

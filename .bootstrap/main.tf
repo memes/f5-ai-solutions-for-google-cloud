@@ -128,7 +128,6 @@ resource "github_actions_variable" "dns" {
   }
 }
 
-
 # Add the initial CIDR allow list to the GitHub repo as a variable, but let the value be changed from the initial value
 # as needed.
 resource "github_actions_variable" "allowlist_cidrs" {
@@ -180,4 +179,11 @@ module "nginxaas_combined_pem" {
   id         = format("%s-%s", var.name, replace(each.key, "/[^a-z0-9_-]/", "-"))
   secret     = each.value
   accessors  = []
+}
+
+# Add the list of TLS certificate PEM secrets as a GitHub variable.
+resource "github_actions_variable" "nginxaas_combined_pem_secrets" {
+  repository    = local.repo_name
+  variable_name = "NGINXAAS_COMBINED_PEM_SECRETS"
+  value         = jsonencode([for secret in module.nginxaas_combined_pem : secret.secret_id])
 }

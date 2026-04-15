@@ -293,7 +293,7 @@ variable "cloud_deploy_service_account" {
   EOD
 }
 
-variable "provision_external_gw_address" {
+variable "provision_managed_access" {
   type        = bool
   nullable    = false
   default     = false

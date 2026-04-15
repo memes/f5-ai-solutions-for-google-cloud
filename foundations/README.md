@@ -29,20 +29,26 @@ This module establishes the foundational Google Cloud resources used by clusters
 | Name | Type |
 |------|------|
 | [google_clouddeploy_target.cluster](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/clouddeploy_target) | resource |
+| [google_compute_address.ext](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
 | [google_compute_address.gemma](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
-| [google_compute_address.gw](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
 | [google_compute_address.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
 | [google_compute_forwarding_rule.gemma](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_forwarding_rule) | resource |
+| [google_compute_forwarding_rule.nginxaas](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_forwarding_rule) | resource |
 | [google_compute_forwarding_rule.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_forwarding_rule) | resource |
 | [google_compute_global_address.cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_address) | resource |
+| [google_compute_network_attachment.nginxaas](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_network_attachment) | resource |
+| [google_compute_region_network_endpoint_group.nginxaas](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_network_endpoint_group) | resource |
 | [google_compute_region_security_policy.allowlist](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_region_security_policy) | resource |
 | [google_compute_subnetwork.proxy_subnet](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork) | resource |
 | [google_dns_managed_zone.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_managed_zone) | resource |
 | [google_dns_managed_zone.vertex_ai](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_managed_zone) | resource |
 | [google_dns_record_set.challenges](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
+| [google_dns_record_set.ext](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
 | [google_dns_record_set.gemma](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
-| [google_dns_record_set.gw](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
 | [google_dns_record_set.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
+| [google_iam_workload_identity_pool_provider.nginxaas](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/iam_workload_identity_pool_provider) | resource |
+| [google_project_iam_member.logging](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
+| [google_project_iam_member.monitoring](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_redis_instance.cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/redis_instance) | resource |
 | [google_secret_manager_secret.cai_moderator_auth](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret) | resource |
 | [google_secret_manager_secret.cai_workflows_auth](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret) | resource |
@@ -67,6 +73,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 | [google_vertex_ai_endpoint_with_model_garden_deployment.gemma](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/vertex_ai_endpoint_with_model_garden_deployment) | resource |
 | [random_password.pg_admin](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 | [google_compute_zones.zones](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/compute_zones) | data source |
+| [google_iam_workload_identity_pool.pool](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/iam_workload_identity_pool) | data source |
 | [google_project.project](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/project) | data source |
 | [google_secret_manager_secret_version_access.f5_ai_license](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/secret_manager_secret_version_access) | data source |
 | [http_http.my_address](https://registry.terraform.io/providers/hashicorp/http/latest/docs/data-sources/http) | data source |
@@ -92,7 +99,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 | <a name="input_nginx_jwt_secret"></a> [nginx\_jwt\_secret](#input\_nginx\_jwt\_secret) | An existing Secret Manager secret containing an NGINX+ JWT token, with an optional list of Kubernetes service<br/>accounts to which read-only access will be granted. Each accessor must be a valid KSA name in default namespace, or<br/>a qualified namespace/name. Default is empty. | <pre>object({<br/>    id        = string<br/>    accessors = optional(list(string))<br/>  })</pre> | `null` | no |
 | <a name="input_pgpass_accessors"></a> [pgpass\_accessors](#input\_pgpass\_accessors) | An optional list of Kubernetes service accounts to which read-only access will be granted. Each reader must be a valid<br/>KSA name in default namespace, or a qualified namespace/name. The default allows Kubernetes service account `pg-admin`<br/>in namespace `shared-services` to read the secret value. | `list(string)` | <pre>[<br/>  "shared-services/pg-admin"<br/>]</pre> | no |
 | <a name="input_prefect_server_auth_accessors"></a> [prefect\_server\_auth\_accessors](#input\_prefect\_server\_auth\_accessors) | An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`<br/>secret. Each reader must be a valid KSA name in default namespace, or a qualified namespace/name. The default allows<br/>Kubernetes service account `prefect-server` in namespace `f5-ai-redteam` to read the secret value. | `list(string)` | <pre>[<br/>  "f5-ai-redteam/prefect-server"<br/>]</pre> | no |
-| <a name="input_provision_external_gw_address"></a> [provision\_external\_gw\_address](#input\_provision\_external\_gw\_address) | If true, public IP addresses will be reserved for cluster Gateways, along with Cloud Armor policies for access. If<br/>false (default), no public IP addresses will be reserved. | `bool` | `false` | no |
+| <a name="input_provision_managed_access"></a> [provision\_managed\_access](#input\_provision\_managed\_access) | If true, public IP addresses will be reserved for cluster Gateways, along with Cloud Armor policies for access. If<br/>false (default), no public IP addresses will be reserved. | `bool` | `false` | no |
 | <a name="input_regions"></a> [regions](#input\_regions) | The Compute Engine region names in which to create resources. Default is the single region 'us-central1'. | `list(string)` | <pre>[<br/>  "us-central1"<br/>]</pre> | no |
 
 ## Outputs
@@ -107,8 +114,8 @@ This module establishes the foundational Google Cloud resources used by clusters
 | <a name="output_clusters"></a> [clusters](#output\_clusters) | A map of Compute Engine region names to GKE Autopilot cluster identifiers. |
 | <a name="output_deploy_target_ids"></a> [deploy\_target\_ids](#output\_deploy\_target\_ids) | A map of Compute Engine region names to Cloud Deploy targets. |
 | <a name="output_dns_challenges"></a> [dns\_challenges](#output\_dns\_challenges) | A map of Compute Engine region names to DNS challenge records that may need to be inserted in a DNS zone to satisfy<br/>Certificate Manager and have it provision certificates. If the input variable `dns.managed_zone_id` was provided this<br/>may have already been completed. Provided anyway for manual verification of DNS CNAME records. |
+| <a name="output_ext_addresses"></a> [ext\_addresses](#output\_ext\_addresses) | A map of Compute Engine region names to reserved public IP addresses.. |
 | <a name="output_gke_service_account"></a> [gke\_service\_account](#output\_gke\_service\_account) | The GKE Service Account to use for clusters, with minimal roles assigned to be effective. |
-| <a name="output_gw_addresses"></a> [gw\_addresses](#output\_gw\_addresses) | A map of Compute Engine region names to reserved public IP addresses for cluster Gateways, if provisioned. |
 | <a name="output_hugging_face_secret"></a> [hugging\_face\_secret](#output\_hugging\_face\_secret) | If a Hugging Face token was provided as input this output will contain the Secret Manager secret identifier that<br/>contains the token value. |
 | <a name="output_labels"></a> [labels](#output\_labels) | A map of the effective labels that were applied to Google Cloud resources that take labels. Can be reused by<br/>subordinate modules if needed. |
 | <a name="output_pg_instances"></a> [pg\_instances](#output\_pg\_instances) | A map of Compute Engine region names to Cloud SQL Postgresql instance attributes, admin user and Secret Manager secret<br/>identifier containing .pgpass authentication details. |

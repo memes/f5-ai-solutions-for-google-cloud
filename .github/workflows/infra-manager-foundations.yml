@@ -147,8 +147,7 @@ jobs:
           }
           f5_ai_license_secret = "${{ vars.F5_AI_LICENSE_SECRET }}"
           cloud_deploy_service_account = "${{ secrets.DEPLOY_SERVICE_ACCOUNT }}"
-          # TODO(@memes): NGINXaaS access issues forcing temporary use of Google ALB
-          provision_external_gw_address = true
+          provision_managed_access = true
           model_cache_bucket = {
             name = "${{ vars. MODEL_CACHE_BUCKET }}"
           }
