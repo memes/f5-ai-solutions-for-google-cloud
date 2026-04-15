@@ -318,8 +318,9 @@ variable "workload_identity_pool_id" {
 
 variable "nginxaas" {
   type = map(object({
-    service_attachment = optional(string)
-    service_account_id = optional(string)
+    service_attachment      = optional(string)
+    service_account_id      = optional(string)
+    tls_certificate_secrets = optional(list(string))
   }))
   nullable = true
   validation {
@@ -327,7 +328,8 @@ variable "nginxaas" {
       for k, v in var.nginxaas :
       can(regex("^[a-z]{2,}-[a-z]{2,}[0-9]$", k)) &&
       coalesce(v.service_attachment, "unspecified") == "unspecified" ? true : can(regex("^(?:https://www.googleapis.com/compute/v1/)?projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/regions/[a-z]{2,}-[a-z]{2,}[0-9]/serviceAttachments/[a-z][a-z0-9-]{0,62}[a-z0-9]$", v.service_attachment)) &&
-      coalesce(v.service_account_id, "unspecified") == "unspecified" ? true : can(regex("^[1-9][0-9]+$", v.service_account_id))
+      coalesce(v.service_account_id, "unspecified") == "unspecified" ? true : can(regex("^[1-9][0-9]+$", v.service_account_id)) &&
+      try(length(v.tls_certificate_secrets), 0) == 0 ? true : alltrue([for secret in v.tls_certificate_secrets : can(regex("projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/secrets/[a-zA-Z0-9_-]{1,255}$", secret))])
     ])
     error_message = "Each attachments key must be a valid name, and the value must contain a valid subnet self-link, and may contain a valid service attachment self-link and port."
   }

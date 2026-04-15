@@ -153,7 +153,13 @@ jobs:
             name = "${{ vars. MODEL_CACHE_BUCKET }}"
           }
           workload_identity_pool_id = "${{ secrets.WORKLOAD_IDENTITY_POOL_ID }}"
-          nginxaas = null
+          nginxaas = {
+            "us-central1" = {
+              service_attachment = ""
+              service_account_id = ""
+              tls_certificate_secrets = ${{ vars.NGINXAAS_COMBINED_PEM_SECRETS || '[]' }}
+            }
+          }
           EOF
       - name: Generate preview plan
         id: generate-tf-plan

@@ -133,8 +133,8 @@ output "cache_hosts" {
 }
 
 output "nginxaas" {
-  value       = one([for k, v in module.nginxaas : v.network_attachments])
+  value       = one([for k, v in module.nginxaas : v])
   description = <<-EOD
-  A map of Compute Engine region names to Network Attachments for F5 NGINXaaS integration.
+  A map of Compute Engine region names to F5 NGINXaaS module outputs.
   EOD
 }
