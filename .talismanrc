@@ -68,3 +68,11 @@ fileignoreconfig:
   - filecontent
 - filename: .github/workflows/infra-manager-foundations.yml
   checksum: 610bdfb85f4e95307dc59010dfb64bf96cb2a0d25724fe22bf0103217537f03e
+- filename: vertex-ai/variables.tf
+  checksum: 107e5a19c9541d25a16e2487a1462c163698bf29f30f8270109d196665b12485
+- filename: vertex-ai/README.md
+  checksum: 80585b0f1d867534f17f59ce1f2593ea6c17a0688755aa3fac9130226933b05f
+  ignore_detectors:
+  - filecontent
+- filename: vertex-ai/main.tf
+  checksum: ef16b4c04255d09d4f08b97a60a08c4448ad12866a544683fdab111dd6d3aac6
