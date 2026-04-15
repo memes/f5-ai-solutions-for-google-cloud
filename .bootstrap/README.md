@@ -72,7 +72,7 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_bootstrap"></a> [bootstrap](#module\_bootstrap) | registry.terraform.io/memes/f5-demo-bootstrap/google | 0.5.1 |
+| <a name="module_bootstrap"></a> [bootstrap](#module\_bootstrap) | registry.terraform.io/memes/f5-demo-bootstrap/google | 0.6.0 |
 | <a name="module_f5_ai_license"></a> [f5\_ai\_license](#module\_f5\_ai\_license) | memes/secret-manager/google | 2.2.2 |
 | <a name="module_nginxaas_combined_pem"></a> [nginxaas\_combined\_pem](#module\_nginxaas\_combined\_pem) | memes/secret-manager/google | 2.2.2 |
 

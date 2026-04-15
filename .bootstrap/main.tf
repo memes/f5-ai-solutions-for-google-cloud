@@ -40,7 +40,7 @@ provider "google" {
 
 module "bootstrap" {
   source            = "registry.terraform.io/memes/f5-demo-bootstrap/google"
-  version           = "0.5.1"
+  version           = "0.6.0"
   project_id        = var.project_id
   name              = var.name
   github_options    = var.github_options
@@ -87,6 +87,9 @@ module "bootstrap" {
   cloud_deploy_roles = [
     "roles/container.developer",
   ]
+  iac_options = {
+    enable_workload_identity_pool_admin = true
+  }
 }
 
 # F5 AI Guardrails and Red Team deployments need the license token; if provided, create a secret containing the token
