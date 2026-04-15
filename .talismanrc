@@ -76,3 +76,5 @@ fileignoreconfig:
   - filecontent
 - filename: vertex-ai/main.tf
   checksum: 625153f26f75489814921c376e3221052702242f4786b74a49774f3d3cfdaef5
+- filename: foundations/managed_access.tf
+  checksum: cfa88a27a1df654d3dd93bb04a4142920140a7222b63c296dcbc43b8b8147eb7

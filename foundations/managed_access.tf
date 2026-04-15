@@ -77,10 +77,10 @@ module "managed_cert" {
 # If a Cloud DNS managed zone identifier has been provided we can add the supporting entries for Certificate Manager DNS
 # challenges.
 resource "google_dns_record_set" "challenges" {
-  for_each = coalesce(var.dns.managed_zone_id, "unspecified") == "unspecified" ? {} : { for entry in setproduct(keys(local.regional_names), local.effective_domains) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+  for_each = var.provision_managed_access ? coalesce(var.dns.managed_zone_id, "unspecified") == "unspecified" ? {} : { for entry in setproduct(keys(local.regional_names), local.effective_domains) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
     region = entry[0]
     domain = entry[1]
-  } }
+  } } : {}
   project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
   managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
   # NOTE: The use of example.com. and CNAME as fallback entries is to ensure that tofu/terraform plan does not fail when
