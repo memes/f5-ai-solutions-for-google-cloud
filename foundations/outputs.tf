@@ -131,3 +131,10 @@ output "cache_hosts" {
   A map of Compute Engine region names to a Redis host name.
   EOD
 }
+
+output "nginxaas" {
+  value       = one([for k, v in module.nginxaas : v.network_attachments])
+  description = <<-EOD
+  A map of Compute Engine region names to Network Attachments for F5 NGINXaaS integration.
+  EOD
+}
