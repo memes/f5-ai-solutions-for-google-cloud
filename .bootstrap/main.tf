@@ -71,6 +71,7 @@ module "bootstrap" {
     "roles/certificatemanager.owner",
     "roles/clouddeploy.operator",
     "roles/cloudsql.admin",
+    "roles/compute.loadBalancerAdmin",
     "roles/compute.networkAdmin",
     "roles/compute.securityAdmin",
     "roles/container.admin",
