@@ -153,6 +153,7 @@ jobs:
             name = "${{ vars. MODEL_CACHE_BUCKET }}"
           }
           workload_identity_pool_id = "${{ secrets.WORKLOAD_IDENTITY_POOL_ID }}"
+          nginxaas = null
           EOF
       - name: Generate preview plan
         id: generate-tf-plan
