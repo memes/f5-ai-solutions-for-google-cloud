@@ -6,11 +6,19 @@ module "nginxaas" {
     pool_id = var.workload_identity_pool_id
     name    = format("%s-nginxaas", var.name)
   }
-  attachments = { for k, v in local.regional_names : k => {
-    subnet             = module.vpc.subnets_by_region[k].self_link
-    port               = 443
-    service_attachment = try(var.nginxaas.attachments[k].service_attachment, null)
-    service_account_id = try(var.nginxaas.attachments[k].service_account_id, null)
-  } }
-  secrets = try(var.nginxaas.secrets, null)
+  attachments = merge({
+    for k, v in local.regional_names : format("%s-https", k) => {
+      subnet             = module.vpc.subnets_by_region[k].self_link
+      port               = 443
+      service_attachment = try(var.nginxaas.attachments[k].service_attachment, null)
+    }
+    }, {
+    for k, v in local.regional_names : format("%s-http", k) => {
+      subnet             = module.vpc.subnets_by_region[k].self_link
+      port               = 80
+      service_attachment = try(var.nginxaas.attachments[k].service_attachment, null)
+    }
+  })
+  service_accounts = try(var.nginxaas.service_accounts, null)
+  secrets          = try(var.nginxaas.secrets, null)
 }

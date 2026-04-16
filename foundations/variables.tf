@@ -308,11 +308,9 @@ variable "workload_identity_pool_id" {
 
 variable "nginxaas" {
   type = object({
-    attachments = map(object({
-      service_attachment = optional(string)
-      service_account_id = optional(string)
-    }))
-    secrets = optional(set(string))
+    attachments      = map(string)
+    secrets          = optional(set(string))
+    service_accounts = optional(set(string))
   })
   nullable = true
   validation {
@@ -321,13 +319,15 @@ variable "nginxaas" {
       alltrue([
         for k, v in var.nginxaas.attachments :
         can(regex("^[a-z]{2,}-[a-z]{2,}[0-9]$", k)) &&
-        coalesce(v.service_attachment, "unspecified") == "unspecified" ? true : can(regex("^(?:https://www.googleapis.com/compute/v1/)?projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/regions/[a-z]{2,}-[a-z]{2,}[0-9]/serviceAttachments/[a-z][a-z0-9-]{0,62}[a-z0-9]$", v.service_attachment)) &&
-        coalesce(v.service_account_id, "unspecified") == "unspecified" ? true : can(regex("^[1-9][0-9]+$", v.service_account_id))
+        coalesce(v.service_attachment, "unspecified") == "unspecified" ? true : can(regex("^(?:https://www.googleapis.com/compute/v1/)?projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/regions/[a-z]{2,}-[a-z]{2,}[0-9]/serviceAttachments/[a-z][a-z0-9-]{0,62}[a-z0-9]$", v.service_attachment))
       ])) && (
       var.nginxaas.secrets == null ? true :
       alltrue([for secret in var.nginxaas.secrets : can(regex("projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/secrets/[a-zA-Z0-9_-]{1,255}$", secret))])
+      ) && (
+      var.nginxaas.service_accounts == null ? true :
+      alltrue([for service_account in var.nginxaas.service_accounts : can(regex("^[1-9][0-9]+$", service_account))])
     )
-    error_message = "Each attachments key must be a valid name, and the value must contain a valid subnet self-link, and may contain a valid service attachment self-link and port. Any secrets entries must be valid."
+    error_message = "Each attachments key must be a valid name, and the value must be a valid subnet self-link, Any secrets and service_accounts entries must be valid."
   }
   default     = null
   description = <<-EOD
