@@ -293,16 +293,6 @@ variable "cloud_deploy_service_account" {
   EOD
 }
 
-variable "provision_managed_access" {
-  type        = bool
-  nullable    = false
-  default     = false
-  description = <<-EOD
-  If true, public IP addresses will be reserved for cluster Gateways, along with Cloud Armor policies for access. If
-  false (default), no public IP addresses will be reserved.
-  EOD
-}
-
 variable "workload_identity_pool_id" {
   type     = string
   nullable = true
@@ -341,6 +331,7 @@ variable "nginxaas" {
   }
   default     = null
   description = <<-EOD
-  A map of Compute Engine region names to F5 NGINXaaS attachment details.
+  If not null, the properties will be used to attach NGINXaaS for Google Cloud. If null, resources to support Google
+  managed load balancers and certificates will be provisioned.
   EOD
 }

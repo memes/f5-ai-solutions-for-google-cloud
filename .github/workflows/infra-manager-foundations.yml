@@ -148,7 +148,6 @@ jobs:
           }
           f5_ai_license_secret = "${{ vars.F5_AI_LICENSE_SECRET }}"
           cloud_deploy_service_account = "${{ secrets.DEPLOY_SERVICE_ACCOUNT }}"
-          provision_managed_access = false
           model_cache_bucket = {
             name = "${{ vars. MODEL_CACHE_BUCKET }}"
           }

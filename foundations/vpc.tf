@@ -43,3 +43,20 @@ module "googleapis-dns" {
     ipv6 = null
   }
 }
+
+# Create a VPC subnet for Google proxy-LBs with /23 CIDR.
+resource "google_compute_subnetwork" "proxy_subnet" {
+  for_each = { for i, region in var.regions :
+    format("%s-proxy", local.regional_names[region]) => {
+      region            = region
+      primary_ipv4_cidr = cidrsubnet(local.global_proxy_cidr, 23 - tonumber(split("/", local.global_proxy_cidr)[1]), i)
+    }
+  }
+  project       = var.project_id
+  name          = each.key
+  network       = module.vpc.self_link
+  ip_cidr_range = each.value.primary_ipv4_cidr
+  region        = each.value.region
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+}

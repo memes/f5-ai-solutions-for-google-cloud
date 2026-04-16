@@ -70,7 +70,6 @@ module "region_detail" {
   regions = var.regions
 }
 
-
 resource "google_compute_address" "ext" {
   for_each     = local.regional_names
   project      = var.project_id
