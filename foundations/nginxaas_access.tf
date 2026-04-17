@@ -9,7 +9,7 @@ module "nginxaas" {
   attachments = { for k, v in local.regional_names : k => {
     subnet             = module.vpc.subnets_by_region[k].self_link
     ports              = [80, 443]
-    service_attachment = try(var.nginxaas.attachments[k].service_attachment, null)
+    service_attachment = try(var.nginxaas.attachments[k], null)
     }
   }
   service_accounts = try(var.nginxaas.service_accounts, null)
