@@ -32,7 +32,7 @@ resource "google_compute_region_health_check" "readyz" {
 }
 
 resource "google_compute_region_backend_service" "nginxaas" {
-  for_each = var.nginxaas == null ? {} : merge([for k, v in module.nginxaas : v.network_endpoint_groups_by_region])
+  for_each = var.nginxaas == null ? {} : try(module.nginxaas["enabled"].network_endpoint_groups_by_region, {})
   project  = var.project_id
   name     = local.regional_names[each.key]
   region   = each.key
