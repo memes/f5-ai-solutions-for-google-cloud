@@ -82,7 +82,7 @@ resource "google_compute_forwarding_rule" "https" {
   description           = "Send HTTPS traffic to NGINXaaS."
   region                = each.key
   backend_service       = each.value.id
-  ip_address            = google_compute_address.ext
+  ip_address            = google_compute_address.ext[each.key].name
   ip_protocol           = "TCP"
   ip_version            = "IPV4"
   port_range            = "443"
