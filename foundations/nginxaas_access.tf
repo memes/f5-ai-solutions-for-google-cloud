@@ -45,8 +45,10 @@ resource "google_compute_region_backend_service" "nginxaas" {
   dynamic "backend" {
     for_each = each.value
     content {
-      balancing_mode = "CONNECTION"
-      group          = backend.value
+      balancing_mode               = "CONNECTION"
+      capacity_scaler              = 1.0
+      max_connections_per_endpoint = 1000
+      group                        = backend.value
     }
   }
 
