@@ -19,7 +19,7 @@ module "nginxaas" {
 resource "google_compute_region_backend_service" "nginxaas" {
   for_each              = var.nginxaas == null ? {} : try(module.nginxaas["enabled"].network_endpoint_groups_by_name, {})
   project               = var.project_id
-  name                  = each.key
+  name                  = replace(each.key, ":", "-")
   region                = reverse(split("/", each.value))[2]
   load_balancing_scheme = "EXTERNAL_MANAGED"
   locality_lb_policy    = "MAGLEV"
@@ -37,11 +37,11 @@ resource "google_compute_region_backend_service" "nginxaas" {
 }
 
 resource "google_compute_forwarding_rule" "http" {
-  for_each              = { for k, v in google_compute_region_backend_service.nginxaas : k => v if endswith(k, "-80") }
+  for_each              = { for k, v in google_compute_region_backend_service.nginxaas : k => v if endswith(k, ":80") }
   project               = var.project_id
   name                  = local.regional_names[each.key]
   description           = "Send HTTP traffic to NGINXaaS."
-  region                = each.key
+  region                = replace(each.key, ":", "-")
   backend_service       = each.value.id
   ip_address            = google_compute_address.ext[each.key].name
   ip_protocol           = "TCP"
@@ -55,11 +55,11 @@ resource "google_compute_forwarding_rule" "http" {
 }
 
 resource "google_compute_forwarding_rule" "https" {
-  for_each              = { for k, v in google_compute_region_backend_service.nginxaas : k => v if endswith(k, "-443") }
+  for_each              = { for k, v in google_compute_region_backend_service.nginxaas : k => v if endswith(k, ":443") }
   project               = var.project_id
   name                  = local.regional_names[each.key]
   description           = "Send HTTPS traffic to NGINXaaS."
-  region                = each.key
+  region                = replace(each.key, ":", "-")
   backend_service       = each.value.id
   ip_address            = google_compute_address.ext[each.key].name
   ip_protocol           = "TCP"
