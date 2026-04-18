@@ -156,7 +156,7 @@ jobs:
             attachments = {
               "us-central1" = "depl-az2e0jwiduovahjyudxusw"
             }
-            service_accounts = []
+            service_accounts = ["114269930847893471880"]
             secrets = ${{ vars.NGINXAAS_COMBINED_PEM_SECRETS || '[]' }}
           }
           EOF
