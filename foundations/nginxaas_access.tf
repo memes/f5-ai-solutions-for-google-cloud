@@ -24,8 +24,10 @@ resource "google_compute_region_backend_service" "nginxaas" {
   load_balancing_scheme = "EXTERNAL_MANAGED"
   locality_lb_policy    = "MAGLEV"
   protocol              = "TCP"
+  session_affinity      = "NONE"
   backend {
-    group = each.value
+    balancing_mode = "UTILIZATION"
+    group          = each.value
   }
 
   depends_on = [
