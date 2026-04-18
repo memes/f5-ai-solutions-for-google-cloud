@@ -308,9 +308,10 @@ variable "workload_identity_pool_id" {
 
 variable "nginxaas" {
   type = object({
-    attachments      = optional(map(string))
-    secrets          = optional(set(string))
-    service_accounts = optional(set(string))
+    attachments                 = optional(map(string))
+    secrets                     = optional(set(string))
+    service_accounts            = optional(set(string))
+    has_managed_public_endpoint = optional(bool, false)
   })
   nullable = true
   validation {

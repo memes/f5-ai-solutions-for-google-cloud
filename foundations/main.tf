@@ -71,7 +71,7 @@ module "region_detail" {
 }
 
 resource "google_compute_address" "ext" {
-  for_each     = local.regional_names
+  for_each     = var.nginxaas == null || !try(var.nginxaas.has_managed_public_endpoint, false) ? local.regional_names : {}
   project      = var.project_id
   name         = format("%s-ext", each.value)
   description  = format("External IP for public access to %s cluster", each.value)
