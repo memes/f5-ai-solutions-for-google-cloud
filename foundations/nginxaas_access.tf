@@ -16,29 +16,11 @@ module "nginxaas" {
   secrets          = try(var.nginxaas.secrets, null)
 }
 
-resource "google_compute_region_health_check" "readyz" {
-  for_each            = var.nginxaas == null ? {} : local.regional_names
-  project             = var.project_id
-  name                = each.value
-  region              = each.key
-  check_interval_sec  = 10
-  timeout_sec         = 1
-  healthy_threshold   = 1
-  unhealthy_threshold = 2
-  http_health_check {
-    request_path       = "/readyz"
-    port_specification = "USE_SERVING_PORT"
-  }
-}
-
 resource "google_compute_region_backend_service" "nginxaas" {
-  for_each = var.nginxaas == null ? {} : try(module.nginxaas["enabled"].network_endpoint_groups_by_region, {})
-  project  = var.project_id
-  name     = local.regional_names[each.key]
-  region   = each.key
-  health_checks = [
-    google_compute_region_health_check.readyz[each.key].self_link,
-  ]
+  for_each              = var.nginxaas == null ? {} : try(module.nginxaas["enabled"].network_endpoint_groups_by_region, {})
+  project               = var.project_id
+  name                  = local.regional_names[each.key]
+  region                = each.key
   load_balancing_scheme = "EXTERNAL_MANAGED"
   locality_lb_policy    = "MAGLEV"
   protocol              = "TCP"
