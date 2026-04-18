@@ -36,35 +36,17 @@ resource "google_compute_region_backend_service" "nginxaas" {
   ]
 }
 
-resource "google_compute_forwarding_rule" "http" {
-  for_each              = { for k, v in google_compute_region_backend_service.nginxaas : k => v if endswith(k, ":80") }
+resource "google_compute_forwarding_rule" "nginxaas" {
+  for_each              = google_compute_region_backend_service.nginxaas
   project               = var.project_id
-  name                  = local.regional_names[each.key]
+  name                  = each.value.name
   description           = "Send HTTP traffic to NGINXaaS."
-  region                = replace(each.key, ":", "-")
+  region                = each.value.region
   backend_service       = each.value.id
-  ip_address            = google_compute_address.ext[each.key].name
+  ip_address            = google_compute_address.ext[each.value.region].name
   ip_protocol           = "TCP"
   ip_version            = "IPV4"
-  port_range            = "80"
-  load_balancing_scheme = "EXTERNAL_MANAGED"
-
-  depends_on = [
-    google_compute_region_backend_service.nginxaas,
-  ]
-}
-
-resource "google_compute_forwarding_rule" "https" {
-  for_each              = { for k, v in google_compute_region_backend_service.nginxaas : k => v if endswith(k, ":443") }
-  project               = var.project_id
-  name                  = local.regional_names[each.key]
-  description           = "Send HTTPS traffic to NGINXaaS."
-  region                = replace(each.key, ":", "-")
-  backend_service       = each.value.id
-  ip_address            = google_compute_address.ext[each.key].name
-  ip_protocol           = "TCP"
-  ip_version            = "IPV4"
-  port_range            = "443"
+  port_range            = split(":", each.key)[1]
   load_balancing_scheme = "EXTERNAL_MANAGED"
 
   depends_on = [
