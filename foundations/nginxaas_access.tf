@@ -6,7 +6,7 @@ module "nginxaas" {
     pool_id = var.workload_identity_pool_id
     name    = format("%s-nginxaas", var.name)
   }
-  attachments = { for k, v in local.regional_names : k => { # TODO(@memes): This should be v
+  attachments = { for k, v in local.regional_names : v => {
     subnet             = module.vpc.subnets_by_region[k].self_link
     ports              = [80, 443]
     service_attachment = try(var.nginxaas.attachments[k], null)
