@@ -26,8 +26,9 @@ resource "google_compute_region_backend_service" "nginxaas" {
   protocol              = "TCP"
   session_affinity      = "NONE"
   backend {
-    balancing_mode = "UTILIZATION"
-    group          = each.value
+    balancing_mode  = "UTILIZATION"
+    capacity_scaler = 1.0
+    group           = each.value
   }
 
   depends_on = [
@@ -35,11 +36,24 @@ resource "google_compute_region_backend_service" "nginxaas" {
   ]
 }
 
+resource "google_compute_region_target_tcp_proxy" "nginxaas" {
+  for_each        = google_compute_region_backend_service.nginxaas
+  project         = var.project_id
+  name            = replace(each.key, ":", "-")
+  region          = each.value.region
+  proxy_header    = "NONE"
+  backend_service = each.value.id
+
+  depends_on = [
+    google_compute_region_backend_service.nginxaas,
+  ]
+}
+
 resource "google_compute_forwarding_rule" "nginxaas" {
-  for_each              = google_compute_region_backend_service.nginxaas
+  for_each              = google_compute_region_target_tcp_proxy.nginxaas
   project               = var.project_id
   name                  = each.value.name
-  description           = "Send HTTP traffic to NGINXaaS."
+  description           = "Send HTTP(s) traffic to NGINXaaS."
   region                = each.value.region
   backend_service       = each.value.id
   ip_address            = google_compute_address.ext[each.value.region].name
@@ -49,6 +63,6 @@ resource "google_compute_forwarding_rule" "nginxaas" {
   load_balancing_scheme = "EXTERNAL_MANAGED"
 
   depends_on = [
-    google_compute_region_backend_service.nginxaas,
+    google_compute_region_target_tcp_proxy.nginxaas,
   ]
 }
