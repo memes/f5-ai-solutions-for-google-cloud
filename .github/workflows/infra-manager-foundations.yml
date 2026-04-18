@@ -153,6 +153,9 @@ jobs:
           workload_identity_pool_id = "${{ secrets.WORKLOAD_IDENTITY_POOL_ID }}"
           nginxaas = {
             has_managed_public_endpoint = true
+            attachments = {
+              "us-central1" = "depl-az2ezgccceqj1zyc7t7rcq"
+            }
             service_accounts = []
             secrets = ${{ vars.NGINXAAS_COMBINED_PEM_SECRETS || '[]' }}
           }
