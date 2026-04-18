@@ -37,7 +37,6 @@ provider "google" {
   var.labels == null ? {} : var.labels)
 }
 
-
 module "bootstrap" {
   source            = "registry.terraform.io/memes/f5-demo-bootstrap/google"
   version           = "0.6.0"

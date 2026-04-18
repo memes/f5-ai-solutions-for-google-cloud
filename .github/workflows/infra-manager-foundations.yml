@@ -154,7 +154,7 @@ jobs:
           nginxaas = {
             has_managed_public_endpoint = true
             attachments = {
-              "us-central1" = "depl-az2ezgccceqj1zyc7t7rcq"
+              "us-central1" = "depl-az2e0jwiduovahjyudxusw"
             }
             service_accounts = []
             secrets = ${{ vars.NGINXAAS_COMBINED_PEM_SECRETS || '[]' }}
