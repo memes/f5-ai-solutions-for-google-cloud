@@ -320,7 +320,8 @@ variable "nginxaas" {
       alltrue([
         for k, v in var.nginxaas.attachments :
         can(regex("^[a-z]{2,}-[a-z]{2,}[0-9]$", k)) &&
-        can(regex("^(?:https://www.googleapis.com/compute/v1/)?projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/regions/[a-z]{2,}-[a-z]{2,}[0-9]/serviceAttachments/[a-z][a-z0-9-]{0,62}[a-z0-9]$", v))
+        can(regex("^(?:https://www.googleapis.com/compute/v1/)?projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/regions/[a-z]{2,}-[a-z]{2,}[0-9]/serviceAttachments/[a-z][a-z0-9-]{0,62}[a-z0-9]$", v)) ||
+        can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", v))
       ])) && (
       var.nginxaas.secrets == null ? true :
       alltrue([for secret in var.nginxaas.secrets :
