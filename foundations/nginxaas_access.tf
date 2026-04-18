@@ -25,10 +25,7 @@ resource "google_compute_region_backend_service" "nginxaas" {
   locality_lb_policy    = "MAGLEV"
   protocol              = "TCP"
   backend {
-    balancing_mode               = "CONNECTION"
-    capacity_scaler              = 1.0
-    max_connections_per_endpoint = 1000
-    group                        = each.value
+    group = each.value
   }
 
   depends_on = [
