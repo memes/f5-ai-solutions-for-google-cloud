@@ -141,7 +141,6 @@ jobs:
           allowlist_cidrs = ${{ vars.ALLOWLIST_CIDRS || '[]' }}
           dns = {
             base_domain = "${{ vars.DNS_BASE_DOMAIN }}"
-            managed_zone_id = "${{ vars.DNS_MANAGED_ZONE_ID }}"
           }
           nginx_jwt_secret = {
             id = "${{ vars.NGINX_JWT_SECRET }}"
@@ -153,13 +152,9 @@ jobs:
           }
           workload_identity_pool_id = "${{ secrets.WORKLOAD_IDENTITY_POOL_ID }}"
           nginxaas = {
-          #   attachments = {
-          #     "us-central1" = "https://www.googleapis.com/compute/v1/projects/depl-az2setlafegp6m-zsimiew/regions/us-central1/serviceAttachments/sa-019d927a-d2da-7c41-8fe8-cfd94883227b"
-          #   }
-          #   service_accounts = [
-          #     "109094018588107535153",
-          #   ]
-          #   secrets = ${{ vars.NGINXAAS_COMBINED_PEM_SECRETS || '[]' }}
+            attachments = null
+            service_accounts = []
+            secrets = ${{ vars.NGINXAAS_COMBINED_PEM_SECRETS || '[]' }}
           }
           EOF
       - name: Generate preview plan
