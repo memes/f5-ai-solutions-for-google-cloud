@@ -308,7 +308,7 @@ variable "workload_identity_pool_id" {
 
 variable "nginxaas" {
   type = object({
-    attachments      = map(string)
+    attachments      = optional(map(string))
     secrets          = optional(set(string))
     service_accounts = optional(set(string))
   })
