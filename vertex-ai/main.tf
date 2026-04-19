@@ -3,7 +3,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 7.16"
+      version = ">= 7.28"
     }
   }
 }
@@ -18,6 +18,10 @@ provider "google" {
   # uses `location` but the underlying implementation fails if a region or zone is not provided. Use the first region
   # in provided as the default, even though all resources explicitly declare which one to use.
   region = try(keys(var.subnets)[0], null)
+}
+
+data "google_project" "project" {
+  project_id = var.project_id
 }
 
 data "google_compute_subnetwork" "subnets" {
@@ -61,6 +65,12 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "model" {
       ]
     }
   }
+}
+
+resource "google_project_iam_member" "vertex_user" {
+  project = var.project_id
+  member  = format("principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/shared-services/sa/auth-proxy", data.google_project.project.number, data.google_project.project.project_id)
+  role    = "roles/aiplatform.user"
 }
 
 resource "google_compute_address" "model" {
