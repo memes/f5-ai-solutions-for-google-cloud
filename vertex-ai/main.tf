@@ -20,6 +20,18 @@ provider "google" {
   region = try(keys(var.subnets)[0], null)
 }
 
+provider "google-beta" {
+  default_labels = merge({
+    demo_id = "f5-ai-solutions-for-google-cloud"
+    module  = "vertex-ai"
+    },
+  var.labels == null ? {} : var.labels)
+  # google_vertex_ai_endpoint_with_model_garden_deployment resource does not expose a `region` or `zone` field as it
+  # uses `location` but the underlying implementation fails if a region or zone is not provided. Use the first region
+  # in provided as the default, even though all resources explicitly declare which one to use.
+  region = try(keys(var.subnets)[0], null)
+}
+
 data "google_project" "project" {
   project_id = var.project_id
 }
