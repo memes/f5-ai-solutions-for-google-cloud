@@ -1,6 +1,7 @@
 module "nginxaas" {
   for_each   = var.nginxaas == null ? {} : { enabled = true }
-  source     = "git::https://github.com/memes/terraform-google-nginxaas?ref=release%2f0.1.0"
+  source     = "registry.terraform.io/memes/nginxaas/google"
+  version    = "0.1.0"
   project_id = var.project_id
   workload_identity = {
     pool_id = var.workload_identity_pool_id
