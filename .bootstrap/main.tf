@@ -37,10 +37,9 @@ provider "google" {
   var.labels == null ? {} : var.labels)
 }
 
-
 module "bootstrap" {
   source            = "registry.terraform.io/memes/f5-demo-bootstrap/google"
-  version           = "0.5.1"
+  version           = "0.6.0"
   project_id        = var.project_id
   name              = var.name
   github_options    = var.github_options
@@ -67,9 +66,11 @@ module "bootstrap" {
     "telemetry.googleapis.com",
   ]
   iac_roles = [
+    "roles/aiplatform.user",
     "roles/certificatemanager.owner",
     "roles/clouddeploy.operator",
     "roles/cloudsql.admin",
+    "roles/compute.loadBalancerAdmin",
     "roles/compute.networkAdmin",
     "roles/compute.securityAdmin",
     "roles/container.admin",
@@ -86,6 +87,9 @@ module "bootstrap" {
   cloud_deploy_roles = [
     "roles/container.developer",
   ]
+  iac_options = {
+    enable_workload_identity_pool_admin = true
+  }
 }
 
 # F5 AI Guardrails and Red Team deployments need the license token; if provided, create a secret containing the token
@@ -127,7 +131,6 @@ resource "github_actions_variable" "dns" {
   }
 }
 
-
 # Add the initial CIDR allow list to the GitHub repo as a variable, but let the value be changed from the initial value
 # as needed.
 resource "github_actions_variable" "allowlist_cidrs" {
@@ -168,4 +171,33 @@ resource "github_actions_variable" "model_cache_bucket" {
       value,
     ]
   }
+}
+
+
+module "nginxaas_combined_pem" {
+  for_each   = var.nginxaas_combined_pems == null ? {} : var.nginxaas_combined_pems
+  source     = "memes/secret-manager/google"
+  version    = "2.2.2"
+  project_id = var.project_id
+  id         = format("%s-%s", var.name, replace(each.key, "/[^a-z0-9_-]/", "-"))
+  secret     = each.value
+  accessors  = []
+}
+
+# Add the list of TLS certificate PEM secrets as a GitHub variable.
+resource "github_actions_variable" "nginxaas_combined_pem_secrets" {
+  repository    = local.repo_name
+  variable_name = "NGINXAAS_COMBINED_PEM_SECRETS"
+  value         = jsonencode([for secret in module.nginxaas_combined_pem : secret.id])
+}
+
+# For NGINXaaS integration the workload identity pool identifier is needed.
+resource "github_actions_secret" "pool_id" {
+  repository      = local.repo_name
+  secret_name     = "WORKLOAD_IDENTITY_POOL_ID"
+  plaintext_value = module.bootstrap.workload_identity_pool_id
+
+  depends_on = [
+    module.bootstrap,
+  ]
 }

@@ -69,3 +69,24 @@ module "region_detail" {
   version = "1.1.7"
   regions = var.regions
 }
+
+resource "google_compute_address" "ext" {
+  for_each     = var.nginxaas == null || !try(var.nginxaas.has_managed_public_endpoint, false) ? local.regional_names : {}
+  project      = var.project_id
+  name         = format("%s-ext", each.value)
+  description  = format("External IP for public access to %s cluster", each.value)
+  address_type = "EXTERNAL"
+  region       = each.key
+}
+
+# If a Cloud DNS managed zone identifier has been provided we can add the supporting A records for each public reserved
+# address.
+resource "google_dns_record_set" "ext" {
+  for_each     = coalesce(var.dns.managed_zone_id, "unspecified") != "unspecified" ? toset(local.effective_domains) : []
+  project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
+  managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
+  name         = format("%s.", each.key)
+  type         = "A"
+  ttl          = 300
+  rrdatas      = compact([for k, v in local.regional_names : try(google_compute_address.ext[k].address, null)])
+}

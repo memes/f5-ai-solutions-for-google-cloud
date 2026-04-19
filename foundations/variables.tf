@@ -293,12 +293,50 @@ variable "cloud_deploy_service_account" {
   EOD
 }
 
-variable "provision_external_gw_address" {
-  type        = bool
-  nullable    = false
-  default     = false
+variable "workload_identity_pool_id" {
+  type     = string
+  nullable = true
+  default  = null
+  validation {
+    condition     = coalesce(var.workload_identity_pool_id, "unspecified") == "unspecified" ? true : can(regex("^projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/locations/global/workloadIdentityPools/[a-z0-9-]{4,32}$", var.workload_identity_pool_id))
+    error_message = "The workload_identity_pool_id must be empty or a valid Workload Identity name or id."
+  }
   description = <<-EOD
-  If true, public IP addresses will be reserved for cluster Gateways, along with Cloud Armor policies for access. If
-  false (default), no public IP addresses will be reserved.
+    An optional identifier of an *existing* Workload Identity pool to which a new provider for NGINXaaS will be created.
+    EOD
+}
+
+variable "nginxaas" {
+  type = object({
+    attachments                 = optional(map(string))
+    secrets                     = optional(set(string))
+    service_accounts            = optional(set(string))
+    has_managed_public_endpoint = optional(bool, false)
+  })
+  nullable = true
+  validation {
+    condition = var.nginxaas == null ? true : (
+      var.nginxaas.attachments == null ? true :
+      alltrue([
+        for k, v in var.nginxaas.attachments :
+        can(regex("^[a-z]{2,}-[a-z]{2,}[0-9]$", k)) &&
+        can(regex("^(?:https://www.googleapis.com/compute/v1/)?projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/regions/[a-z]{2,}-[a-z]{2,}[0-9]/serviceAttachments/[a-z][a-z0-9-]{0,62}[a-z0-9]$", v)) ||
+        can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", v))
+      ])) && (
+      var.nginxaas.secrets == null ? true :
+      alltrue([for secret in var.nginxaas.secrets :
+        can(regex("projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/secrets/[a-zA-Z0-9_-]{1,255}$", secret))
+      ])) && (
+      var.nginxaas.service_accounts == null ? true :
+      alltrue([for service_account in var.nginxaas.service_accounts :
+        can(regex("^[1-9][0-9]+$", service_account))
+      ])
+    )
+    error_message = "Each attachments key must be a valid name, and the value must be a valid subnet self-link, Any secrets and service_accounts entries must be valid."
+  }
+  default     = null
+  description = <<-EOD
+  If not null, the properties will be used to attach NGINXaaS for Google Cloud. If null, resources to support Google
+  managed load balancers and certificates will be provisioned.
   EOD
 }

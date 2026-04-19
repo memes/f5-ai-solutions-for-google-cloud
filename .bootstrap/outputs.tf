@@ -38,3 +38,11 @@ output "model_cache_bucket" {
   The Google Cloud Storage bucket names to be used for model caching.
   EOD
 }
+
+output "nginxaas_combined_pems" {
+  value = { for k, v in module.nginxaas_combined_pem : k => {
+    secret_id            = v.secret_id
+    id                   = v.id
+    expiration_timestamp = v.expiration_timestamp
+  } }
+}

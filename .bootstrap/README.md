@@ -72,17 +72,20 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_bootstrap"></a> [bootstrap](#module\_bootstrap) | registry.terraform.io/memes/f5-demo-bootstrap/google | 0.5.1 |
+| <a name="module_bootstrap"></a> [bootstrap](#module\_bootstrap) | registry.terraform.io/memes/f5-demo-bootstrap/google | 0.6.0 |
 | <a name="module_f5_ai_license"></a> [f5\_ai\_license](#module\_f5\_ai\_license) | memes/secret-manager/google | 2.2.2 |
+| <a name="module_nginxaas_combined_pem"></a> [nginxaas\_combined\_pem](#module\_nginxaas\_combined\_pem) | memes/secret-manager/google | 2.2.2 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
+| [github_actions_secret.pool_id](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_secret) | resource |
 | [github_actions_variable.allowlist_cidrs](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [github_actions_variable.dns](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [github_actions_variable.f5_ai_license](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [github_actions_variable.model_cache_bucket](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
+| [github_actions_variable.nginxaas_combined_pem_secrets](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [google_storage_bucket.model_cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket) | resource |
 
 ## Inputs
@@ -98,6 +101,7 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 | <a name="input_iac_impersonators"></a> [iac\_impersonators](#input\_iac\_impersonators) | A list of fully-qualified IAM accounts that will be allowed to impersonate the IaC automation service account. If no<br/>accounts are supplied, impersonation will not be setup by the script.<br/>E.g.<br/>impersonators = [<br/>  "group:devsecops@example.com",<br/>  "group:admins@example.com",<br/>  "user:jane@example.com",<br/>  "serviceAccount:ci-cd@project.iam.gserviceaccount.com",<br/>] | `list(string)` | `[]` | no |
 | <a name="input_labels"></a> [labels](#input\_labels) | An optional set of key:value string pairs that will be added to Google Cloud resources that accept labels.<br/>Alternative: Set common labels in the `google` provider configuration. | `map(string)` | `{}` | no |
 | <a name="input_nginx_jwt"></a> [nginx\_jwt](#input\_nginx\_jwt) | An optional NGINX+ JWT to store in Google Secret Manager, with read-only access granted to AR service account. | `string` | `null` | no |
+| <a name="input_nginxaas_combined_pems"></a> [nginxaas\_combined\_pems](#input\_nginxaas\_combined\_pems) | An optional map of names to combined TLS certificate and key PEMs to add to Google Secret Manager. | `map(string)` | `null` | no |
 
 ## Outputs
 
@@ -108,5 +112,6 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 | <a name="output_f5_ai_license"></a> [f5\_ai\_license](#output\_f5\_ai\_license) | If an F5 AI Guardrails/Red Team secret was created during bootstrap, return the fully-qualified and local identifiers,<br/>and expiration timestamp, if appropriate. |
 | <a name="output_model_cache_bucket"></a> [model\_cache\_bucket](#output\_model\_cache\_bucket) | The Google Cloud Storage bucket names to be used for model caching. |
 | <a name="output_nginx_jwt"></a> [nginx\_jwt](#output\_nginx\_jwt) | If an NGINX JWT secret was created during bootstrap, return the fully-qualified and local identifiers, and expiration<br/>timestamp, if appropriate. |
+| <a name="output_nginxaas_combined_pems"></a> [nginxaas\_combined\_pems](#output\_nginxaas\_combined\_pems) | n/a |
 <!-- END_TF_DOCS -->
 <!-- markdownlint-enable MD033 MD034 MD060 -->

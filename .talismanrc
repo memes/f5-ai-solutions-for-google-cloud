@@ -23,7 +23,7 @@ fileignoreconfig:
 - filename: foundations/main.tf
   checksum: 21bebb49ab9cd70d37f20c1db846b6f2306dd093bece778e2c200fb9170e8753
 - filename: foundations/variables.tf
-  checksum: 8a7a1aa1fa15cf7d3f06b76ce38ac461936adb9b23408d42fc3dad57053e3f87
+  checksum: 8e20bf13012ec51b0ae553852728e8fd3e188072f225c9670ac1738ba1bc25f5
 - filename: gke-gateway/outputs.tf
   checksum: c3eeeea5bbe9c5f00a90414ca61026315e1e48037cfe2deb7bd844ef6a6b8eb9
 - filename: gke-gateway/pg.tf
@@ -57,9 +57,9 @@ fileignoreconfig:
   ignore_detectors:
   - filecontent
 - filename: .bootstrap/main.tf
-  checksum: 2e5b24c63b9500764a2f30b7cddb2c5131cebb805e818ebe2fce2a6edbb36e3b
+  checksum: 100d5bf38ee63dd937b17c89a77cfc4b79ea31d3445a96e49b19c329efb6c0ad
 - filename: .bootstrap/outputs.tf
-  checksum: 087471067e90bf1dc6d20e7e44016182f61f41540b5c045850be90dc7219e4bd
+  checksum: ba13d042fb25a96d94f37b8afea1380a69cb55e5c7781f5fde50557464316d9e
 - filename: .bootstrap/variables.tf
   checksum: c53f8839597ec9de3142422808f329748308fff88a42bc233c56e87299aacfae
 - filename: .bootstrap/README.md
@@ -67,4 +67,16 @@ fileignoreconfig:
   ignore_detectors:
   - filecontent
 - filename: .github/workflows/infra-manager-foundations.yml
-  checksum: 610bdfb85f4e95307dc59010dfb64bf96cb2a0d25724fe22bf0103217537f03e
+  checksum: afc3553b8f622df04639f6f253d85b6c1eca097bd5ff6751e667789386b9464f
+- filename: vertex-ai/variables.tf
+  checksum: 107e5a19c9541d25a16e2487a1462c163698bf29f30f8270109d196665b12485
+- filename: vertex-ai/README.md
+  checksum: 80585b0f1d867534f17f59ce1f2593ea6c17a0688755aa3fac9130226933b05f
+  ignore_detectors:
+  - filecontent
+- filename: vertex-ai/main.tf
+  checksum: 625153f26f75489814921c376e3221052702242f4786b74a49774f3d3cfdaef5
+- filename: foundations/managed_access.tf
+  checksum: f02dd904a77237330ec9945effeec20402eef683d4877996c79fba5ea754748d
+- filename: foundations/nginxaas_access.tf
+  checksum: d8896648a2fd030dd8d81937bc2ddeb75a694c0a79159a1146876ca5e3bae3d6

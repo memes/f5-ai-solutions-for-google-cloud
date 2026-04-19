@@ -116,3 +116,12 @@ variable "allowlist_cidrs" {
   create a Cloud Armor policy blocking access unless this variable contains an allow list.
   EOD
 }
+
+variable "nginxaas_combined_pems" {
+  type        = map(string)
+  nullable    = true
+  default     = null
+  description = <<-EOD
+  An optional map of names to combined TLS certificate and key PEMs to add to Google Secret Manager.
+  EOD
+}

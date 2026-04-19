@@ -87,13 +87,13 @@ output "clusters" {
   EOD
 }
 
-output "gw_addresses" {
-  value = { for k, v in google_compute_address.gw : k => {
+output "ext_addresses" {
+  value = { for k, v in google_compute_address.ext : k => {
     name = v.name
     ip   = v.address
   } }
   description = <<-EOD
-  A map of Compute Engine region names to reserved public IP addresses for cluster Gateways, if provisioned.
+  A map of Compute Engine region names to reserved public IP addresses..
   EOD
 }
 
@@ -132,13 +132,9 @@ output "cache_hosts" {
   EOD
 }
 
-output "vertex_ai_endpoints" {
-  value = { for k, v in google_vertex_ai_endpoint_with_model_garden_deployment.gemma : v.deployed_model_display_name => {
-    dns_name = trimsuffix(google_dns_record_set.gemma[k].name, ".")
-    address  = google_compute_address.gemma[k].address
-    url      = format("https://%s/v1/%s", trimsuffix(google_dns_record_set.gemma[k].name, "."), v.id)
-  } }
+output "nginxaas" {
+  value       = one([for k, v in module.nginxaas : v])
   description = <<-EOD
-  A map of model endpoint display names to resolver values.
+  A map of Compute Engine region names to F5 NGINXaaS module outputs.
   EOD
 }

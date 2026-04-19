@@ -11,6 +11,7 @@
             "helm": "latest",
             "minikube": "none"
         },
+        "ghcr.io/devcontainers/features/node:1": {},
         "ghcr.io/memes/devcontainers-features/direnv:1": {},
         "ghcr.io/memes/devcontainers-features/hashicorp:1": {
             "terraform": "1.5.7"
@@ -43,20 +44,23 @@
                 "esbenp.prettier-vscode",
                 "DavidAnson.vscode-markdownlint",
                 "hashicorp.hcl",
-                "ms-kubernetes-tools.vscode-kubernetes-tools"
+                "ms-kubernetes-tools.vscode-kubernetes-tools",
+                "ms-azuretools.vscode-containers"
             ]
         }
     },
     "containerUser": "vscode",
+    "containerEnv": {
+        "HF_HOME": "/var/lib/hf_cache"
+    },
     "updateRemoteUserUID": true,
     "mounts": [
         "source=${localEnv:HOME}/.config/gcloud,target=/home/vscode/.config/gcloud,type=bind,consistency=cached",
-        "source=${localEnv:HOME}/projects/oss/terraform-google-private-gke-cluster,target=/home/vscode/terraform-google-private-gke-cluster,type=bind,consistency=cached",
-        "source=${localEnv:HOME}/projects/automation/google-demo-helper-modules,target=/home/vscode/google-demo-helper-modules,type=bind,consistency=cached"
+        "source=hugging-face-cache,target=/var/lib/hf_cache,type=volume"
 
     ],
     "onCreateCommand": {
-        "install-deps": "sudo sh -c 'apt update && apt install -y --no-install-recommends shellcheck kustomize pipx && rm -rf /var/lib/apt/lists/*'",
+        "install-deps": "sudo sh -c 'apt update && apt install -y --no-install-recommends shellcheck kustomize pipx njs && rm -rf /var/lib/apt/lists/*'",
         "modify-default-omz-plugins": ["/usr/bin/sed", "-i.onCreateCommand" , "-e", "/^plugins=/c\\plugins=(git dotenv)", "/home/vscode/.zshrc"]
     },
     "updateContentCommand": {
