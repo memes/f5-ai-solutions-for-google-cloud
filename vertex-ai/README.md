@@ -25,6 +25,7 @@ This module provisions Vertex AI models for demo.
 | [google_compute_forwarding_rule.gemma](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_forwarding_rule) | resource |
 | [google_dns_managed_zone.vertex_ai](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_managed_zone) | resource |
 | [google_dns_record_set.model](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dns_record_set) | resource |
+| [google_vertex_ai_endpoint_iam_member.model](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/vertex_ai_endpoint_iam_member) | resource |
 | [google_vertex_ai_endpoint_with_model_garden_deployment.model](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/vertex_ai_endpoint_with_model_garden_deployment) | resource |
 | [google_compute_subnetwork.subnets](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/compute_subnetwork) | data source |
 

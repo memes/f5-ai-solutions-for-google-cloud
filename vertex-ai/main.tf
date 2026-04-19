@@ -63,6 +63,15 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "model" {
   }
 }
 
+resource "google_vertex_ai_endpoint_iam_member" "model" {
+  for_each = google_vertex_ai_endpoint_with_model_garden_deployment.model
+  project  = each.value.project
+  location = each.value.location
+  endpoint = each.value.id
+  member   = format("principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/shared-services/sa/auth-proxy", data.google_project.project.number, data.google_project.project.project_id)
+  role     = "roles/aiplatform.user"
+}
+
 resource "google_compute_address" "model" {
   for_each = { for k, v in google_vertex_ai_endpoint_with_model_garden_deployment.model : k => {
     subnet = data.google_compute_subnetwork.subnets[v.location].self_link
