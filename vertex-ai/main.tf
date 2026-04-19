@@ -3,7 +3,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 7.16"
+      version = ">= 7.28"
     }
   }
 }
@@ -18,6 +18,10 @@ provider "google" {
   # uses `location` but the underlying implementation fails if a region or zone is not provided. Use the first region
   # in provided as the default, even though all resources explicitly declare which one to use.
   region = try(keys(var.subnets)[0], null)
+}
+
+data "google_project" "project" {
+  project_id = var.project_id
 }
 
 data "google_compute_subnetwork" "subnets" {
@@ -62,9 +66,10 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "model" {
     }
   }
 }
-
+# tflint-ignore: terraform_required_providers # Google-beta variants should not be declared separately
 resource "google_vertex_ai_endpoint_iam_member" "model" {
   for_each = google_vertex_ai_endpoint_with_model_garden_deployment.model
+  provider = google-beta
   project  = each.value.project
   location = each.value.location
   endpoint = each.value.id
