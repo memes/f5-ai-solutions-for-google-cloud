@@ -20,7 +20,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 | <a name="module_cluster"></a> [cluster](#module\_cluster) | git::https://github.com/memes/terraform-google-private-gke-cluster//modules/autopilot | feat%2fv3_refactor |
 | <a name="module_googleapis-dns"></a> [googleapis-dns](#module\_googleapis-dns) | memes/restricted-apis-dns/google | 2.0.1 |
 | <a name="module_managed_cert"></a> [managed\_cert](#module\_managed\_cert) | registry.terraform.io/memes/tls-certificate/google//modules/managed | 0.1.1 |
-| <a name="module_nginxaas"></a> [nginxaas](#module\_nginxaas) | git::https://github.com/memes/terraform-google-nginxaas | release%2f0.1.0 |
+| <a name="module_nginxaas"></a> [nginxaas](#module\_nginxaas) | registry.terraform.io/memes/nginxaas/google | 0.1.0 |
 | <a name="module_region_detail"></a> [region\_detail](#module\_region\_detail) | memes/region-detail/google | 1.1.7 |
 | <a name="module_sa"></a> [sa](#module\_sa) | git::https://github.com/memes/terraform-google-private-gke-cluster//modules/sa | feat%2fv3_refactor |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | memes/multi-region-private-network/google | 5.2.0 |
