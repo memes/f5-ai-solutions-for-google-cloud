@@ -20,18 +20,6 @@ provider "google" {
   region = try(keys(var.subnets)[0], null)
 }
 
-provider "google-beta" {
-  default_labels = merge({
-    demo_id = "f5-ai-solutions-for-google-cloud"
-    module  = "vertex-ai"
-    },
-  var.labels == null ? {} : var.labels)
-  # google_vertex_ai_endpoint_with_model_garden_deployment resource does not expose a `region` or `zone` field as it
-  # uses `location` but the underlying implementation fails if a region or zone is not provided. Use the first region
-  # in provided as the default, even though all resources explicitly declare which one to use.
-  region = try(keys(var.subnets)[0], null)
-}
-
 data "google_project" "project" {
   project_id = var.project_id
 }
@@ -78,15 +66,11 @@ resource "google_vertex_ai_endpoint_with_model_garden_deployment" "model" {
     }
   }
 }
-# tflint-ignore: terraform_required_providers # Google-beta variants should not be declared separately
-resource "google_vertex_ai_endpoint_iam_member" "model" {
-  for_each = google_vertex_ai_endpoint_with_model_garden_deployment.model
-  provider = google-beta
-  project  = each.value.project
-  location = each.value.location
-  endpoint = each.value.id
-  member   = format("principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/shared-services/sa/auth-proxy", data.google_project.project.number, data.google_project.project.project_id)
-  role     = "roles/aiplatform.user"
+
+resource "google_project_iam_member" "vertex_user" {
+  project = var.project_id
+  member  = format("principal://iam.googleapis.com/projects/%s/locations/global/workloadIdentityPools/%s.svc.id.goog/subject/ns/shared-services/sa/auth-proxy", data.google_project.project.number, data.google_project.project.project_id)
+  role    = "roles/aiplatform.user"
 }
 
 resource "google_compute_address" "model" {
