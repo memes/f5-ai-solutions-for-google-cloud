@@ -30,7 +30,7 @@ env:
   DEPLOYMENT_REGION: us-central1
   DEPLOYMENT_SOURCE: deployments
 jobs:
-  infra-manager:
+  cloud-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
@@ -42,6 +42,7 @@ jobs:
         with:
           project_id: ${{ vars.PROJECT_ID }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
+          service_account: ${{ secrets.DEPLOY_SERVICE_ACCOUNT }}
       - name: Google Cloud CLI
         id: gcloud-cli
         uses: google-github-actions/setup-gcloud@v3
