@@ -7,6 +7,10 @@ name: 'Cloud Deploy: deploy'
 # yamllint disable-line rule:truthy
 on:
   workflow_dispatch: {}
+  pull_request:
+    paths:
+      - 'deployments/**'
+      - .github/workflows/cloud-deploy.yml
   push:
     branches:
       - main
