@@ -2,7 +2,7 @@
 #
 # yamllint disable rule:line-length
 ---
-name: 'Cloud Deploy: deploy'
+name: 'Cloud Deploy: deployments'
 
 # yamllint disable-line rule:truthy
 on:
@@ -28,6 +28,7 @@ env:
   DEPLOYMENT_PIPELINE_NAME: f5-ai-demo
   DEPLOYMENT_PROJECT_ID: ${{ vars.PROJECT_ID }}
   DEPLOYMENT_REGION: us-central1
+  DEPLOYMENT_SOURCE: deployments
 jobs:
   infra-manager:
     runs-on: ubuntu-latest
@@ -68,14 +69,14 @@ jobs:
           echo "RELEASE_NAME=${{ env.DEPLOYMENT_PIPELINE_NAME }}-${GITHUB_SHA::7}-${GITHUB_RUN_NUMBER}" >> ${GITHUB_ENV}
       - name: Create Cloud Deploy release
         id: create_release
-        uses: google-github-actions/create-cloud-deploy-release@v0
+        uses: google-github-actions/create-cloud-deploy-release@v2.0.0
         with:
           delivery_pipeline: ${{ env.DEPLOYMENT_PIPELINE_NAME }}
           project_id: ${{ env.DEPLOYMENT_PROJECT_ID }}
           region: ${{ env.DEPLOYMENT_REGION }}
           name: ${{ env.RELEASE_NAME }}
           description: ${{ env.GITHUB_COMMIT_MSG }}
-          source: deployments
+          source: ${{ env.DEPLOYMENT_SOURCE }}
           skaffold_file: ../skaffold.yaml
           images: 'dummy=dummy:${{ github.sha }}'
       - name: Echo pipeline details to stdout if not associated with a PR
