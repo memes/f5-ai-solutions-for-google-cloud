@@ -146,7 +146,6 @@ jobs:
             id = "${{ vars.NGINX_JWT_SECRET }}"
           }
           f5_ai_license_secret = "${{ vars.F5_AI_LICENSE_SECRET }}"
-          cloud_deploy_service_account = "${{ secrets.DEPLOY_SERVICE_ACCOUNT }}"
           model_cache_bucket = {
             name = "${{ vars. MODEL_CACHE_BUCKET }}"
           }

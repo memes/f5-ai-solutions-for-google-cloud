@@ -279,17 +279,23 @@ variable "repository" {
 }
 
 # tflint-ignore: terraform_unused_declarations # TODO(@memes): This will be used when pipelines are ready
-variable "cloud_deploy_service_account" {
-  type     = string
+variable "cloud_deploy" {
+  type = object({
+    service_account = string
+    location        = string
+  })
   nullable = true
   validation {
-    condition     = coalesce(var.cloud_deploy_service_account, "unspecified") == "unspecified" ? true : can(regex("(?:[a-z][a-z0-9-]{4,28}[a-z0-9]@[a-z][a-z0-9-]{4,28}\\.iam|[1-9][0-9]+-compute@developer)\\.gserviceaccount\\.com$", var.cloud_deploy_service_account))
-    error_message = "The cloud_deploy_service_account variable must be a valid GCP service account email address."
+    condition = var.cloud_deploy == null ? true : (
+      can(regex("(?:[a-z][a-z0-9-]{4,28}[a-z0-9]@[a-z][a-z0-9-]{4,28}\\.iam|[1-9][0-9]+-compute@developer)\\.gserviceaccount\\.com$", var.cloud_deploy.service_account)) &&
+      can(regex("^[a-z]{2,}-[a-z]{2,}[0-9]$", var.cloud_deploy.location))
+    )
+    error_message = "The cloud_deploy service_account field variable must be a valid GCP service account email address."
   }
   default     = null
   description = <<-EOD
-  An optional Cloud Deploy execution service account that will deploy resources to GKE. If null or empty, Cloud Deploy
-  pipelines will not be created.
+  An optional Cloud Deploy parameter set that will deploy resources to GKE. If null, Cloud Deploy pipelines will not be
+  created.
   EOD
 }
 

@@ -90,3 +90,14 @@ resource "google_dns_record_set" "ext" {
   ttl          = 300
   rrdatas      = compact([for k, v in local.regional_names : try(google_compute_address.ext[k].address, null)])
 }
+
+resource "google_compute_address" "gw" {
+  for_each     = var.nginxaas != null ? local.regional_names : {}
+  project      = var.project_id
+  name         = format("%s-gw", each.value)
+  description  = format("Internal IP for shared Gateway for %s cluster", each.value)
+  address_type = "INTERNAL"
+  purpose      = "GCE_ENDPOINT"
+  subnetwork   = module.vpc.subnets_by_region[each.key].self_link
+  region       = each.key
+}

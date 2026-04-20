@@ -5,8 +5,9 @@ rules:
   line-length:
     max: 120
     ignore:
-      - .github/workflows/infra-manager.yml
+      - .github/workflows/infra-manager*.yml
       - deployments/**/skaffold.yaml
+      - skaffold.yaml
   document-start:
     ignore:
       # Kpt/kustomize tooling routinely strips leading --- from files

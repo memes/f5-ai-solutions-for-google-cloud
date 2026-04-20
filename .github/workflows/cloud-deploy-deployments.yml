@@ -1,0 +1,106 @@
+# Declares an action that triggers a Google Cloud Deploy release on changes in the deploy/ directory.
+#
+# yamllint disable rule:line-length
+---
+name: 'Cloud Deploy: deployments'
+
+# yamllint disable-line rule:truthy
+on:
+  workflow_dispatch: {}
+  pull_request:
+    paths:
+      - 'deployments/**'
+      - .github/workflows/cloud-deploy.yml
+  push:
+    branches:
+      - main
+    paths:
+      - 'deployments/**'
+      - .github/workflows/cloud-deploy.yml
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+env:
+  # These values define the properties used by Cloud Deploy
+  DEPLOYMENT_PIPELINE_NAME: f5-ai-demo
+  DEPLOYMENT_PROJECT_ID: ${{ vars.PROJECT_ID }}
+  DEPLOYMENT_REGION: us-central1
+  DEPLOYMENT_SOURCE: deployments
+jobs:
+  cloud-deploy:
+    runs-on: ubuntu-latest
+    # TODO(@memes): Investigate problems and re-enable later
+    if: false
+    steps:
+      - name: Checkout source
+        id: checkout
+        uses: actions/checkout@v6
+      - name: Google Authentication
+        id: google-auth
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ vars.PROJECT_ID }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
+      - name: Google Cloud CLI
+        id: gcloud-cli
+        uses: google-github-actions/setup-gcloud@v3
+      - name: Get PR number
+        id: get_pr_number
+        uses: actions/github-script@v9
+        with:
+          result-encoding: string
+          script: |
+            if (context.issue.number) {
+              return context.issue.number;
+            } else {
+              data = (
+                await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  commit_sha: context.sha,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                })
+              ).data;
+              return data.length > 0 ? data[0].number : undefined;
+            }
+      - name: Create release name
+        id: create_release_name
+        run: |-
+          echo "RELEASE_NAME=${{ env.DEPLOYMENT_PIPELINE_NAME }}-${GITHUB_SHA::7}-${GITHUB_RUN_NUMBER}" >> ${GITHUB_ENV}
+      - name: Create Cloud Deploy release
+        id: create_release
+        uses: google-github-actions/create-cloud-deploy-release@v2.0.0
+        with:
+          delivery_pipeline: ${{ env.DEPLOYMENT_PIPELINE_NAME }}
+          project_id: ${{ env.DEPLOYMENT_PROJECT_ID }}
+          region: ${{ env.DEPLOYMENT_REGION }}
+          name: ${{ env.RELEASE_NAME }}
+          description: ${{ env.GITHUB_COMMIT_MSG }}
+          source: ${{ env.DEPLOYMENT_SOURCE }}
+          skaffold_file: ../skaffold.yaml
+          images: 'dummy=dummy:${{ github.sha }}'
+      - name: Echo pipeline details to stdout if not associated with a PR
+        id: cat_results
+        if: ${{ !steps.get_pr_number.outputs.result }}
+        run: |
+          echo "Created release ${{ steps.create_release.outputs.name }} "
+          echo "Release link ${{ steps.create_release.outputs.link }} "
+      - name: Add markdown output as comment on PR
+        id: pr-md-results
+        if: ${{ steps.get_pr_number.outputs.result }}
+        uses: actions/github-script@v9
+        env:
+          ISSUE_NUMBER: ${{ steps.get_pr_number.outputs.result }}
+          RELEASE_NAME: ${{ steps.create_release.outputs.name }}
+          RELEASE_LINK: ${{ steps.create_release.outputs.link }}
+        with:
+          script: |
+            const title = '## ${{ github.workflow }} release ' + process.env.RELEASE_NAME + ' created';
+            github.rest.issues.createComment({
+              issue_number: process.env.ISSUE_NUMBER,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: title + '\n\n' + Review the release at ' + process.env.RELEASE_LINK + '\n';
+            })

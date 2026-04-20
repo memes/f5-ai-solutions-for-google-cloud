@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pg-admin
+  namespace: shared-services
+---
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: pg-admin
+  namespace: shared-services
+spec:
+  provider: gke
+  parameters:
+    secrets: |
+      - resourceName: projects/f5-gcs-4138-sales-cloudnext25/secrets/f5-ai-demo-us-ce1-pg-admin/versions/latest
+        path: .user
+        extractJSONKey: user
+      - resourceName: projects/f5-gcs-4138-sales-cloudnext25/secrets/f5-ai-demo-us-ce1-pg-admin/versions/latest
+        path: .password
+        extractJSONKey: password
+      - resourceName: projects/f5-gcs-4138-sales-cloudnext25/secrets/f5-ai-demo-us-ce1-pg-admin/versions/latest
+        path: .host
+        extractJSONKey: host
+---
+apiVersion: secret-sync.gke.io/v1
+kind: SecretSync
+metadata:
+  name: pg-admin
+  namespace: shared-services
+spec:
+  serviceAccountName: pg-admin
+  secretProviderClassName: pg-admin
+  secretObject:
+    type: Opaque
+    data:
+      - sourcePath: .user
+        targetKey: user
+      - sourcePath: .password
+        targetKey: password
+      - sourcePath: .host
+        targetKey: host
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: psql-scripts
+  namespace: shared-services
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+data:
+  drop_cai_resources.sql: |-
+    DROP DATABASE IF EXISTS keycloak;
+    DROP DATABASE IF EXISTS moderator;
+    DROP DATABASE IF EXISTS moderator_metrics;
+    DROP DATABASE IF EXISTS prefect;
+    DROP USER IF EXISTS keycloak;
+    DROP USER IF EXISTS moderator;
+    DROP USER IF EXISTS prefect;

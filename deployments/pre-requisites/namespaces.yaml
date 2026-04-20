@@ -1,0 +1,25 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: f5-ai-moderator
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: f5-ai-scanner
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: f5-ai-redteam
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shared-services
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vllm
