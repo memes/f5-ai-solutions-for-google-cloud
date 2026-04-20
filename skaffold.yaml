@@ -2,60 +2,48 @@
 apiVersion: skaffold/v4beta13
 kind: Config
 metadata:
-  name: f5-ai-demo-pre-reqs
+  name: f5-ai-demo-pre-requisites
   annotations:
     config.kubernetes.io/local-config: "true"
-    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
-    community.f5.com/email: m.emes@f5.com
-    community.f5.com/owner: emes
-requires:
-  - path: deployments/shared-services
-  - path: deployments/cai-crds
 build: {}
-manifests: {}
-deploy: {}
+manifests:
+  kustomize:
+    paths:
+      - deployments/pre-requisites
+deploy:
+  kubectl: {}
 ---
 apiVersion: skaffold/v4beta13
 kind: Config
 metadata:
-  name: f5-ai-demo-cai-moderator
+  name: f5-ai-demo
   annotations:
     config.kubernetes.io/local-config: "true"
-    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
-    community.f5.com/email: m.emes@f5.com
-    community.f5.com/owner: emes
-requires:
-  - path: deployments/cai-moderator
 build: {}
-manifests: {}
-deploy: {}
----
-apiVersion: skaffold/v4beta13
-kind: Config
-metadata:
-  name: f5-ai-demo-cai-scanner
-  annotations:
-    config.kubernetes.io/local-config: "true"
-    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
-    community.f5.com/email: m.emes@f5.com
-    community.f5.com/owner: emes
-requires:
-  - path: deployments/cai-scanner
-build: {}
-manifests: {}
-deploy: {}
----
-apiVersion: skaffold/v4beta13
-kind: Config
-metadata:
-  name: f5-ai-demo-cai-redteam
-  annotations:
-    config.kubernetes.io/local-config: "true"
-    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
-    community.f5.com/email: m.emes@f5.com
-    community.f5.com/owner: emes
-requires:
-  - path: deployments/cai-redteam
-build: {}
-manifests: {}
-deploy: {}
+manifests:
+  rawYaml:
+    - deployments/shared-services/gateway/*yaml
+deploy:
+  kubectl:
+    hooks:
+      before:
+        - host:
+            command:
+              - kubectl
+              - delete
+              - job
+              - cai-workflows-bootstrap
+              - --namespace
+              - f5-ai-redteam
+              - --ignore-not-found
+      after:
+        - host:
+            command:
+              - sh
+              - -c
+              - 'kubectl set env -n f5-ai-redteam deployment/prefect-worker PREFECT_KUBERNETES_CLUSTER_UID="$(kubectl get ns kube-system -o template --template "{{.metadata.uid}}")"; exit 0'
+        - host:
+            command:
+              - sh
+              - -c
+              - 'kubectl create job cai-workflows-bootstrap --namespace f5-ai-redteam --from=cronjob/cai-workflows; exit 0'

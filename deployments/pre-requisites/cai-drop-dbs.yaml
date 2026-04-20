@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: psql-drop-cai-dbs
+  namespace: shared-services
+spec:
+  ttlSecondsAfterFinished: 10
+  template:
+    spec:
+      serviceAccountName: pg-admin
+      containers:
+        - name: psql
+          image: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/postgres:17.9-alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - psql
+            - postgresql://$(PGUSER):$(PGPASS)@$(PGHOST):5432/postgres
+            - --no-password
+            - --echo-all
+            - --file
+            - /run/psql-scripts/drop_cai_resources.sql
+          env:
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  key: user
+                  name: pg-admin
+            - name: PGPASS
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: pg-admin
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  key: host
+                  name: pg-admin
+          resources:
+            requests:
+              cpu: 100m
+          volumeMounts:
+            - mountPath: /run/psql-scripts
+              name: psql-scripts
+      volumes:
+        - name: psql-scripts
+          configMap:
+            name: psql-scripts
+      restartPolicy: OnFailure

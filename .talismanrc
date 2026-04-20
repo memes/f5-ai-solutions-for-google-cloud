@@ -41,7 +41,7 @@ fileignoreconfig:
 - filename: deployments/cai-moderator/Kptfile
   checksum: 4cfd409727dc9e8e2e1f0350a306c711b79227788256c575a94f2296695dfd1c
 - filename: deployments/helpers/cai-drop-dbs.yaml
-  checksum: a8f15e794c8a495cb39a59ceb07014269ff4164395776e7a10f8e3949e834bf4
+  checksum: 7bb1e0f6004a6a589a6ae0a57197783ccd72918f1c2056c31d5dc9834efe30bf
 - filename: deployments/cai-moderator/skaffold.yaml
   checksum: 9904e512974e1333cbd38f52cb86de0e6f53c11868a8ceb3bb678f2754fd81df
 - filename: foundations/pg.tf
@@ -80,3 +80,7 @@ fileignoreconfig:
   checksum: f02dd904a77237330ec9945effeec20402eef683d4877996c79fba5ea754748d
 - filename: foundations/nginxaas_access.tf
   checksum: d8896648a2fd030dd8d81937bc2ddeb75a694c0a79159a1146876ca5e3bae3d6
+- filename: deployments/pre-requisites/pg-admin.yaml
+  checksum: ca16622d428900ab3d78474cbea1627052be4b48d39add84b37dd89f18da8d90
+- filename: deployments/pre-requisites/cai-drop-dbs.yaml
+  checksum: 7bb1e0f6004a6a589a6ae0a57197783ccd72918f1c2056c31d5dc9834efe30bf
