@@ -93,14 +93,24 @@ output "ext_addresses" {
     ip   = v.address
   } }
   description = <<-EOD
-  A map of Compute Engine region names to reserved public IP addresses..
+  A map of Compute Engine region names to reserved public IP addresses.
+  EOD
+}
+
+output "gw_addresses" {
+  value = { for k, v in google_compute_address.gw : k => {
+    name = v.name
+    ip   = v.address
+  } }
+  description = <<-EOD
+  A map of Compute Engine region names to reserved internal IP addresses for Gateway use. May be empty.
   EOD
 }
 
 output "deploy_target_ids" {
-  value       = { for k, v in google_clouddeploy_target.cluster : k => v.target_id }
+  value       = { for k, v in google_clouddeploy_delivery_pipeline.all : k => v.id }
   description = <<-EOD
-  A map of Compute Engine region names to Cloud Deploy targets.
+  A map of Compute Engine region names to Cloud Deploy pipeline identifiers.
   EOD
 }
 

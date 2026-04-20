@@ -35,7 +35,7 @@ module "cluster" {
 }
 
 resource "google_clouddeploy_target" "cluster" {
-  for_each = { for k, v in module.cluster : k => {
+  for_each = var.cloud_deploy == null ? {} : { for k, v in module.cluster : k => {
     name       = v.name
     cluster_id = v.id
     }
@@ -50,44 +50,44 @@ resource "google_clouddeploy_target" "cluster" {
   }
 }
 
-# resource "google_clouddeploy_target" "all" {
-#   project          = var.project_id
-#   name             = var.name
-#   location         = var.deployment_pipeline_location
-#   description      = "Deploy resources to all targets"
-#   require_approval = false
-#   execution_configs {
-#     service_account = var.cloud_deploy_service_account
-#     usages = [
-#       "RENDER",
-#       "PREDEPLOY",
-#       "DEPLOY",
-#       "VERIFY",
-#       "POSTDEPLOY",
-#     ]
-#   }
-#   multi_target {
-#     target_ids = [for k, v in google_clouddeploy_target.cluster : v.target_id]
-#   }
-# }
+resource "google_clouddeploy_target" "all" {
+  for_each         = var.cloud_deploy == null ? {} : { enabled = true }
+  project          = var.project_id
+  name             = var.name
+  location         = var.cloud_deploy.location
+  description      = "Deploy resources to all targets"
+  require_approval = false
+  execution_configs {
+    service_account = var.cloud_deploy.service_account
+    usages = [
+      "RENDER",
+      "PREDEPLOY",
+      "DEPLOY",
+      "VERIFY",
+      "POSTDEPLOY",
+    ]
+  }
+  multi_target {
+    target_ids = [for k, v in google_clouddeploy_target.cluster : v.target_id]
+  }
+}
 
-# resource "google_clouddeploy_delivery_pipeline" "apps" {
-#   project     = var.project_id
-#   name        = var.name
-#   location    = var.deployment_pipeline_location
-#   annotations = {}
-#   description = "Deployment pipeline for F5 AI Solutions for GKE Inference Gateway"
-#   labels      = var.labels
-#   suspended   = false
-#   serial_pipeline {
-#     stages {
-#       target_id = google_clouddeploy_target.all.target_id
-#       deploy_parameters {
-#         values = {
-#           "image.repository" = format("%s/calypsoai/cai_moderator", var.repository)
-#         }
-#       }
-#       profiles = []
-#     }
-#   }
-# }
+resource "google_clouddeploy_delivery_pipeline" "all" {
+  for_each    = google_clouddeploy_target.all
+  project     = var.project_id
+  name        = each.value.name
+  location    = each.value.location
+  annotations = {}
+  description = "Deployment pipeline for F5 AI Solutions for Google Cloud"
+  suspended   = false
+  serial_pipeline {
+    stages {
+      strategy {
+        standard {
+          verify = false
+        }
+      }
+      target_id = each.value.target_id
+    }
+  }
+}
