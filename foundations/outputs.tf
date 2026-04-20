@@ -107,7 +107,7 @@ output "gw_addresses" {
   EOD
 }
 
-output "deploy_target_ids" {
+output "deploy_pipeline_ids" {
   value       = { for k, v in google_clouddeploy_delivery_pipeline.all : k => v.id }
   description = <<-EOD
   A map of Compute Engine region names to Cloud Deploy pipeline identifiers.
