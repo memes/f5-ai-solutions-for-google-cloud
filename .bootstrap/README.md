@@ -57,12 +57,12 @@ nginx_jwt     = "JWT Token associated with your NGINX+ subscription"
 f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Team subscription"
 ```
 
-<!-- markdownlint-disable MD033 MD034 MD060 -->
+<!-- markdownlint-disable MD033 MD034 -->
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
 | <a name="requirement_github"></a> [github](#requirement\_github) | >= 6.10 |
 | <a name="requirement_google"></a> [google](#requirement\_google) | >= 7.16 |
@@ -71,7 +71,7 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_bootstrap"></a> [bootstrap](#module\_bootstrap) | registry.terraform.io/memes/f5-demo-bootstrap/google | 0.6.0 |
 | <a name="module_f5_ai_license"></a> [f5\_ai\_license](#module\_f5\_ai\_license) | memes/secret-manager/google | 2.2.2 |
 | <a name="module_nginxaas_combined_pem"></a> [nginxaas\_combined\_pem](#module\_nginxaas\_combined\_pem) | memes/secret-manager/google | 2.2.2 |
@@ -79,7 +79,7 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [github_actions_secret.pool_id](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_secret) | resource |
 | [github_actions_variable.allowlist_cidrs](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [github_actions_variable.dns](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
@@ -91,7 +91,7 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_name"></a> [name](#input\_name) | The common name (and prefix) to use for Google Cloud and GitHub resources (see also `github_options`). | `string` | n/a | yes |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | The Google Cloud project that will host resources. | `string` | n/a | yes |
 | <a name="input_allowlist_cidrs"></a> [allowlist\_cidrs](#input\_allowlist\_cidrs) | An optional list of CIDRs to be passed to Infra Manager and Cloud Deploy invocations. E.g. the foundations module will<br/>create a Cloud Armor policy blocking access unless this variable contains an allow list. | `list(string)` | `null` | no |
@@ -106,7 +106,7 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_ar_repo"></a> [ar\_repo](#output\_ar\_repo) | The Artifact Registry created for OCI artifacts. |
 | <a name="output_cloud_deploy_sa"></a> [cloud\_deploy\_sa](#output\_cloud\_deploy\_sa) | The fully-qualified email address of the Cloud Deploy execution service account. |
 | <a name="output_f5_ai_license"></a> [f5\_ai\_license](#output\_f5\_ai\_license) | If an F5 AI Guardrails/Red Team secret was created during bootstrap, return the fully-qualified and local identifiers,<br/>and expiration timestamp, if appropriate. |
@@ -114,4 +114,4 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 | <a name="output_nginx_jwt"></a> [nginx\_jwt](#output\_nginx\_jwt) | If an NGINX JWT secret was created during bootstrap, return the fully-qualified and local identifiers, and expiration<br/>timestamp, if appropriate. |
 | <a name="output_nginxaas_combined_pems"></a> [nginxaas\_combined\_pems](#output\_nginxaas\_combined\_pems) | n/a |
 <!-- END_TF_DOCS -->
-<!-- markdownlint-enable MD033 MD034 MD060 -->
+<!-- markdownlint-enable MD033 MD034 -->

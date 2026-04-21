@@ -23,8 +23,8 @@ avoid committing secrets.
    E.g.
 
    ```shell
-   uv sync --all-extras --all-packages
-   uv run pre-commit install --hook-type commit-msg --hook-type pre-commit
+   pipx install pre-commit
+   pre-commit install --hook-type commit-msg --hook-type pre-commit
    ```
 
 4. Create a new branch for changes

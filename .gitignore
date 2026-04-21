@@ -22,5 +22,6 @@ __pycache__
 .ruff_cache
 .coverage*
 
-# Ignore everything in tmp
-tmp/
+# Other stuff to ignore
+.kpt-pipeline
+certbot

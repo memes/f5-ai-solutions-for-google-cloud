@@ -11,7 +11,6 @@
             "helm": "latest",
             "minikube": "none"
         },
-        "ghcr.io/devcontainers/features/node:1": {},
         "ghcr.io/memes/devcontainers-features/direnv:1": {},
         "ghcr.io/memes/devcontainers-features/hashicorp:1": {
             "terraform": "1.5.7"
@@ -21,17 +20,17 @@
             "components": "kpt kubectl gke-gcloud-auth-plugin skaffold"
         },
         "ghcr.io/memes/devcontainers-features/opentofu:1": {
-            "version": "1.11.4"
+            "version": "1.11.6"
         },
         "ghcr.io/memes/devcontainers-features/starship:1": {},
         "ghcr.io/memes/devcontainers-features/talisman:1": {
             "version": "1.37.0"
         },
         "ghcr.io/memes/devcontainers-features/terraform-docs:1": {
-            "version": "0.21.0"
+            "version": "0.22.0"
         },
         "ghcr.io/memes/devcontainers-features/tflint:1": {
-            "version": "0.60.0"
+            "version": "0.62.0"
         }
     },
     "customizations": {
