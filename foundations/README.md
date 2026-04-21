@@ -2,12 +2,12 @@
 
 This module establishes the foundational Google Cloud resources used by clusters and their deployments.
 
-<!-- markdownlint-disable MD033 MD034 MD060 -->
+<!-- markdownlint-disable MD033 MD034 -->
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
 | <a name="requirement_google"></a> [google](#requirement\_google) | >= 7.16 |
 | <a name="requirement_http"></a> [http](#requirement\_http) | >= 3.5 |
@@ -16,7 +16,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_cluster"></a> [cluster](#module\_cluster) | git::https://github.com/memes/terraform-google-private-gke-cluster//modules/autopilot | feat%2fv3_refactor |
 | <a name="module_googleapis-dns"></a> [googleapis-dns](#module\_googleapis-dns) | memes/restricted-apis-dns/google | 2.0.1 |
 | <a name="module_managed_cert"></a> [managed\_cert](#module\_managed\_cert) | registry.terraform.io/memes/tls-certificate/google//modules/managed | 0.1.1 |
@@ -28,7 +28,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [google_clouddeploy_delivery_pipeline.all](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/clouddeploy_delivery_pipeline) | resource |
 | [google_clouddeploy_target.all](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/clouddeploy_target) | resource |
 | [google_clouddeploy_target.cluster](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/clouddeploy_target) | resource |
@@ -76,7 +76,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_dns"></a> [dns](#input\_dns) | The `base_domain` sets the root for TLS certificate creation and DNS challenges, and is required. An optional<br/>`managed_zone_id` value containing a Cloud DNS Managed Zone identifier can be provided to have the DNS challenge and<br/>reserved IP addresses added automatically - if the executor of this module has rights to modify that zone. | <pre>object({<br/>    base_domain     = string<br/>    managed_zone_id = optional(string)<br/>  })</pre> | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | The common name to use as-is, or as a prefix with an abbreviated region name, for resources created by this module.<br/>E.g. if `name = "ai-demo"`, global resources will be named "ai-demo" (or have a name prefix of "ai-demo-XXX"), and<br/>regional resources will be named "ai-demo-xx-xxN" (or prefixed with "ai-demo-xx-xxN-") where xx-xxN is an abbreviation<br/>of the region name. | `string` | n/a | yes |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | The Google Cloud project identifier that will contain the resources. | `string` | n/a | yes |
@@ -101,7 +101,7 @@ This module establishes the foundational Google Cloud resources used by clusters
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_allowlist_policies"></a> [allowlist\_policies](#output\_allowlist\_policies) | A map of Compute Engine region names to Cloud Armor source CIDR policies, if any were created. |
 | <a name="output_cache_hosts"></a> [cache\_hosts](#output\_cache\_hosts) | A map of Compute Engine region names to a Redis host name. |
 | <a name="output_cai_moderator_auth_secret"></a> [cai\_moderator\_auth\_secret](#output\_cai\_moderator\_auth\_secret) | A map of Compute Engine region names to the Secret Manager secret identifiers for cai-moderator-auth secret injection. |
@@ -122,4 +122,4 @@ This module establishes the foundational Google Cloud resources used by clusters
 | <a name="output_ssl_policies"></a> [ssl\_policies](#output\_ssl\_policies) | A map of Compute Engine region names to Compute Engine SSL Policy self-links, if any were created. |
 | <a name="output_subnets"></a> [subnets](#output\_subnets) | A map of Compute Engine region names to Compute Engine Subnetwork resource self-links. |
 <!-- END_TF_DOCS -->
-<!-- markdownlint-enable MD033 MD034 MD060 -->
+<!-- markdownlint-enable MD033 MD034 -->

@@ -41,6 +41,8 @@
         "nginxaas",
         "opencontainers",
         "pastebin",
+        "pems",
+        "pgpass",
         "podslice",
         "prefecthq",
         "psql",
