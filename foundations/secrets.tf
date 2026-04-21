@@ -117,6 +117,7 @@ resource "google_secret_manager_secret_version" "cai_moderator_auth" {
   project  = each.value.project
   secret   = each.value.secret_id
   secret_data = jsonencode({
+    CAI_MODERATOR_AUTH_ADMIN_PASSWORD        = "keycloak"
     CAI_MODERATOR_AUTH_IDP_CLIENT_ID         = ""
     CAI_MODERATOR_AUTH_IDP_CLIENT_SECRET     = ""
     CAI_MODERATOR_AUTH_IDP_ISSUER            = ""
