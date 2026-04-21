@@ -129,6 +129,12 @@ resource "google_secret_manager_secret_version" "cai_moderator_auth" {
     CAI_MODERATOR_ENCRYPTION_KEY             = "gtcktxD8M-hkUAdj7Pk22khjC2Bv8xSA2oyNCEG0ZpQ="
     CAI_MODERATOR_JOB_MANAGER_ENCRYPTION_KEY = "ISJ9GCvWB3l1YUXjw4jvTeuFDHlcsD_W77VvM9QpLgE="
   })
+
+  lifecycle {
+    ignore_changes = [
+      secret_data,
+    ]
+  }
 }
 
 resource "google_secret_manager_secret_iam_member" "cai_moderator_auth" {
