@@ -1,0 +1,212 @@
+# Source: cai-redteam/charts/kubeai/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cai-redteam-worker-config
+  labels:
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: cai-redteam
+    app.kubernetes.io/version: v0.22.1
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+  namespace: f5-ai-redteam
+data:
+  system.yaml: |
+    secretNames:
+      alibaba: cai-redteam-worker-alibaba
+      aws: cai-redteam-worker-aws
+      gcp: cai-redteam-worker-gcp
+      huggingface: cai-redteam-worker-huggingface
+    resourceProfiles:
+      amd-gpu-mi300x:
+        imageName: amd-gpu
+        limits:
+          amd.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: amd.com/gpu
+          operator: Equal
+          value: present
+      cpu:
+        imageName: cpu
+        requests:
+          cpu: 1
+          memory: 2Gi
+      google-tpu-v5e-1x1:
+        imageName: google-tpu
+        limits:
+          google.com/tpu: "1"
+        nodeSelector:
+          cloud.google.com/gke-spot: "true"
+          cloud.google.com/gke-tpu-accelerator: tpu-v5-lite-podslice
+          cloud.google.com/gke-tpu-topology: 1x1
+      google-tpu-v5e-2x2:
+        imageName: google-tpu
+        limits:
+          google.com/tpu: "1"
+        nodeSelector:
+          cloud.google.com/gke-spot: "true"
+          cloud.google.com/gke-tpu-accelerator: tpu-v5-lite-podslice
+          cloud.google.com/gke-tpu-topology: 2x2
+      google-tpu-v5e-2x4:
+        imageName: google-tpu
+        limits:
+          google.com/tpu: "1"
+        nodeSelector:
+          cloud.google.com/gke-spot: "true"
+          cloud.google.com/gke-tpu-accelerator: tpu-v5-lite-podslice
+          cloud.google.com/gke-tpu-topology: 2x4
+      nvidia-gpu-a16:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-a100-40gb:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        nodeSelector:
+          cloud.google.com/gke-accelerator: nvidia-tesla-a100
+          cloud.google.com/gke-spot: "true"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-a100-80gb:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        nodeSelector:
+          cloud.google.com/gke-accelerator: nvidia-a100-80gb
+          cloud.google.com/gke-spot: "true"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-gh200:
+        imageName: gh200
+        limits:
+          nvidia.com/gpu: "1"
+        requests:
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-h100:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        nodeSelector:
+          cloud.google.com/gke-accelerator: nvidia-h100-80gb
+          cloud.google.com/gke-spot: "true"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-l4:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        nodeSelector:
+          cloud.google.com/gke-accelerator: nvidia-l4
+          cloud.google.com/gke-spot: "true"
+        requests:
+          cpu: "6"
+          memory: 24Gi
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-l40s:
+        imageName: nvidia-gpu
+        limits:
+          cpu: 3
+          memory: 14Gi
+          nvidia.com/gpu: "1"
+        requests:
+          cpu: 2
+          memory: 12Gi
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-rtx4070-8gb:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Equal
+          value: present
+      nvidia-gpu-t4:
+        imageName: nvidia-gpu
+        limits:
+          nvidia.com/gpu: "1"
+        requests:
+          nvidia.com/gpu: "1"
+    cacheProfiles:
+      premium-filestore:
+        sharedFilesystem:
+          storageClassName: premium-rwx
+      standard-filestore:
+        sharedFilesystem:
+          storageClassName: standard-rwx
+    modelServers:
+      FasterWhisper:
+        images:
+          default: fedirz/faster-whisper-server:latest-cpu
+          nvidia-gpu: fedirz/faster-whisper-server:latest-cuda
+      Infinity:
+        images:
+          amd-gpu: michaelf34/infinity:0.0.77-rocm
+          cpu: michaelf34/infinity:0.0.77-cpu
+          default: michaelf34/infinity:0.0.77
+          nvidia-gpu: michaelf34/infinity:0.0.77
+      OLlama:
+        images:
+          amd-gpu: ollama/ollama:0.11.11-rocm
+          default: ollama/ollama:0.11.11
+          nvidia-gpu: ollama/ollama:0.11.11
+      VLLM:
+        images:
+          amd-gpu: rocm/vllm/rocm6.4.1_vllm_0.10.1_20250909
+          cpu: public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo:v0.10.2
+          default: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/vllm/vllm-openai:v0.10.2
+          gh200: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/vllm/vllm-openai:v0.10.2
+          google-tpu: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/vllm-tpu:23194d83e8f2a6783b0d8c275f5f8a22faab9aec
+          nvidia-gpu: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/vllm/vllm-openai:v0.10.2
+    modelLoading:
+      image: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/harbor.calypsoai.app/calypsoai/kubeai-model-loader:v0.14.0
+    modelRollouts:
+      surge: 1
+    modelServerPods:
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: false
+      serviceAccountName: cai-redteam-worker-models
+    modelAutoscaling:
+      interval: 10s
+      timeWindow: 10m
+      stateConfigMapName: cai-redteam-worker-autoscaler-state
+    messaging:
+      errorMaxBackoff: 30s
+      streams: []

@@ -3,6 +3,7 @@
     "version": "0.2",
     "language": "en",
     "words": [
+        "acceleratedgcp",
         "aiplatform",
         "asyncpg",
         "calypsoai",
@@ -39,6 +40,7 @@
         "modelarmor",
         "networkservices",
         "nginxaas",
+        "nofile",
         "opencontainers",
         "pastebin",
         "pems",
@@ -50,6 +52,7 @@
         "readyz",
         "redteam",
         "regcreds",
+        "rlimit",
         "secretmanager",
         "serviceconsumermanagement",
         "servicenetworking",

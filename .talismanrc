@@ -84,3 +84,35 @@ fileignoreconfig:
   checksum: ca16622d428900ab3d78474cbea1627052be4b48d39add84b37dd89f18da8d90
 - filename: deployments/pre-requisites/cai-drop-dbs.yaml
   checksum: 7bb1e0f6004a6a589a6ae0a57197783ccd72918f1c2056c31d5dc9834efe30bf
+- filename: deployments/f5-ai/redteam/f5-ai-redteam/deployment_prefect-worker.yaml
+  checksum: 8d4a7853c80868a02230a76314f486cfe54b64df932b5e346a1d5138a30f6042
+- filename: deployments/f5-ai/redteam/configmap_cai-redteam-worker-config.yaml
+  checksum: f36c99806dae960bfb2a594001b81ab9380e81ee5f1582eba34eebf2dadc4366
+- filename: deployments/f5-ai/redteam/deployment_cai-redteam-worker.yaml
+  checksum: 61601ac9067e1142e42ead5bbe9f21dbd50a445e74988cb2bd830459482bc25b
+- filename: deployments/f5-ai/scanner/configmap_cai-scanner-config.yaml
+  checksum: e47f4bddc51c6678ba493cab653ccfeeed1445df38b87366af4b0049d6665ece
+- filename: deployments/f5-ai/scanner/deployment_cai-scanner.yaml
+  checksum: 504d55846d79bb329901684c13d84920054d8a37f5182a5e8fdd30702dec3bc6
+- filename: deployments/vLLM/llama-3-inference-pool/helm-chart.yaml
+  checksum: 08dfe94c02e8b3c7ddb51fc0cff6662deadeead072f9e0b9aa4b89528b792f09
+- filename: deployments/vLLM/gemma-3-inference-pool/helm-chart.yaml
+  checksum: 2e9ea28331edb2ac1599c8f411dfe0a340507c30bf9947874cb7ffc8423cb12a
+- filename: deployments/vLLM/llama-3-inference-pool/label-cleanup.yaml
+  checksum: a3e316fe6ed9a4872c9c6cfff07e64e929bace0523b94521d3b0d30a44e0d192
+- filename: deployments/shared-services/gateway/gateway.yaml
+  checksum: 8a6c32f8ddc8181ac3ae2b55b1acd5a1492055e8b76bd5231da38752af5f958b
+- filename: deployments/f5-ai/moderator/secrets-sync.yaml
+  checksum: 8959487b9d6b7f63815b681c2c1f36275152d42726169d667e06827b227abe51
+- filename: deployments/vLLM/models/apply-setters.yaml
+  checksum: 5d1241237209616f597473ff71d30ad411bcde78a4271bec2d5965385a676fa9
+- filename: deployments/f5-ai/redteam/secrets-sync.yaml
+  checksum: 838b03a8839d4c6846a0d5e021a9dfba366eb6c37c62763710846eed0a78bc48
+- filename: deployments/vLLM/gemma-3-inference-pool/label-cleanup.yaml
+  checksum: d9b39932b64aaf037360f961352dea8b5f5ea57ccf4e13f174bc89052df60c77
+- filename: deployments/shared-services/auth-proxy/config.yaml
+  checksum: d27d1ab43a041bf4a32f2cb7ed5780d1b4cadafe4e7cc99bd9e5c538fb2541bd
+- filename: deployments/f5-ai/moderator/deployment_cai-moderator.yaml
+  checksum: afe2d2a4a8cf105a07732566090e8912cdf58886c6f3e8639c5ce2d7be83ffe6
+- filename: deployments/f5-ai/redteam/f5-ai-redteam/deployment_prefect-server.yaml
+  checksum: c080b1a2635b611de2198593d7e46b74d028862e7ade52cbd2ef55e20da46542

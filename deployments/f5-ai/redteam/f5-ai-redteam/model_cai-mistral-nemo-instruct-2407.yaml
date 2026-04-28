@@ -1,0 +1,37 @@
+# Source: cai-redteam/templates/redteam-worker-models.yaml
+apiVersion: kubeai.org/v1
+kind: Model
+metadata:
+  name: cai-mistral-nemo-instruct-2407
+  namespace: f5-ai-redteam
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+spec:
+  args:
+  - --disable-log-requests
+  - --max-model-len=30000
+  - --gpu-memory-utilization=0.9
+  - --tokenizer-mode=mistral
+  - --dtype=float16
+  engine: VLLM
+  env:
+    DO_NOT_TRACK: "1"
+    LD_LIBRARY_PATH: /usr/local/cuda/lib64:/usr/local/nvidia/lib64
+    VLLM_NO_USAGE_STATS: "1"
+  features:
+  - TextGeneration
+  image: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/harbor.calypsoai.app/calypsoai/cai-redteam-worker:v1.0.7
+  loadBalancing:
+    prefixHash:
+      meanLoadFactor: 125
+      prefixCharLength: 175
+      replication: 256
+    strategy: PrefixHash
+  maxReplicas: 10
+  minReplicas: 1
+  resourceProfile: nvidia-gpu-a100-40gb:1
+  scaleDownDelaySeconds: 30
+  targetRequests: 3
+  url: hf://mistralai/Mistral-Nemo-Instruct-2407

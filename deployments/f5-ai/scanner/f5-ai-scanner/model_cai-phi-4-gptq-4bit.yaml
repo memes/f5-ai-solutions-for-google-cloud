@@ -1,0 +1,33 @@
+# Source: cai-scanner/templates/models.yaml
+apiVersion: kubeai.org/v1
+kind: Model
+metadata:
+  name: cai-phi-4-gptq-4bit
+  namespace: f5-ai-scanner
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+spec:
+  args:
+  - --disable-log-requests
+  engine: VLLM
+  env:
+    DO_NOT_TRACK: "1"
+    LD_LIBRARY_PATH: /usr/local/cuda/lib64:/usr/local/nvidia/lib64
+    VLLM_NO_USAGE_STATS: "1"
+  features:
+  - TextGeneration
+  image: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/harbor.calypsoai.app/calypsoai/cai_scanner:v2.4.0
+  loadBalancing:
+    prefixHash:
+      meanLoadFactor: 125
+      prefixCharLength: 175
+      replication: 256
+    strategy: PrefixHash
+  maxReplicas: 10
+  minReplicas: 1
+  resourceProfile: nvidia-gpu-l4:1
+  scaleDownDelaySeconds: 30
+  targetRequests: 3
+  url: hf://CalypsoAI/phi-4-gptq-4bit

@@ -1,0 +1,55 @@
+# Source: cai-redteam/charts/prometheus-prefect-exporter/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cai-redteam-prometheus-prefect-exporter
+  namespace: f5-ai-redteam
+  labels:
+    app.kubernetes.io/name: prometheus-prefect-exporter
+    app.kubernetes.io/instance: cai-redteam
+    app.kubernetes.io/version: 1.6.7
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+spec:
+  revisionHistoryLimit: 10
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-prefect-exporter
+      app.kubernetes.io/instance: cai-redteam
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prometheus-prefect-exporter
+        app.kubernetes.io/instance: cai-redteam
+      annotations:
+        community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+        community.f5.com/email: m.emes@f5.com
+        community.f5.com/owner: emes
+    spec:
+      serviceAccountName: cai-redteam-prometheus-prefect-exporter
+      securityContext: {}
+      containers:
+      - name: prometheus-prefect-exporter
+        securityContext: {}
+        image: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/prefecthq/prometheus-prefect-exporter:1.6.7
+        imagePullPolicy: IfNotPresent
+        args: null
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        env:
+        - name: PREFECT_API_URL
+          value: http://prefect-server.f5-ai-redteam.svc.cluster.local:4200/api
+        - name: PAGINATION_LIMIT
+          value: "200"
+        - name: PAGINATION_ENABLED
+          value: "True"
+        - name: OFFSET_MINUTES
+          value: "360"
+        resources:
+          requests:
+            memory: 4Gi

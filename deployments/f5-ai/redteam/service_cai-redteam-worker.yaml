@@ -1,0 +1,24 @@
+# Source: cai-redteam/charts/kubeai/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cai-redteam-worker
+  labels:
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: cai-redteam
+    app.kubernetes.io/version: v0.22.1
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+  namespace: f5-ai-redteam
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: cai-redteam

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apply-setters
+  annotations:
+    config.kubernetes.io/local-config: "true"
+# spell-checker: disable
+data:
+  inference-pool-cluster-is-autopilot: true
+  inference-pool-monitoring-enabled: true
+  # This sets the name of the InferencePool object, and the prefix for supporting EndpointPicker.
+  inference-pool-name: llama-3-1-8b
+  # Override if the inference pool will be deployed to a namespace other than vllm.
+  inference-pool-namespace: vllm

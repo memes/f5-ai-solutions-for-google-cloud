@@ -1,0 +1,11 @@
+apiVersion: fn.kpt.dev/v1alpha1
+kind: SetAnnotations
+metadata:
+  name: default
+  annotations:
+    config.kubernetes.io/local-config: "true"
+annotations:
+  community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+  community.f5.com/email: m.emes@f5.com
+  community.f5.com/owner: emes
+additionalAnnotationFields: []
