@@ -1,14 +1,11 @@
 ---
 extends: default
-
+ignore:
+  # TODO(@memes): Don't like this, review later
+  - deployments/**/*.yaml
 rules:
   line-length:
     max: 120
     ignore:
       - .github/workflows/infra-manager*.yml
-      - deployments/**/skaffold.yaml
       - skaffold.yaml
-  document-start:
-    ignore:
-      # Kpt/kustomize tooling routinely strips leading --- from files
-      - deployments/**/*.yaml

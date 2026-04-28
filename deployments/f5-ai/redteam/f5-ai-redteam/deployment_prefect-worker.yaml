@@ -1,0 +1,102 @@
+# Source: cai-redteam/charts/prefect-worker/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prefect-worker
+  namespace: f5-ai-redteam
+  labels:
+    app.kubernetes.io/name: prefect-worker
+    app.kubernetes.io/instance: cai-redteam
+    app.kubernetes.io/version: 3.1.12
+    app.kubernetes.io/component: worker
+    prefect-version: 3.1.12
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+spec:
+  revisionHistoryLimit: 10
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prefect-worker
+      app.kubernetes.io/instance: cai-redteam
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      annotations:
+        checksum/config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+        community.f5.com/email: m.emes@f5.com
+        community.f5.com/owner: emes
+      labels:
+        app.kubernetes.io/name: prefect-worker
+        app.kubernetes.io/instance: cai-redteam
+        app.kubernetes.io/version: 3.1.12
+        app.kubernetes.io/component: worker
+        prefect-version: 3.1.12
+    spec:
+      serviceAccountName: prefect-worker
+      securityContext:
+        fsGroup: 1001
+        runAsNonRoot: true
+        runAsUser: 1001
+      containers:
+      - name: prefect-worker
+        image: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/prefecthq/prefect:3.1.12-python3.11-kubernetes
+        imagePullPolicy: IfNotPresent
+        command:
+        - /usr/bin/tini
+        - -g
+        - --
+        - /opt/prefect/entrypoint.sh
+        args:
+        - prefect
+        - worker
+        - start
+        - --type
+        - kubernetes
+        - --pool
+        - Kubernetes Work Pool
+        - --install-policy
+        - prompt
+        workingDir: /home/prefect
+        env:
+        - name: HOME
+          value: /home/prefect
+        - name: PREFECT_WORKER_PREFETCH_SECONDS
+          value: "10"
+        - name: PREFECT_WORKER_QUERY_SECONDS
+          value: "5"
+        - name: PREFECT_API_ENABLE_HTTP2
+          value: "true"
+        - name: PREFECT_API_URL
+          value: http://prefect-server.f5-ai-redteam.svc.cluster.local:4200/api
+        - name: PREFECT_KUBERNETES_CLUSTER_UID
+          value: ""
+        - name: PREFECT_DEBUG_MODE
+          value: "false"
+        envFrom: null
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities: {}
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+        volumeMounts:
+        - mountPath: /home/prefect
+          name: scratch
+          subPathExpr: home
+        - mountPath: /tmp
+          name: scratch
+          subPathExpr: tmp
+      volumes:
+      - name: scratch
+        emptyDir: {}

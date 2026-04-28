@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: cai-scanner
-  annotations:
-    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
-    community.f5.com/email: m.emes@f5.com
-    community.f5.com/owner: emes

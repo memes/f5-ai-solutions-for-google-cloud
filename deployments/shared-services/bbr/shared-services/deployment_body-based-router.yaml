@@ -1,0 +1,38 @@
+# Source: body-based-routing/templates/bbr.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: body-based-router
+  namespace: shared-services
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: body-based-router
+  template:
+    metadata:
+      labels:
+        app: body-based-router
+      annotations:
+        community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+        community.f5.com/email: m.emes@f5.com
+        community.f5.com/owner: emes
+    spec:
+      serviceAccountName: body-based-router-shared-services
+      containers:
+      - name: bbr
+        image: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/registry.k8s.io/gateway-api-inference-extension/bbr:v1.4.0
+        imagePullPolicy: Always
+        args:
+        - --streaming
+        # Pass additional flags via the bbr.flags field in values.yaml.
+        - --v
+        - "3"
+        ports:
+        - containerPort: 9004
+        # health check
+        - containerPort: 9005

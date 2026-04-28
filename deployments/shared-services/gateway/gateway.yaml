@@ -1,0 +1,46 @@
+kind: Gateway
+apiVersion: gateway.networking.k8s.io/v1
+metadata:
+  name: cluster-gw
+  namespace: shared-services
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+spec:
+  gatewayClassName: gke-l7-rilb
+  addresses:
+    - type: NamedAddress
+      value: f5-ai-demo-us-ce1-gw
+  listeners:
+    - name: arcadia
+      hostname: arcadia.acceleratedgcp.com
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        kinds:
+          - kind: HTTPRoute
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - arcadia
+                  - vllm
+    - name: f5-ai
+      hostname: f5-ai.acceleratedgcp.com
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        kinds:
+          - kind: HTTPRoute
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - f5-ai-moderator

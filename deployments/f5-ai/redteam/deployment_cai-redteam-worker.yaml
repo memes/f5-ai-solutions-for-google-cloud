@@ -1,0 +1,87 @@
+# Source: cai-redteam/charts/kubeai/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cai-redteam-worker
+  labels:
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: cai-redteam
+    app.kubernetes.io/version: v0.22.1
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+  namespace: f5-ai-redteam
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kubeai
+      app.kubernetes.io/instance: cai-redteam
+  template:
+    metadata:
+      annotations:
+        # Recreate Pods on update of ConfigMap b/c hot reload is not supported.
+        checksum/config: 6056f9e1c03964240292c6cd656bf3156cb8a31c72228b81ba6a14c3dc66613c
+        community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+        community.f5.com/email: m.emes@f5.com
+        community.f5.com/owner: emes
+      labels:
+        app.kubernetes.io/name: kubeai
+        app.kubernetes.io/instance: cai-redteam
+        app.kubernetes.io/version: v0.22.1
+    spec:
+      serviceAccountName: cai-redteam-worker
+      securityContext:
+        runAsNonRoot: true
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: kubeai
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        image: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/harbor.calypsoai.app/calypsoai/kubeai:v0.22.1
+        imagePullPolicy: IfNotPresent
+        args: []
+        command:
+        - /app/manager
+        env:
+        - name: CONFIG_PATH
+          value: /app/config/system.yaml
+        # Configure kubeai to only manage objects in its own namespace.
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 120
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: "3"
+            memory: 6Gi
+          requests:
+            cpu: "2"
+            memory: 4Gi
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+      volumes:
+      - name: config
+        configMap:
+          name: cai-redteam-worker-config

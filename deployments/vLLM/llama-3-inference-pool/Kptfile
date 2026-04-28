@@ -1,0 +1,43 @@
+apiVersion: kpt.dev/v1
+kind: Kptfile
+metadata:
+  name: inference-pool
+  annotations:
+    config.kubernetes.io/local-config: "true"
+info:
+  description: |-
+    Provides a package for deploying Inference Pool extension for Gateway
+  emails:
+    - m.emes@f5.com
+  license: Apache-2.0
+  keywords:
+    - inference pool
+    - inference gateway
+pipeline:
+  mutators:
+    # Apply deployment specific values from apply-setters.yaml.
+    - image: ghcr.io/kptdev/krm-functions-catalog/apply-setters:latest
+      configPath: apply-setters.yaml
+    # Render the Helm chart as manifest.
+    - image: ghcr.io/krm-functions/render-helm-chart:latest
+    # Remove resources that are annotated as local-config.
+    - image: ghcr.io/kptdev/krm-functions-catalog/remove-local-config-resources:latest
+    # Modify the epp image if needed.
+    - image: ghcr.io/kptdev/krm-functions-catalog/set-image:latest
+      configMap:
+        name: registry.k8s.io/gateway-api-inference-extension/epp
+        newName: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/registry.k8s.io/gateway-api-inference-extension/epp
+        newTag: v1.4.0
+    # Remove resource labels that imply the deployment is managed by Helm.
+    - image: ghcr.io/kptdev/krm-functions-catalog/starlark:latest
+      configPath: label-cleanup.yaml
+    # Reset the namespace of all resources to the value in package-context.yaml.
+    - image: ghcr.io/kptdev/krm-functions-catalog/set-namespace:latest
+      configPath: package-context.yaml
+      # Add other local pipeline mutators as needed.
+    - image: ghcr.io/kptdev/krm-functions-catalog/set-annotations:latest
+      configPath: set-annotations.yaml
+  validators:
+    - image: ghcr.io/kptdev/krm-functions-catalog/kubeconform:latest
+      configMap:
+        strict: 'true'

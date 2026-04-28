@@ -1,0 +1,43 @@
+apiVersion: kpt.dev/v1
+kind: Kptfile
+metadata:
+  name: vLLM
+  annotations:
+    config.kubernetes.io/local-config: "true"
+info:
+  description: |-
+    TBD
+  emails:
+    - m.emes@f5.com
+  license: Apache-2.0
+  keywords:
+    - vllm
+    - llama3.1
+pipeline:
+  mutators:
+    - image: ghcr.io/kptdev/krm-functions-catalog/apply-setters:latest
+      configPath: apply-setters.yaml
+    - image: ghcr.io/kptdev/krm-functions-catalog/remove-local-config-resources:latest
+    - image: ghcr.io/kptdev/krm-functions-catalog/set-image:latest
+      configMap:
+        name: vllm/vllm-openai
+        newName: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/vllm/vllm-openai
+        newTag: v0.19.0
+    - image: ghcr.io/kptdev/krm-functions-catalog/set-image:latest
+      configMap:
+        name: registry.k8s.io/gateway-api-inference-extension/epp
+        newName: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/registry.k8s.io/gateway-api-inference-extension/epp
+        newTag: v1.4.0
+    - image: ghcr.io/kptdev/krm-functions-catalog/set-image:latest
+      configMap:
+        name: registry.k8s.io/gateway-api-inference-extension/lora-syncer
+        newName: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/registry.k8s.io/gateway-api-inference-extension/lora-syncer
+        newTag: v1.2.1
+    - image: ghcr.io/kptdev/krm-functions-catalog/set-namespace:latest
+      configPath: package-context.yaml
+    - image: ghcr.io/kptdev/krm-functions-catalog/set-annotations:latest
+      configPath: set-annotations.yaml
+  validators:
+    - image: ghcr.io/kptdev/krm-functions-catalog/kubeconform:latest
+      configMap:
+        strict: 'true'

@@ -1,0 +1,81 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gemma-3-4b-it
+  namespace: shared-services
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gemma-3-4b-it
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gemma-3-4b-it
+      annotations:
+        community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+        community.f5.com/email: m.emes@f5.com
+        community.f5.com/owner: emes
+    spec:
+      serviceAccountName: auth-proxy
+      containers:
+        - name: gemma-3-4b-it
+          image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: NGINX_ENTRYPOINT_LOCAL_RESOLVERS
+              value: "1"
+            - name: BACKEND_DNS_NAME
+              value: f5-ai-demo-us-ce1-gemma-3-4b-it.prediction.p.vertexai.goog
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: http
+              scheme: HTTP
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+              scheme: HTTP
+          volumeMounts:
+            - mountPath: /etc/nginx/njs/auth.js
+              name: auth-proxy-config
+              subPath: auth.js
+            - mountPath: /etc/nginx/nginx.conf
+              name: auth-proxy-config
+              subPath: nginx.conf
+            - mountPath: /etc/nginx/templates/default.conf.template
+              name: auth-proxy-config
+              subPath: default.conf.template
+      restartPolicy: Always
+      volumes:
+        - name: auth-proxy-config
+          configMap:
+            name: auth-proxy-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gemma-3-4b-it
+  namespace: shared-services
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: gemma-3-4b-it

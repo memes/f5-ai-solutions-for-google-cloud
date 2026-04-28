@@ -1,0 +1,117 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-proxy-config
+  namespace: shared-services
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+data:
+  auth.js: |-
+    async function authorize(r) {
+      let resp = await ngx.fetch('http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token',
+        {
+          headers: {'Metadata-Flavor': 'Google'},
+        }
+      );
+      let body = await resp.json();
+      let token = body.access_token;
+      if (!token) {
+        r.error('No access token');
+        r.return(401);
+        return;
+      }
+      r.headersOut['X-access-token'] = token;
+      r.return(200);
+    }
+
+    export default {authorize}
+  nginx.conf: |-
+    # Based on default conf from nginx:alpine
+    user  nginx;
+    worker_processes  auto;
+
+    error_log  /var/log/nginx/error.log notice;
+    pid        /run/nginx.pid;
+
+    load_module modules/ngx_http_js_module.so;
+
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log  /var/log/nginx/access.log  main;
+
+        sendfile        on;
+        #tcp_nopush     on;
+
+        keepalive_timeout  65;
+
+        #gzip  on;
+
+        include /etc/nginx/conf.d/*.conf;
+    }
+  default.conf.template: |-
+    upstream backend {
+      resolver ${NGINX_LOCAL_RESOLVERS};
+      zone backend 64k;
+      server ${BACKEND_DNS_NAME} resolve;
+    }
+
+    server {
+      listen 80;
+      server_name _;
+
+      location /livez {
+        return 200 "OK";
+      }
+
+      location /readyz {
+        return 200 "OK";
+      }
+
+      location /_auth {
+        internal;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_pass http://127.0.0.1:8080;
+      }
+
+      location / {
+        auth_request /_auth;
+        auth_request_set $access_token $upstream_http_x_access_token;
+        proxy_set_header Authorization "Bearer $access_token";
+        proxy_connect_timeout 15s;
+        proxy_send_timeout 15s;
+        proxy_read_timeout 300s;
+        proxy_pass http://backend;
+      }
+    }
+
+    server {
+      listen 127.0.0.1:8080;
+
+      js_path "/etc/nginx/njs/";
+      js_import main from auth.js;
+
+      location / {
+          js_content main.authorize;
+      }
+    }
+
+    server {
+      listen 127.0.0.1:8081;
+      location / {
+        return 200 "Backend: $http_authorization\n";
+      }
+    }

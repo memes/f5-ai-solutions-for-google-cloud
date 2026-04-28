@@ -1,0 +1,28 @@
+# Source: cai-moderator/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cai-moderator
+  labels:
+    app.kubernetes.io/name: cai-moderator
+    app.kubernetes.io/instance: cai-moderator
+    app.kubernetes.io/version: v9.133.3.6
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+  namespace: f5-ai-moderator
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5500
+    targetPort: backend
+    protocol: TCP
+    name: backend
+  - port: 8080
+    targetPort: auth
+    protocol: TCP
+    name: auth
+  selector:
+    app.kubernetes.io/name: cai-moderator
+    app.kubernetes.io/instance: cai-moderator

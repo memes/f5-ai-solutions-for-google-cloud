@@ -1,0 +1,115 @@
+# Source: cai-redteam/charts/prefect-server/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prefect-server
+  namespace: f5-ai-redteam
+  labels:
+    app.kubernetes.io/name: prefect-server
+    app.kubernetes.io/instance: cai-redteam
+    app.kubernetes.io/version: 3.1.12
+    app.kubernetes.io/component: server
+    prefect-version: 3.1.12
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+spec:
+  revisionHistoryLimit: 10
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prefect-server
+      app.kubernetes.io/instance: cai-redteam
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prefect-server
+        app.kubernetes.io/instance: cai-redteam
+        app.kubernetes.io/version: 3.1.12
+        app.kubernetes.io/component: server
+        prefect-version: 3.1.12
+      annotations:
+        community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+        community.f5.com/email: m.emes@f5.com
+        community.f5.com/owner: emes
+    spec:
+      serviceAccountName: prefect-server
+      securityContext:
+        fsGroup: 1001
+        runAsNonRoot: true
+        runAsUser: 1001
+      containers:
+      - name: prefect-server
+        image: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/prefecthq/prefect:3.1.12-python3.11
+        imagePullPolicy: IfNotPresent
+        command:
+        - /usr/bin/tini
+        - -g
+        - --
+        - /opt/prefect/entrypoint.sh
+        args:
+        - prefect
+        - server
+        - start
+        - --port
+        - "4200"
+        workingDir: /home/prefect
+        ports:
+        - containerPort: 4200
+        env:
+        - name: HOME
+          value: /home/prefect
+        - name: PREFECT_API_URL
+          value: http://prefect-server.f5-ai-redteam.svc.cluster.local:4200/api
+        - name: PREFECT_DEBUG_MODE
+          value: "false"
+        - name: PREFECT_LOGGING_SERVER_LEVEL
+          value: WARNING
+        - name: PREFECT_SERVER_API_HOST
+          value: 0.0.0.0
+        - name: PREFECT_SERVER_API_PORT
+          value: "4200"
+        - name: PREFECT_UI_ENABLED
+          value: "true"
+        - name: PREFECT_UI_API_URL
+          value: http://localhost:4200/api
+        - name: PREFECT_UI_URL
+          value: http://localhost:4200
+        - name: PREFECT_UI_STATIC_DIRECTORY
+          value: /ui_build
+        - name: PREFECT_API_DATABASE_CONNECTION_URL
+          valueFrom:
+            secretKeyRef:
+              name: prefect-server-auth
+              key: connection-string
+        - name: PREFECT_SERVER_ANALYTICS_ENABLED
+          value: "false"
+        envFrom: null
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 512Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities: {}
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+        volumeMounts:
+        - mountPath: /home/prefect
+          name: scratch
+          subPathExpr: home
+        - mountPath: /tmp
+          name: scratch
+          subPathExpr: tmp
+        - mountPath: /ui_build
+          name: scratch
+          subPathExpr: ui-build
+      volumes:
+      - name: scratch
+        emptyDir: {}

@@ -1,0 +1,10 @@
+# Source: cai-redteam/charts/kubeai/templates/autoscalerstateconfigmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cai-redteam-worker-autoscaler-state
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+  namespace: f5-ai-redteam

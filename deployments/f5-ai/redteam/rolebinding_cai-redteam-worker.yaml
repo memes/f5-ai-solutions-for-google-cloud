@@ -1,0 +1,21 @@
+# Source: cai-redteam/charts/kubeai/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cai-redteam-worker
+  labels:
+    app.kubernetes.io/name: kubeai
+    app.kubernetes.io/instance: cai-redteam
+    app.kubernetes.io/version: v0.22.1
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+  namespace: f5-ai-redteam
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cai-redteam-worker
+subjects:
+- kind: ServiceAccount
+  name: cai-redteam-worker

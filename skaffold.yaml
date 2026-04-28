@@ -22,7 +22,13 @@ metadata:
 build: {}
 manifests:
   rawYaml:
+    - deployments/shared-services/auth-proxy/*yaml
     - deployments/shared-services/gateway/*yaml
+    - deployments/f5-ai/moderator/*.yaml
+    - deployments/f5-ai/scanner/**/*.yaml
+    - deployments/f5-ai/scanner/*.yaml
+    - deployments/f5-ai/redteam/**/*.yaml
+    - deployments/f5-ai/redteam/*.yaml
 deploy:
   kubectl:
     hooks:

@@ -1,0 +1,25 @@
+apiVersion: fn.kpt.dev/v1alpha1
+kind: StarlarkRun
+metadata:
+  name: label-cleanup
+  annotations:
+    config.kubernetes.io/local-config: "true"
+params:
+  # The list of label keys to remove.
+  label_keys_to_remove:
+    - helm.sh/chart
+    - app.kubernetes.io/managed-by
+# This starlark script will remove labels with the keys above from all resources that contain them.
+# NOTE: It will not fix-up selectors or any other reference that is using the label - be sure removal will not have
+# side-effects.
+source: |
+  def removeLabels(labels, label_keys_to_remove):
+    return {k:v for k,v in labels.items() if k not in label_keys_to_remove}
+
+  label_keys_to_remove = ctx.resource_list["functionConfig"]["params"].get("label_keys_to_remove", [])
+  if len(label_keys_to_remove) > 0:
+    for resource in ctx.resource_list["items"]:
+      if "metadata" in resource and "labels" in resource["metadata"]:
+        resource["metadata"]["labels"] = removeLabels(resource["metadata"]["labels"], label_keys_to_remove)
+      if "spec" in resource and "template" in resource["spec"] and "metadata" in resource["spec"]["template"] and "labels" in resource["spec"]["template"]["metadata"]:
+        resource["spec"]["template"]["metadata"]["labels"] = removeLabels(resource["spec"]["template"]["metadata"]["labels"], label_keys_to_remove)

@@ -1,0 +1,21 @@
+# Source: cai-scanner/charts/kubeai/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cai-scanner
+  labels:
+    app.kubernetes.io/name: cai-scanner
+    app.kubernetes.io/instance: cai-scanner
+    app.kubernetes.io/version: v0.22.1
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+  namespace: f5-ai-scanner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cai-scanner
+subjects:
+- kind: ServiceAccount
+  name: cai-scanner

@@ -1,0 +1,285 @@
+# Source: cai-moderator/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cai-moderator
+  labels:
+    app.kubernetes.io/name: cai-moderator
+    app.kubernetes.io/instance: cai-moderator
+    app.kubernetes.io/version: v9.133.3.6
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+  namespace: f5-ai-moderator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cai-moderator
+      app.kubernetes.io/instance: cai-moderator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cai-moderator
+        app.kubernetes.io/instance: cai-moderator
+      annotations:
+        community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+        community.f5.com/email: m.emes@f5.com
+        community.f5.com/owner: emes
+    spec:
+      imagePullSecrets: []
+      serviceAccountName: cai-moderator-sa
+      securityContext: {}
+      initContainers:
+      - name: alembic-migrate
+        image: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/harbor.calypsoai.app/calypsoai/cai_moderator:v9.133.3.6
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: CAI_MODERATOR_ALLOW_WORKFLOW_PRIVATE_URL
+          value: "true"
+        - name: CAI_MODERATOR_AUTH
+          value: "true"
+        - name: CAI_MODERATOR_BASE_URL
+          value: https://f5-ai.acceleratedgcp.com
+        - name: CAI_MODERATOR_DB_ADMIN_USERNAME
+          value: f5-ai-demo-us-ce1-pg-admin
+        - name: CAI_MODERATOR_DB_HOST
+          value: e1ac711eb233.gt2i7oeood9x.us-central1.sql.goog
+        - name: CAI_MODERATOR_DB_MIGRATE_EXTERNAL
+          value: "true"
+        - name: CAI_MODERATOR_DEFAULT_RED_TEAM_ENABLED
+          value: "true"
+        - name: CAI_MODERATOR_EMAIL_HOST
+          value: email-smtp.us-east-1.amazonaws.com
+        - name: CAI_MODERATOR_EMAIL_RECEIVER
+          value: feedback@calypsoai.com
+        - name: CAI_MODERATOR_EMAIL_SENDER
+          value: feedback@calypsoai.com
+        - name: CAI_MODERATOR_INTERNAL_URL
+          value: http://cai-moderator.f5-ai-moderator.svc.cluster.local:5500
+        - name: CAI_MODERATOR_JOB_MANAGER_API_URL
+          value: http://prefect-server.f5-ai-redteam.svc.cluster.local:4200/api
+        - name: CAI_MODERATOR_JOB_MANAGER_IMAGE
+          value: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/harbor.calypsoai.app/calypsoai/cai_workflows
+        - name: CAI_MODERATOR_PORT
+          value: "5500"
+        - name: CAI_MODERATOR_RED_TEAM_SCORER_MODEL
+          value: cai-mistral-nemo-instruct-2407
+        - name: CAI_MODERATOR_RED_TEAM_SCORER_URL
+          value: http://cai-redteam-worker.f5-ai-redteam.svc.cluster.local
+        - name: CAI_MODERATOR_SCANNER_MODEL_NAME
+          value: cai-phi-4-gptq-4bit
+        - name: CAI_MODERATOR_SCANNER_SERVER_URL
+          value: http://cai-scanner.f5-ai-scanner.svc.cluster.local/openai/v1
+        - name: CAI_WORKFLOWS_VALIDATE_WORKFLOW_URL
+          value: "true"
+        - name: JAVA_OPTS_APPEND
+          value: -Djgroups.dns.query=cai-moderator-headless.f5-ai-moderator.svc.cluster.local
+        - name: KC_CACHE_STACK
+          value: kubernetes
+        - name: CAI_MODERATOR_AUTH_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cai-moderator-auth
+              key: CAI_MODERATOR_AUTH_ADMIN_PASSWORD
+        - name: CAI_MODERATOR_AUTH_IDP_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: cai-moderator-auth
+              key: CAI_MODERATOR_AUTH_IDP_CLIENT_ID
+        - name: CAI_MODERATOR_AUTH_IDP_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: cai-moderator-auth
+              key: CAI_MODERATOR_AUTH_IDP_CLIENT_SECRET
+        - name: CAI_MODERATOR_AUTH_IDP_ISSUER
+          valueFrom:
+            secretKeyRef:
+              name: cai-moderator-auth
+              key: CAI_MODERATOR_AUTH_IDP_ISSUER
+        - name: CAI_MODERATOR_DB_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cai-moderator-auth
+              key: CAI_MODERATOR_DB_ADMIN_PASSWORD
+        - name: CAI_MODERATOR_DB_MODERATOR_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cai-moderator-auth
+              key: CAI_MODERATOR_DB_MODERATOR_PASSWORD
+        - name: CAI_MODERATOR_DEFAULT_LICENSE
+          valueFrom:
+            secretKeyRef:
+              name: cai-moderator-auth
+              key: CAI_MODERATOR_DEFAULT_LICENSE
+        - name: CAI_MODERATOR_EMAIL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cai-moderator-auth
+              key: CAI_MODERATOR_EMAIL_PASSWORD
+        - name: CAI_MODERATOR_EMAIL_USER
+          valueFrom:
+            secretKeyRef:
+              name: cai-moderator-auth
+              key: CAI_MODERATOR_EMAIL_USER
+        - name: CAI_MODERATOR_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cai-moderator-auth
+              key: CAI_MODERATOR_ENCRYPTION_KEY
+        - name: CAI_MODERATOR_JOB_MANAGER_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cai-moderator-auth
+              key: CAI_MODERATOR_JOB_MANAGER_ENCRYPTION_KEY
+        command:
+        - sh
+        - -ce
+        args:
+        - |
+          echo "Setup Database..."
+          python /app/scripts/database.py moderator
+          python /app/scripts/database.py moderator_metrics || echo "Failed to setup moderator_metrics database"
+          echo "Starting Alembic migration..."
+          python /app/scripts/migrate_db.py
+      containers:
+      - name: cai-moderator
+        env:
+        - name: CAI_MODERATOR_ALLOW_WORKFLOW_PRIVATE_URL
+          value: "true"
+        - name: CAI_MODERATOR_AUTH
+          value: "true"
+        - name: CAI_MODERATOR_BASE_URL
+          value: https://f5-ai.acceleratedgcp.com
+        - name: CAI_MODERATOR_DB_ADMIN_USERNAME
+          value: f5-ai-demo-us-ce1-pg-admin
+        - name: CAI_MODERATOR_DB_HOST
+          value: e1ac711eb233.gt2i7oeood9x.us-central1.sql.goog
+        - name: CAI_MODERATOR_DB_MIGRATE_EXTERNAL
+          value: "true"
+        - name: CAI_MODERATOR_DEFAULT_RED_TEAM_ENABLED
+          value: "true"
+        - name: CAI_MODERATOR_EMAIL_HOST
+          value: email-smtp.us-east-1.amazonaws.com
+        - name: CAI_MODERATOR_EMAIL_RECEIVER
+          value: feedback@calypsoai.com
+        - name: CAI_MODERATOR_EMAIL_SENDER
+          value: feedback@calypsoai.com
+        - name: CAI_MODERATOR_INTERNAL_URL
+          value: http://cai-moderator.f5-ai-moderator.svc.cluster.local:5500
+        - name: CAI_MODERATOR_JOB_MANAGER_API_URL
+          value: http://prefect-server.f5-ai-redteam.svc.cluster.local:4200/api
+        - name: CAI_MODERATOR_JOB_MANAGER_IMAGE
+          value: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/harbor.calypsoai.app/calypsoai/cai_workflows
+        - name: CAI_MODERATOR_PORT
+          value: "5500"
+        - name: CAI_MODERATOR_RED_TEAM_SCORER_MODEL
+          value: cai-mistral-nemo-instruct-2407
+        - name: CAI_MODERATOR_RED_TEAM_SCORER_URL
+          value: http://cai-redteam-worker.f5-ai-redteam.svc.cluster.local
+        - name: CAI_MODERATOR_SCANNER_MODEL_NAME
+          value: cai-phi-4-gptq-4bit
+        - name: CAI_MODERATOR_SCANNER_SERVER_URL
+          value: http://cai-scanner.f5-ai-scanner.svc.cluster.local/openai/v1
+        - name: CAI_WORKFLOWS_VALIDATE_WORKFLOW_URL
+          value: "true"
+        - name: JAVA_OPTS_APPEND
+          value: -Djgroups.dns.query=cai-moderator-headless.f5-ai-moderator.svc.cluster.local
+        - name: KC_CACHE_STACK
+          value: kubernetes
+        - name: CAI_MODERATOR_AUTH_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cai-moderator-auth
+              key: CAI_MODERATOR_AUTH_ADMIN_PASSWORD
+        - name: CAI_MODERATOR_AUTH_IDP_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              key: CAI_MODERATOR_AUTH_IDP_CLIENT_ID
+              name: cai-moderator-auth
+        - name: CAI_MODERATOR_AUTH_IDP_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: CAI_MODERATOR_AUTH_IDP_CLIENT_SECRET
+              name: cai-moderator-auth
+        - name: CAI_MODERATOR_AUTH_IDP_ISSUER
+          valueFrom:
+            secretKeyRef:
+              key: CAI_MODERATOR_AUTH_IDP_ISSUER
+              name: cai-moderator-auth
+        - name: CAI_MODERATOR_DB_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: CAI_MODERATOR_DB_ADMIN_PASSWORD
+              name: cai-moderator-auth
+        - name: CAI_MODERATOR_DB_MODERATOR_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: CAI_MODERATOR_DB_MODERATOR_PASSWORD
+              name: cai-moderator-auth
+        - name: CAI_MODERATOR_DEFAULT_LICENSE
+          valueFrom:
+            secretKeyRef:
+              key: CAI_MODERATOR_DEFAULT_LICENSE
+              name: cai-moderator-auth
+        - name: CAI_MODERATOR_EMAIL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: CAI_MODERATOR_EMAIL_PASSWORD
+              name: cai-moderator-auth
+        - name: CAI_MODERATOR_EMAIL_USER
+          valueFrom:
+            secretKeyRef:
+              key: CAI_MODERATOR_EMAIL_USER
+              name: cai-moderator-auth
+        - name: CAI_MODERATOR_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              key: CAI_MODERATOR_ENCRYPTION_KEY
+              name: cai-moderator-auth
+        - name: CAI_MODERATOR_JOB_MANAGER_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              key: CAI_MODERATOR_JOB_MANAGER_ENCRYPTION_KEY
+              name: cai-moderator-auth
+        securityContext: {}
+        image: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/harbor.calypsoai.app/calypsoai/cai_moderator:v9.133.3.6
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: backend
+          containerPort: 5500
+          protocol: TCP
+        - name: auth
+          containerPort: 8080
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "14"
+            memory: 30Gi
+          requests:
+            cpu: "10"
+            memory: 25Gi
+        livenessProbe:
+          httpGet:
+            path: /backend/v1/app/health/infra
+            port: backend
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /backend/v1/app/health/infra
+            port: backend
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        startupProbe:
+          httpGet:
+            path: /backend/v1/app/health/infra
+            port: backend
+          failureThreshold: 24
+          periodSeconds: 5
+      nodeSelector:
+        cloud.google.com/compute-class: Performance
+        cloud.google.com/machine-family: c4
+      tolerations: []

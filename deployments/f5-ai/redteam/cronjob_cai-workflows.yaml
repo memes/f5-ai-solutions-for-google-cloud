@@ -1,0 +1,80 @@
+# Source: cai-redteam/templates/cai-workflows-job.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cai-workflows
+  annotations:
+    community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+    community.f5.com/email: m.emes@f5.com
+    community.f5.com/owner: emes
+  namespace: f5-ai-redteam
+spec:
+  schedule: 0 0 1 1 *
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: cai-workflows
+            image: us-docker.pkg.dev/f5-gcs-4138-sales-cloudnext25/ai-demo-oci/harbor.calypsoai.app/calypsoai/cai_workflows:v1.95.3
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/bash
+            - -c
+            args:
+            - |
+              # Wait for Prefect API to be ready
+              for i in $(seq 1 30); do
+                if curl -s http://prefect-server.f5-ai-redteam.svc.cluster.local:4200/api > /dev/null; then break; fi
+                echo "Waiting for Prefect API..."; sleep 5;
+              done
+
+              cd /app
+
+              # Sync work pools with base job template
+              echo "<<< Sync work pools >>>"
+              if ! prefect work-pool inspect "Kubernetes Work Pool" > /dev/null; then
+                echo "Work pool Kubernetes Work Pool does not yet exist. Creating work pool Kubernetes Work Pool..."
+                prefect work-pool create "Kubernetes Work Pool" --type kubernetes --base-job-template /home/prefect/baseJobTemplate.json
+              else
+                echo "Updating work pool Kubernetes Work Pool."
+                prefect work-pool update "Kubernetes Work Pool" --base-job-template /home/prefect/baseJobTemplate.json
+              fi
+
+              # Deploy flows and configurations
+              echo "<<< Update deployments >>>"
+              python ./deploy.py
+            env:
+            - name: CAI_WORKFLOWS_VALIDATE_WORKFLOW_URL
+              value: "true"
+            - name: CAI_WORKFLOWS_WEBHOOK_URL
+              value: http://cai-moderator.f5-ai-moderator.svc.cluster.local:5500/internal/hooks/attack-events
+            - name: PREFECT_API_URL
+              value: http://prefect-server.f5-ai-redteam.svc.cluster.local:4200/api
+            envFrom:
+            - secretRef:
+                name: cai-workflows-auth
+            volumeMounts:
+            - mountPath: /home/prefect/baseJobTemplate.json
+              name: base-job-template-file
+              subPath: baseJobTemplate.json
+          volumes:
+          - configMap:
+              defaultMode: 420
+              name: cai-workflows
+            name: base-job-template-file
+        metadata:
+          annotations:
+            community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+            community.f5.com/email: m.emes@f5.com
+            community.f5.com/owner: emes
+    metadata:
+      annotations:
+        community.f5.com/demo-source: https://github.com/memes/f5-ai-solutions-for-google-cloud
+        community.f5.com/email: m.emes@f5.com
+        community.f5.com/owner: emes
