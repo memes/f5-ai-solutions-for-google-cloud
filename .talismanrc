@@ -116,3 +116,5 @@ fileignoreconfig:
   checksum: afe2d2a4a8cf105a07732566090e8912cdf58886c6f3e8639c5ce2d7be83ffe6
 - filename: deployments/f5-ai/redteam/f5-ai-redteam/deployment_prefect-server.yaml
   checksum: c080b1a2635b611de2198593d7e46b74d028862e7ade52cbd2ef55e20da46542
+- filename: .devcontainer/devcontainer-lock.json
+  checksum: c33a2e0a023ced72e3475b50d49e79c791e76fc8d4fdbc6182f93eaf4341c694
