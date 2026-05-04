@@ -187,7 +187,7 @@ variable "cai_moderator_auth_accessors" {
     error_message = "If provided, each cai_moderator_auth_accessors value must be a valid Kubernetes service account"
   }
   default = [
-    "f5-ai-moderator/cai-moderator-sa",
+    "cai-moderator/cai-moderator-sa",
   ]
   description = <<-EOD
   An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`
@@ -204,7 +204,7 @@ variable "prefect_server_auth_accessors" {
     error_message = "If provided, each prefect_server_auth_accessors value must be a valid Kubernetes service account"
   }
   default = [
-    "f5-ai-redteam/prefect-server",
+    "prefect/prefect-server",
   ]
   description = <<-EOD
   An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`
@@ -221,7 +221,7 @@ variable "cai_workflows_auth_accessors" {
     error_message = "If provided, each cai_workflows_auth_accessors value must be a valid Kubernetes service account"
   }
   default = [
-    "f5-ai-redteam/default",
+    "prefect/default",
   ]
   description = <<-EOD
   An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`

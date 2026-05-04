@@ -138,7 +138,7 @@ resource "google_secret_manager_secret_version" "cai_moderator_auth" {
 }
 
 resource "google_secret_manager_secret_iam_member" "cai_moderator_auth" {
-  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.cai_moderator_auth : k], coalescelist(var.cai_moderator_auth_accessors == null ? [] : var.cai_moderator_auth_accessors, ["f5-ai-moderator/cai-moderator-sa"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.cai_moderator_auth : k], coalescelist(var.cai_moderator_auth_accessors == null ? [] : var.cai_moderator_auth_accessors, ["cai-moderator/cai-moderator-sa"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
     name      = reverse(split("/", entry[1]))[0]
     namespace = try(reverse(split("/", entry[1]))[1], "default")
     secret_id = google_secret_manager_secret.cai_moderator_auth[entry[0]].secret_id
@@ -173,7 +173,7 @@ resource "google_secret_manager_secret_version" "prefect_server_auth" {
 }
 
 resource "google_secret_manager_secret_iam_member" "prefect_server_auth" {
-  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.prefect_server_auth : k], coalescelist(var.prefect_server_auth_accessors == null ? [] : var.prefect_server_auth_accessors, ["f5-ai-redteam/prefect-server"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.prefect_server_auth : k], coalescelist(var.prefect_server_auth_accessors == null ? [] : var.prefect_server_auth_accessors, ["prefect/prefect-server"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
     name      = reverse(split("/", entry[1]))[0]
     namespace = try(reverse(split("/", entry[1]))[1], "default")
     secret_id = google_secret_manager_secret.prefect_server_auth[entry[0]].secret_id
@@ -209,7 +209,7 @@ resource "google_secret_manager_secret_version" "cai_workflows_auth" {
 }
 
 resource "google_secret_manager_secret_iam_member" "cai_workflows_auth" {
-  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.cai_workflows_auth : k], coalescelist(var.cai_workflows_auth_accessors == null ? [] : var.cai_workflows_auth_accessors, ["f5-ai-redteam/default"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
+  for_each = { for i, entry in setproduct([for k, v in google_secret_manager_secret.cai_workflows_auth : k], coalescelist(var.cai_workflows_auth_accessors == null ? [] : var.cai_workflows_auth_accessors, ["prefect/default"])) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
     name      = reverse(split("/", entry[1]))[0]
     namespace = try(reverse(split("/", entry[1]))[1], "default")
     secret_id = google_secret_manager_secret.cai_workflows_auth[entry[0]].secret_id
