@@ -30,17 +30,8 @@ private-registry.nginx.com/nms/integrations:2.21.0
 private-registry.nginx.com/nms/secmon:2.21.0
 
 # CalypsoAI and supporting
-harbor.calypsoai.app/calypsoai/cai_moderator:v9.133.3.6
-harbor.calypsoai.app/calypsoai/cai_scanner:v2.4.0
-harbor.calypsoai.app/calypsoai/kubeai:v0.22.1
-harbor.calypsoai.app/calypsoai/kubeai-model-loader:v0.14.0
-harbor.calypsoai.app/calypsoai/cai_workflows:v1.95.3
-harbor.calypsoai.app/calypsoai/cai-redteam-worker:v1.0.7
-vllm/vllm-openai:v0.10.2
-vllm/vllm-tpu:23194d83e8f2a6783b0d8c275f5f8a22faab9aec
-prefecthq/prefect:3.1.12-python3.11
-prefecthq/prefect:3.1.12-python3.11-kubernetes
-prefecthq/prometheus-prefect-exporter:1.6.7
+harbor.calypsoai.app/calypsoai/f5-ai-security-operator:v0.8.1
+harbor.calypsoai.app/calypsoai/cai_moderator:v10.13.2.1
 
 # vLLM and GKE Inference Gateway
 vllm/vllm-openai:v0.19.0
