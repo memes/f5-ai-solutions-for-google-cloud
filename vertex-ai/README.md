@@ -37,7 +37,7 @@ This module provisions Vertex AI models for demo.
 | <a name="input_name"></a> [name](#input\_name) | The common name to use as-is, or as a prefix with an abbreviated region name, for resources created by this module.<br/>E.g. if `name = "ai-demo"`, global resources will be named "ai-demo" (or have a name prefix of "ai-demo-XXX"), and<br/>regional resources will be named "ai-demo-xx-xxN" (or prefixed with "ai-demo-xx-xxN-") where xx-xxN is an abbreviation<br/>of the region name. | `string` | n/a | yes |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | The Google Cloud project identifier that will contain the resources. | `string` | n/a | yes |
 | <a name="input_labels"></a> [labels](#input\_labels) | An optional map of key:value labels to apply to the resources. Default value is an empty map.<br/>NOTE: The effective set of labels will include some fixed values in addition to these. | `map(string)` | `{}` | no |
-| <a name="input_publisher_models"></a> [publisher\_models](#input\_publisher\_models) | A list of Model Garden models to provision on Vertex AI. | `list(string)` | <pre>[<br/>  "publishers/google/models/gemma3@gemma-3-4b-it"<br/>]</pre> | no |
+| <a name="input_publisher_models"></a> [publisher\_models](#input\_publisher\_models) | A list of Model Garden models to provision on Vertex AI. | `list(string)` | <pre>[<br/>  "publishers/google/models/gemma4@gemma-4-26b-a4b-it"<br/>]</pre> | no |
 | <a name="input_subnets"></a> [subnets](#input\_subnets) | A map of Compute Engine region names to subnetwork self-links for which Vertex AI models will be provisioned. | `map(string)` | `null` | no |
 
 ## Outputs
