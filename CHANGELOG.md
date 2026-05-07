@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0](https://github.com/memes/f5-ai-solutions-for-google-cloud/compare/v0.1.0...v0.2.0) (2026-05-07)
+
+
+### Features
+
+* Auth-proxy for Gemma4 on Vertex AI ([1143f0f](https://github.com/memes/f5-ai-solutions-for-google-cloud/commit/1143f0f430b084c49600fa1b9a7bcfa559165f87))
+* Launch Gemma4 A4B MoE model for testing ([15015ea](https://github.com/memes/f5-ai-solutions-for-google-cloud/commit/15015eabfb05423d287f92b3a6f6bc5924614103))
+
 ## [0.1.0](https://github.com/memes/f5-ai-solutions-for-google-cloud/compare/v0.0.1...v0.1.0) (2026-04-28)
 
 Google Cloud Next 2026 booth demo
