@@ -15,38 +15,12 @@ fi
 
 awk '!/^($|#)/ {print}' <<EOF |
 # Debugging/utility containers
-busybox:1.37.0
-curlimages/curl:8.18.0
-ghcr.io/memes/terraform-google-private-bastion/forward-proxy:4.0.2
-postgres:17.9-alpine
-redis:7.2-alpine
+busybox:1.38.0@sha256:fd8d9aa63ba2f0982b5304e1ee8d3b90a210bc1ffb5314d980eb6962f1a9715d
+curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
+ghcr.io/memes/terraform-google-private-bastion/forward-proxy:4.0.2@sha256:9fa3fa77c867614976366c1edfd4a5f0e411f47e3c914c14e69bf45bedd9ed25
+postgres:17.10-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+redis:7.4.10-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2
 
-# NGINX Instance Manager
-private-registry.nginx.com/nms/apigw:2.21.0
-private-registry.nginx.com/nms/core:2.21.0
-private-registry.nginx.com/nms/dpm:2.21.0
-private-registry.nginx.com/nms/ingestion:2.21.0
-private-registry.nginx.com/nms/integrations:2.21.0
-private-registry.nginx.com/nms/secmon:2.21.0
-
-# CalypsoAI and supporting
-harbor.calypsoai.app/calypsoai/f5-ai-security-operator:v0.8.1
-harbor.calypsoai.app/calypsoai/cai_moderator:v10.13.2.1
-
-# vLLM and GKE Inference Gateway
-vllm/vllm-openai:v0.19.0
-registry.k8s.io/gateway-api-inference-extension/lora-syncer:v1.2.1
-registry.k8s.io/gateway-api-inference-extension/epp:v1.4.0
-registry.k8s.io/gateway-api-inference-extension/bbr:v1.4.0
-
-# Arcadia Crypto
-sorinboiaf5/arcadia-frontend:v1
-sorinboiaf5/arcadia-login:v1
-sorinboiaf5/arcadia-stock_transaction:v1
-sorinboiaf5/arcadia-stocks:v1
-sorinboiaf5/arcadia-users:v1
-sorinboiaf5/arcadia-ai:v1
-sorinboiaf5/arcadia-ai-rag:v1
 EOF
 
 while read -r src; do

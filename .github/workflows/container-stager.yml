@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     if: false  # TODO(@memes): Disabled as some containers too large to reasonably process in an action.
     env:
-      GCRANE_VERSION: 0.20.7
+      GCRANE_VERSION: 0.21.7
     steps:
       - uses: actions/checkout@v6
       - name: Install gcrane
