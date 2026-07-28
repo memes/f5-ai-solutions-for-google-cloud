@@ -38,26 +38,34 @@ provider "google" {
 }
 
 module "bootstrap" {
-  source            = "registry.terraform.io/memes/f5-demo-bootstrap/google"
-  version           = "0.6.0"
+  source = "git::https://github.com/memes/terraform-google-f5-demo-bootstrap?ref=fix%2fcloud_deploy"
+  # source            = "registry.terraform.io/memes/f5-demo-bootstrap/google"
+  # version           = "0.6.0"
   project_id        = var.project_id
   name              = var.name
   github_options    = var.github_options
   iac_impersonators = var.iac_impersonators
   nginx_jwt         = var.nginx_jwt
   bootstrap_apis = [
+    "agentregistry.googleapis.com",
     "aiplatform.googleapis.com",
+    "apphub.googleapis.com",
+    "apptopology.googleapis.com",
     "certificatemanager.googleapis.com",
+    "cloudapiregistry.googleapis.com",
     "cloudtrace.googleapis.com",
     "compute.googleapis.com",
     "container.googleapis.com",
+    "discoveryengine.googleapis.com",
     "dns.googleapis.com",
     "iam.googleapis.com",
     "kubernetesmetadata.googleapis.com",
     "logging.googleapis.com",
     "modelarmor.googleapis.com",
     "monitoring.googleapis.com",
+    "networksecurity.googleapis.com",
     "networkservices.googleapis.com",
+    "observability.googleapis.com",
     "redis.googleapis.com",
     "secretmanager.googleapis.com",
     "serviceusage.googleapis.com",
@@ -79,6 +87,9 @@ module "bootstrap" {
     "roles/iam.serviceAccountAdmin",
     "roles/iam.serviceAccountUser",
     "roles/iam.serviceAccountTokenCreator",
+    "roles/modelarmor.editor",
+    "roles/networksecurity.editor",
+    "roles/networkservices.editor",
     "roles/redis.admin",
     "roles/secretmanager.admin",
     "roles/serviceusage.serviceUsageAdmin",
@@ -89,6 +100,11 @@ module "bootstrap" {
   ]
   iac_options = {
     enable_workload_identity_pool_admin = true
+  }
+  gcp_options = {
+    enable_cloud_deploy  = true
+    enable_infra_manager = true
+    create_state_bucket  = false
   }
 }
 
@@ -193,9 +209,9 @@ resource "github_actions_variable" "nginxaas_combined_pem_secrets" {
 
 # For NGINXaaS integration the workload identity pool identifier is needed.
 resource "github_actions_secret" "pool_id" {
-  repository      = local.repo_name
-  secret_name     = "WORKLOAD_IDENTITY_POOL_ID"
-  plaintext_value = module.bootstrap.workload_identity_pool_id
+  repository  = local.repo_name
+  secret_name = "WORKLOAD_IDENTITY_POOL_ID"
+  value       = module.bootstrap.workload_identity_pool_id
 
   depends_on = [
     module.bootstrap,
