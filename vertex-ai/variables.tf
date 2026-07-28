@@ -64,7 +64,7 @@ variable "publisher_models" {
     error_message = "Each publisher_models entry must be a valid Model Garden name."
   }
   default = [
-    "publishers/google/models/gemma3@gemma-3-4b-it",
+    "publishers/google/models/gemma4@gemma-4-26b-a4b-it",
   ]
   description = <<-EOD
   A list of Model Garden models to provision on Vertex AI.
