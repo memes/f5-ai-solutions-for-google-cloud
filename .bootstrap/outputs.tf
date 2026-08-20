@@ -1,7 +1,7 @@
-output "ar_repo" {
-  value       = one([for k, v in module.bootstrap.repo_identifiers : v if k == "oci"])
+output "ar_repos" {
+  value       = module.bootstrap.repo_identifiers
   description = <<-EOD
-  The Artifact Registry created for OCI artifacts.
+  The Artifact Registries created by the module.
   EOD
 }
 
@@ -21,13 +21,9 @@ output "nginx_jwt" {
 }
 
 output "f5_ai_license" {
-  value = {
-    secret_id            = one([for k, v in module.f5_ai_license : v.secret_id])
-    id                   = one([for k, v in module.f5_ai_license : v.id])
-    expiration_timestamp = one([for k, v in module.f5_ai_license : v.expiration_timestamp])
-  }
+  value       = module.bootstrap.f5_ai_license
   description = <<-EOD
-  If an F5 AI Guardrails/Red Team secret was created during bootstrap, return the fully-qualified and local identifiers,
+  If an F5 AI Guardrails/Red Team license secret was created during bootstrap, return the fully-qualified and local identifiers,
   and expiration timestamp, if appropriate.
   EOD
 }

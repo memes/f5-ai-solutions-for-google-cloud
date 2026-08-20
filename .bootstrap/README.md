@@ -72,8 +72,7 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 
 | Name | Source | Version |
 | ---- | ------ | ------- |
-| <a name="module_bootstrap"></a> [bootstrap](#module\_bootstrap) | git::https://github.com/memes/terraform-google-f5-demo-bootstrap | fix%2fcloud_deploy |
-| <a name="module_f5_ai_license"></a> [f5\_ai\_license](#module\_f5\_ai\_license) | memes/secret-manager/google | 2.2.2 |
+| <a name="module_bootstrap"></a> [bootstrap](#module\_bootstrap) | git::https://github.com/memes/terraform-google-f5-demo-bootstrap | feat%2F64_long-running-actions |
 | <a name="module_nginxaas_combined_pem"></a> [nginxaas\_combined\_pem](#module\_nginxaas\_combined\_pem) | memes/secret-manager/google | 2.2.2 |
 
 ## Resources
@@ -83,9 +82,8 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 | [github_actions_secret.pool_id](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_secret) | resource |
 | [github_actions_variable.allowlist_cidrs](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [github_actions_variable.dns](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
-| [github_actions_variable.f5_ai_license](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [github_actions_variable.model_cache_bucket](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
-| [github_actions_variable.nginxaas_combined_pem_secrets](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
+| [github_actions_variable.nginxaas_combined_pem_secret](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [google_storage_bucket.model_cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket) | resource |
 
 ## Inputs
@@ -97,7 +95,8 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 | <a name="input_allowlist_cidrs"></a> [allowlist\_cidrs](#input\_allowlist\_cidrs) | An optional list of CIDRs to be passed to Infra Manager and Cloud Deploy invocations. E.g. the foundations module will<br/>create a Cloud Armor policy blocking access unless this variable contains an allow list. | `list(string)` | `null` | no |
 | <a name="input_dns"></a> [dns](#input\_dns) | If provided, these values will be added to the GitHub repo as variables that can be used in automation actions. The<br/>`base_domain` field sets the root for TLS certificate creation and DNS challenges and is required if this variable is<br/>not null. The `managed_zone_id` value containing a Cloud DNS Managed Zone identifier can be provided to have the DNS<br/>challenge and reserved IP addresses added automatically. | <pre>object({<br/>    base_domain     = string<br/>    managed_zone_id = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_f5_ai_license"></a> [f5\_ai\_license](#input\_f5\_ai\_license) | An optional NGINX+ JWT to store in Google Secret Manager, with read-only access granted to AR service account. | `string` | `null` | no |
-| <a name="input_github_options"></a> [github\_options](#input\_github\_options) | Defines the parameters for the GitHub repository to create for the demo. By default the GitHub repo will be public,<br/>named from the `name` variable and populated from `memes/terraform-google-f5-demo-bootstrap-template` repo. Use this<br/>variable to override one or more of these defaults as needed. | <pre>object({<br/>    private_repo       = optional(bool, false)<br/>    name               = optional(string)<br/>    description        = optional(string)<br/>    template           = optional(string)<br/>    archive_on_destroy = optional(bool, true)<br/>    collaborators      = optional(set(string))<br/>  })</pre> | <pre>{<br/>  "archive_on_destroy": true,<br/>  "collaborators": [],<br/>  "description": "Bootstrapped automation repository",<br/>  "name": "",<br/>  "private_repo": false,<br/>  "template": "memes/terraform-google-f5-demo-bootstrap-template"<br/>}</pre> | no |
+| <a name="input_f5_ai_repo_credentials"></a> [f5\_ai\_repo\_credentials](#input\_f5\_ai\_repo\_credentials) | If provided, a remote Artifact Registry will be created to reference the upstream F5 AI private Harbor repository for<br/>transparent access to the private images, along with a Secret Manager secret to contain the Harbor password. | <pre>object({<br/>    username = string<br/>    password = string<br/>  })</pre> | `null` | no |
+| <a name="input_github_options"></a> [github\_options](#input\_github\_options) | Defines the parameters for the GitHub repository to create for the demo. By default the GitHub repo will be public,<br/>named from the `name` variable and populated from `memes/terraform-google-f5-demo-bootstrap-template` repo. Use this<br/>variable to override one or more of these defaults as needed. | <pre>object({<br/>    private_repo       = optional(bool, false)<br/>    name               = optional(string)<br/>    description        = optional(string)<br/>    template           = optional(string)<br/>    archive_on_destroy = optional(bool, true)<br/>    collaborators      = optional(set(string))<br/>    org                = optional(string)<br/>  })</pre> | <pre>{<br/>  "archive_on_destroy": true,<br/>  "collaborators": [],<br/>  "description": "Bootstrapped automation repository",<br/>  "name": "",<br/>  "org": null,<br/>  "private_repo": false,<br/>  "template": "memes/terraform-google-f5-demo-bootstrap-template"<br/>}</pre> | no |
 | <a name="input_iac_impersonators"></a> [iac\_impersonators](#input\_iac\_impersonators) | A list of fully-qualified IAM accounts that will be allowed to impersonate the IaC automation service account. If no<br/>accounts are supplied, impersonation will not be setup by the script.<br/>E.g.<br/>impersonators = [<br/>  "group:devsecops@example.com",<br/>  "group:admins@example.com",<br/>  "user:jane@example.com",<br/>  "serviceAccount:ci-cd@project.iam.gserviceaccount.com",<br/>] | `list(string)` | `[]` | no |
 | <a name="input_labels"></a> [labels](#input\_labels) | An optional set of key:value string pairs that will be added to Google Cloud resources that accept labels.<br/>Alternative: Set common labels in the `google` provider configuration. | `map(string)` | `{}` | no |
 | <a name="input_nginx_jwt"></a> [nginx\_jwt](#input\_nginx\_jwt) | An optional NGINX+ JWT to store in Google Secret Manager, with read-only access granted to AR service account. | `string` | `null` | no |
@@ -107,9 +106,9 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 
 | Name | Description |
 | ---- | ----------- |
-| <a name="output_ar_repo"></a> [ar\_repo](#output\_ar\_repo) | The Artifact Registry created for OCI artifacts. |
+| <a name="output_ar_repos"></a> [ar\_repos](#output\_ar\_repos) | The Artifact Registries created by the module. |
 | <a name="output_cloud_deploy_sa"></a> [cloud\_deploy\_sa](#output\_cloud\_deploy\_sa) | The fully-qualified email address of the Cloud Deploy execution service account. |
-| <a name="output_f5_ai_license"></a> [f5\_ai\_license](#output\_f5\_ai\_license) | If an F5 AI Guardrails/Red Team secret was created during bootstrap, return the fully-qualified and local identifiers,<br/>and expiration timestamp, if appropriate. |
+| <a name="output_f5_ai_license"></a> [f5\_ai\_license](#output\_f5\_ai\_license) | If an F5 AI Guardrails/Red Team license secret was created during bootstrap, return the fully-qualified and local identifiers,<br/>and expiration timestamp, if appropriate. |
 | <a name="output_model_cache_bucket"></a> [model\_cache\_bucket](#output\_model\_cache\_bucket) | The Google Cloud Storage bucket names to be used for model caching. |
 | <a name="output_nginx_jwt"></a> [nginx\_jwt](#output\_nginx\_jwt) | If an NGINX JWT secret was created during bootstrap, return the fully-qualified and local identifiers, and expiration<br/>timestamp, if appropriate. |
 | <a name="output_nginxaas_combined_pems"></a> [nginxaas\_combined\_pems](#output\_nginxaas\_combined\_pems) | n/a |

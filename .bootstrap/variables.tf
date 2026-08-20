@@ -32,6 +32,7 @@ variable "github_options" {
     template           = optional(string)
     archive_on_destroy = optional(bool, true)
     collaborators      = optional(set(string))
+    org                = optional(string)
   })
   nullable = true
   default = {
@@ -41,6 +42,7 @@ variable "github_options" {
     template           = "memes/terraform-google-f5-demo-bootstrap-template"
     archive_on_destroy = true
     collaborators      = []
+    org                = null
   }
   description = <<-EOD
   Defines the parameters for the GitHub repository to create for the demo. By default the GitHub repo will be public,
@@ -123,5 +125,19 @@ variable "nginxaas_combined_pems" {
   default     = null
   description = <<-EOD
   An optional map of names to combined TLS certificate and key PEMs to add to Google Secret Manager.
+  EOD
+}
+
+
+variable "f5_ai_repo_credentials" {
+  type = object({
+    username = string
+    password = string
+  })
+  nullable    = true
+  default     = null
+  description = <<-EOD
+  If provided, a remote Artifact Registry will be created to reference the upstream F5 AI private Harbor repository for
+  transparent access to the private images, along with a Secret Manager secret to contain the Harbor password.
   EOD
 }

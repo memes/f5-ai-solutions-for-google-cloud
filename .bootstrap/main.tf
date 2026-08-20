@@ -23,9 +23,12 @@ terraform {
   }
 }
 
-# This assumes the provider is configured via environment variables GITHUB_TOKEN and GITHUB_OWNER; change as necessary.
+# This assumes the provider is mostly configured via environment variables GITHUB_TOKEN, GITHUB_OWNER,
+# GITHUB_ORGANIZATION, etc.
 # See https://registry.terraform.io/providers/integrations/github/latest/docs
-provider "github" {}
+provider "github" {
+  owner = try(var.github_options.org, null)
+}
 
 # This assumes the provider is configured via ADC credentials and/or environment variables; change as necessary.
 # See https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference
@@ -38,14 +41,16 @@ provider "google" {
 }
 
 module "bootstrap" {
-  source = "git::https://github.com/memes/terraform-google-f5-demo-bootstrap?ref=fix%2fcloud_deploy"
+  source = "git::https://github.com/memes/terraform-google-f5-demo-bootstrap?ref=feat%2F64_long-running-actions"
   # source            = "registry.terraform.io/memes/f5-demo-bootstrap/google"
   # version           = "0.6.0"
-  project_id        = var.project_id
-  name              = var.name
-  github_options    = var.github_options
-  iac_impersonators = var.iac_impersonators
-  nginx_jwt         = var.nginx_jwt
+  project_id             = var.project_id
+  name                   = var.name
+  github_options         = var.github_options
+  iac_impersonators      = var.iac_impersonators
+  nginx_jwt              = var.nginx_jwt
+  f5_ai_license          = var.f5_ai_license
+  f5_ai_repo_credentials = var.f5_ai_repo_credentials
   bootstrap_apis = [
     "agentregistry.googleapis.com",
     "aiplatform.googleapis.com",
@@ -108,27 +113,8 @@ module "bootstrap" {
   }
 }
 
-# F5 AI Guardrails and Red Team deployments need the license token; if provided, create a secret containing the token
-# but do not assign any accessors.
-module "f5_ai_license" {
-  for_each   = coalesce(try(var.f5_ai_license, null), "unspecified") == "unspecified" ? {} : { global = var.f5_ai_license }
-  source     = "memes/secret-manager/google"
-  version    = "2.2.2"
-  project_id = var.project_id
-  id         = format("%s-f5-ai-license", var.name)
-  secret     = each.value
-  accessors  = []
-}
-
 locals {
   repo_name = reverse(split("/", module.bootstrap.github_repo))[0]
-}
-
-resource "github_actions_variable" "f5_ai_license" {
-  for_each      = { for secret in module.f5_ai_license : "F5_AI_LICENSE_SECRET" => secret.id }
-  repository    = local.repo_name
-  variable_name = each.key
-  value         = each.value
 }
 
 # Add the base domain to the GitHub repo as a variable, but let the value be changed from the initial value as needed.
@@ -201,9 +187,9 @@ module "nginxaas_combined_pem" {
 }
 
 # Add the list of TLS certificate PEM secrets as a GitHub variable.
-resource "github_actions_variable" "nginxaas_combined_pem_secrets" {
+resource "github_actions_variable" "nginxaas_combined_pem_secret" {
   repository    = local.repo_name
-  variable_name = "NGINXAAS_COMBINED_PEM_SECRETS"
+  variable_name = "NGINXAAS_COMBINED_PEM_SECRET"
   value         = jsonencode([for secret in module.nginxaas_combined_pem : secret.id])
 }
 
