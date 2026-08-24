@@ -27,13 +27,6 @@ output "nginx_jwt" {
   EOD
 }
 
-output "model_cache_bucket" {
-  value       = google_storage_bucket.model_cache.name
-  description = <<-EOD
-  The Google Cloud Storage bucket names to be used for model caching.
-  EOD
-}
-
 output "secrets" {
   value       = module.bootstrap.secrets
   description = <<-EOD

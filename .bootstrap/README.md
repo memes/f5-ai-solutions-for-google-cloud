@@ -81,8 +81,6 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 | [github_actions_secret.pool_id](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_secret) | resource |
 | [github_actions_variable.allowlist_cidrs](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
 | [github_actions_variable.dns](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
-| [github_actions_variable.model_cache_bucket](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_variable) | resource |
-| [google_storage_bucket.model_cache](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket) | resource |
 
 ## Inputs
 
@@ -106,7 +104,6 @@ f5_ai_license = "License key associated with your F5 AI Guardrails and/or Red Te
 | <a name="output_ar_repos"></a> [ar\_repos](#output\_ar\_repos) | The Artifact Registries created by the module. |
 | <a name="output_cloud_deploy_sa"></a> [cloud\_deploy\_sa](#output\_cloud\_deploy\_sa) | The fully-qualified email address of the Cloud Deploy execution service account. |
 | <a name="output_iac_sa"></a> [iac\_sa](#output\_iac\_sa) | The fully-qualified email address of the Infrastructure as Code execution service account. |
-| <a name="output_model_cache_bucket"></a> [model\_cache\_bucket](#output\_model\_cache\_bucket) | The Google Cloud Storage bucket names to be used for model caching. |
 | <a name="output_nginx_jwt"></a> [nginx\_jwt](#output\_nginx\_jwt) | If an NGINX JWT secret was created during bootstrap, return the fully-qualified and local identifiers, and expiration<br/>timestamp, if appropriate. |
 | <a name="output_secrets"></a> [secrets](#output\_secrets) | A map of Secret Manager secrets created during bootstrap, if any. |
 | <a name="output_workload_identity_pool_id"></a> [workload\_identity\_pool\_id](#output\_workload\_identity\_pool\_id) | The fully-qualified workload identity pool identifier created during bootstrap. |
