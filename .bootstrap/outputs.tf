@@ -5,6 +5,13 @@ output "ar_repos" {
   EOD
 }
 
+output "iac_sa" {
+  value       = module.bootstrap.iac_sa
+  description = <<-EOD
+  The fully-qualified email address of the Infrastructure as Code execution service account.
+  EOD
+}
+
 output "cloud_deploy_sa" {
   value       = module.bootstrap.deploy_sa
   description = <<-EOD
@@ -20,14 +27,6 @@ output "nginx_jwt" {
   EOD
 }
 
-output "f5_ai_license" {
-  value       = module.bootstrap.f5_ai_license
-  description = <<-EOD
-  If an F5 AI Guardrails/Red Team license secret was created during bootstrap, return the fully-qualified and local identifiers,
-  and expiration timestamp, if appropriate.
-  EOD
-}
-
 output "model_cache_bucket" {
   value       = google_storage_bucket.model_cache.name
   description = <<-EOD
@@ -35,10 +34,16 @@ output "model_cache_bucket" {
   EOD
 }
 
-output "nginxaas_combined_pems" {
-  value = { for k, v in module.nginxaas_combined_pem : k => {
-    secret_id            = v.secret_id
-    id                   = v.id
-    expiration_timestamp = v.expiration_timestamp
-  } }
+output "secrets" {
+  value       = module.bootstrap.secrets
+  description = <<-EOD
+  A map of Secret Manager secrets created during bootstrap, if any.
+  EOD
+}
+
+output "workload_identity_pool_id" {
+  value       = module.bootstrap.workload_identity_pool_id
+  description = <<-EOD
+  The fully-qualified workload identity pool identifier created during bootstrap.
+  EOD
 }

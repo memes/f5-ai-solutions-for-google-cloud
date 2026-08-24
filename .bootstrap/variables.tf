@@ -77,15 +77,6 @@ variable "nginx_jwt" {
   EOD
 }
 
-variable "f5_ai_license" {
-  type        = string
-  nullable    = true
-  default     = null
-  description = <<-EOD
-  An optional NGINX+ JWT to store in Google Secret Manager, with read-only access granted to AR service account.
-  EOD
-}
-
 variable "dns" {
   type = object({
     base_domain     = string
@@ -119,15 +110,21 @@ variable "allowlist_cidrs" {
   EOD
 }
 
-variable "nginxaas_combined_pems" {
-  type        = map(string)
-  nullable    = true
+variable "secrets" {
+  type     = map(string)
+  nullable = true
+  validation {
+    condition     = try(length(var.secrets), 0) == 0 ? true : alltrue([for k, v in var.secrets : can(regex("^[a-zA-Z0-9_-]{1,255}$", k))])
+    error_message = "Each secrets entry key must be valid."
+  }
   default     = null
   description = <<-EOD
-  An optional map of names to combined TLS certificate and key PEMs to add to Google Secret Manager.
+  An optional map of Secret names to values (strings-only) that will be created. A Secret Manager secret will be created
+  for each key in the map, and a GitHub actions variable of the form `{KEY_NAME}_SECRET` containing the Secret Manager
+  identity.
+  NOTE: Values are allowed to be null/empty.
   EOD
 }
-
 
 variable "f5_ai_repo_credentials" {
   type = object({

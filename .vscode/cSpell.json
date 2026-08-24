@@ -60,6 +60,7 @@
         "redteam",
         "regcreds",
         "rlimit",
+        "rrdatas",
         "secretmanager",
         "serviceconsumermanagement",
         "servicenetworking",

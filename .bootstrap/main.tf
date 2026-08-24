@@ -49,7 +49,6 @@ module "bootstrap" {
   github_options         = var.github_options
   iac_impersonators      = var.iac_impersonators
   nginx_jwt              = var.nginx_jwt
-  f5_ai_license          = var.f5_ai_license
   f5_ai_repo_credentials = var.f5_ai_repo_credentials
   bootstrap_apis = [
     "agentregistry.googleapis.com",
@@ -111,6 +110,7 @@ module "bootstrap" {
     enable_infra_manager = true
     create_state_bucket  = false
   }
+  secrets = var.secrets
 }
 
 locals {
@@ -173,24 +173,6 @@ resource "github_actions_variable" "model_cache_bucket" {
       value,
     ]
   }
-}
-
-
-module "nginxaas_combined_pem" {
-  for_each   = var.nginxaas_combined_pems == null ? {} : var.nginxaas_combined_pems
-  source     = "memes/secret-manager/google"
-  version    = "2.2.2"
-  project_id = var.project_id
-  id         = format("%s-%s", var.name, replace(each.key, "/[^a-z0-9_-]/", "-"))
-  secret     = each.value
-  accessors  = []
-}
-
-# Add the list of TLS certificate PEM secrets as a GitHub variable.
-resource "github_actions_variable" "nginxaas_combined_pem_secret" {
-  repository    = local.repo_name
-  variable_name = "NGINXAAS_COMBINED_PEM_SECRET"
-  value         = jsonencode([for secret in module.nginxaas_combined_pem : secret.id])
 }
 
 # For NGINXaaS integration the workload identity pool identifier is needed.
