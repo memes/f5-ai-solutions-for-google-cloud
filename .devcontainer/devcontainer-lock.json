@@ -30,11 +30,6 @@
       "resolved": "ghcr.io/devcontainers/features/kubectl-helm-minikube@sha256:bbe8adf6b37fff8c67412ab0a4579f4c2f30bbaba1d9a5cebd9e38bade54025b",
       "integrity": "sha256:bbe8adf6b37fff8c67412ab0a4579f4c2f30bbaba1d9a5cebd9e38bade54025b"
     },
-    "ghcr.io/memes/devcontainers-features/gcrane:1": {
-      "version": "1.0.0",
-      "resolved": "ghcr.io/memes/devcontainers-features/gcrane@sha256:2093a0d38afc4690eee978a0646cad010290b3762863321f097a2979f94f20bc",
-      "integrity": "sha256:2093a0d38afc4690eee978a0646cad010290b3762863321f097a2979f94f20bc"
-    },
     "ghcr.io/memes/devcontainers-features/google-cloud-cli:1": {
       "version": "1.1.1",
       "resolved": "ghcr.io/memes/devcontainers-features/google-cloud-cli@sha256:7869b755bb656bfa43c8d887d3bc4931b3bfed36c5fe6d79afe41a96893534d8",
