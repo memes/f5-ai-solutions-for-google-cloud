@@ -1,3 +1,4 @@
+# TODO(@memes): Remove?
 # Setup regional Memorystore cache in each region.
 
 resource "google_compute_global_address" "cache" {

@@ -5,16 +5,15 @@ module "sa" {
   name         = format("%s-gke", var.name)
   description  = "Service account for F5 AI Solutions example GKE clusters"
   display_name = "F5 AI Solutions cluster service account"
-  repositories = compact([var.repository])
+  repositories = var.repositories
 }
 
 module "cluster" {
   for_each = { for k, v in local.regional_names : k => {
     name        = v
     subnet      = module.vpc.subnets_by_region[k].self_link
-    master_cidr = cidrsubnet("192.168.0.0/24", 4, index(keys(local.regional_names), k))
     description = format("F5 AI Solutions for Google Cloud in %s", k)
-    # external_dns_domain = format("%s.%s", var.name, module.region_detail.results[region].abbreviation)
+    dns_domain  = format("cluster.%s.%s", module.region_detail.results[k].abbreviation, coalesce(try(var.dns.base_domain, null), "arpa"))
     }
   }
   # TODO: @memes - pin version on release, still testing updates
@@ -32,6 +31,10 @@ module "cluster" {
     gateway_api           = true
     managed_opentelemetry = true
   }
+  dns = {
+    additive_vpc_scope_dns_domain = each.value.dns_domain
+  }
+  labels = local.effective_labels
 }
 
 resource "google_clouddeploy_target" "cluster" {

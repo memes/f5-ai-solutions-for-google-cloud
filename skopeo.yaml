@@ -1,0 +1,11 @@
+---
+# Artifact Registry enforce a maximum pull through of 9.9Gb when working with remote repos. Copy the large models from
+# CalypsoAI harbor repo to the bootstrapped repo for access in the restricted environment.
+harbor.calypsoai.app:
+  images-by-semver:
+    calypsoai/cai_scanner: ">=v3.1.1"
+    calypsoai/cai-redteam-worker: ">=v1.3.0"
+# Copy the pre-release service extension for Agent Gateway testing
+us-central1-docker.pkg.dev/f5-gcs-4138-sales-cloud-sales/f5-ai-security-integration:
+  images-by-semver:
+    f5-ai-security-integration: ">=v1.17.1"

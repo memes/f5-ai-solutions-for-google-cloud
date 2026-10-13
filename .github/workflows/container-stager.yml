@@ -6,10 +6,14 @@ name: Container stager
 
 # yamllint disable-line rule:truthy
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches:
       - main
+    paths:
+      - 'skopeo.yaml'
+      - .github/workflows/container-stager.yml
 
 permissions:
   contents: read
@@ -20,14 +24,13 @@ jobs:
   container-stager:
     runs-on: ubuntu-latest
     if: false  # TODO(@memes): Disabled as some containers too large to reasonably process in an action.
-    env:
-      GCRANE_VERSION: 0.21.7
     steps:
-      - uses: actions/checkout@v7
-      - name: Install gcrane
+      - name: Checkout source
+        id: checkout
+        uses: actions/checkout@v7
+      - name: Install skopeo
         run: |
-          sudo sh -c 'curl -fsSL https://github.com/google/go-containerregistry/releases/download/v${{ env.GCRANE_VERSION }}/go-containerregistry_linux_x86_64.tar.gz | tar xzf - -C /usr/local/bin crane gcrane'
-          sudo chmod 0755 /usr/local/bin/*rane
+          sudo sh -c 'apt update && apt install -y skopeo'
       - id: gcp_auth
         name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
@@ -35,15 +38,16 @@ jobs:
           service_account: ${{ secrets.AR_SERVICE_ACCOUNT }}
           token_format: access_token
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
-      - id: gcrane_ghcr_auth
-        name: Authenticate to GHCR, if applicable
+      - id: skopeo_harbor_auth
+        name: Authenticate to F5 AI Harbor repo
+        # TODO(@memes): Resolve this later
         run: |
-          gcrane auth login ghcr.io --username "${{ github.actor }}" --password "${{ github.token }}"
-      - id: gcrane_gar_auth
+          skopeo login harbor.calypsoai.app --username "" --password ""
+      - id: skope_gar_auth
         name: Authenticate to private repo
         run: |
-          gcrane auth login "$(echo "${{ vars.OCI_REGISTRY }}" | cut -d/ -f1)" --username oauth2accesstoken --password "${{ steps.gcp_auth.outputs.access_token }}"
+          skopeo login "$(echo "${{ vars.OCI_REGISTRY }}" | cut -d/ -f1)" --username oauth2accesstoken --password "${{ steps.gcp_auth.outputs.access_token }}"
       - name: Copy containers to private repo
-        env:
-          OCI_REGISTRY: ${{ vars.OCI_REGISTRY }}
-        run: ./.github/workflows/container-stager.sh
+        run: |
+          skopeo sync --src yaml --dest docker \
+            --all --preserve-digests --scoped skopeo.yaml ${{ vars.OCI_REGISTRY }}

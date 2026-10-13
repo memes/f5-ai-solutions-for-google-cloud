@@ -11,6 +11,9 @@ resource "google_sql_database_instance" "pg" {
     backup_configuration {
       enabled = true
     }
+    disk_autoresize = true
+    disk_size       = 100
+    disk_type       = "PD_SSD"
     ip_configuration {
       psc_config {
         psc_enabled = true
@@ -21,7 +24,13 @@ resource "google_sql_database_instance" "pg" {
       ipv4_enabled = false
     }
     edition = "ENTERPRISE"
-    tier    = "db-custom-2-8192"
+    tier    = "db-custom-4-16384"
+  }
+  lifecycle {
+    ignore_changes = [
+      # Allow auto-resize to do it's job
+      settings[0].disk_size,
+    ]
   }
 }
 
@@ -95,4 +104,8 @@ resource "google_sql_user" "pg_admin" {
   name     = format("%s-pg-admin", each.value)
   instance = each.value
   password = random_password.pg_admin[each.key].result
+
+  depends_on = [
+    google_sql_database_instance.pg,
+  ]
 }

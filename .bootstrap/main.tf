@@ -72,6 +72,7 @@ module "bootstrap" {
     "observability.googleapis.com",
     "redis.googleapis.com",
     "secretmanager.googleapis.com",
+    "servicedirectory.googleapis.com",
     "serviceusage.googleapis.com",
     "sql-component.googleapis.com",
     "sqladmin.googleapis.com",
@@ -96,6 +97,7 @@ module "bootstrap" {
     "roles/networkservices.editor",
     "roles/redis.admin",
     "roles/secretmanager.admin",
+    "roles/servicedirectory.editor",
     "roles/serviceusage.serviceUsageAdmin",
     "roles/storage.admin",
   ]
@@ -111,6 +113,10 @@ module "bootstrap" {
     create_state_bucket  = false
   }
   secrets = var.secrets
+  virtual_repo = {
+    enable     = true
+    docker_hub = true
+  }
 }
 
 locals {
