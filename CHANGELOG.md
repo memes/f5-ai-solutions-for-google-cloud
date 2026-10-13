@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.2.0](https://github.com/memes/f5-ai-solutions-for-google-cloud/compare/v0.1.0...v0.2.0) (2026-10-13)
+
+
+### Features
+
+* Auth-proxy for Gemma4 on Vertex AI ([1143f0f](https://github.com/memes/f5-ai-solutions-for-google-cloud/commit/1143f0f430b084c49600fa1b9a7bcfa559165f87))
+* Big ol' set of foundational changes from Aug ([18f3285](https://github.com/memes/f5-ai-solutions-for-google-cloud/commit/18f3285b33134560f91c6b44b8dd0ff548df1b46))
+* Launch Gemma4 A4B MoE model for testing ([15015ea](https://github.com/memes/f5-ai-solutions-for-google-cloud/commit/15015eabfb05423d287f92b3a6f6bc5924614103))
+
+
+### Bug Fixes
+
+* NGINXaaS initial configuration for F5 AI gui ([95cf9d9](https://github.com/memes/f5-ai-solutions-for-google-cloud/commit/95cf9d9d8c64cc82b5f5f0158fb4e87c86f5cb1b))
+* Remove global model cache ([6944ba7](https://github.com/memes/f5-ai-solutions-for-google-cloud/commit/6944ba7085b8924cf52437053533ac578f924902))
+* Revert to default namespaces for secrets ([e0fc033](https://github.com/memes/f5-ai-solutions-for-google-cloud/commit/e0fc0332eb0a1e259cfce34a6eff60b8df74dcea))
+* Update bootstrap to use upstream repos ([2cfe5ce](https://github.com/memes/f5-ai-solutions-for-google-cloud/commit/2cfe5ceafc983c9f3894d4c2f66f438c680c7f8c))
+
 ## [0.1.0](https://github.com/memes/f5-ai-solutions-for-google-cloud/compare/v0.0.1...v0.1.0) (2026-04-28)
 
 Google Cloud Next 2026 booth demo
