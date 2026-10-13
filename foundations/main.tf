@@ -23,14 +23,12 @@ locals {
     module  = "foundations"
     },
   var.labels == null ? {} : var.labels)
-  effective_domains = formatlist("%s.%s", [
-    "arcadia",
-    "f5-ai",
-  ], var.dns.base_domain)
+  regional_domains         = { for region in var.regions : region => format("%s.%s", module.region_detail.results[region].abbreviation, var.dns.base_domain) }
+  regional_cluster_domains = { for region in var.regions : region => format("cluster.%s", local.regional_domains[region]) }
   global_peering_cidr      = coalesce(try(var.global_cidrs.peering, null), "198.18.0.0/15")
   global_proxy_cidr        = cidrsubnet(local.global_peering_cidr, 20 - tonumber(split("/", local.global_peering_cidr)[1]), 0)
   global_cache_cidr        = cidrsubnet(local.global_peering_cidr, 20 - tonumber(split("/", local.global_peering_cidr)[1]), 1)
-  global_psc_cidr          = coalesce(try(var.global_cidrs.psc, null), "203.0.113.0/24")
+  global_psc_cidr          = coalesce(try(var.global_cidrs.psc, null), "192.168.0.0/24")
   restricted_apis_psc_host = cidrhost(local.global_psc_cidr, 10)
   allowlist_cidrs          = coalescelist(try(length(var.allowlist_cidrs), 0) > 0 ? var.allowlist_cidrs : [], [format("%s/32", trimspace(data.http.my_address.response_body))])
 }
@@ -82,13 +80,27 @@ resource "google_compute_address" "ext" {
 # If a Cloud DNS managed zone identifier has been provided we can add the supporting A records for each public reserved
 # address.
 resource "google_dns_record_set" "ext" {
-  for_each     = coalesce(var.dns.managed_zone_id, "unspecified") != "unspecified" ? toset(local.effective_domains) : []
+  for_each     = coalesce(var.dns.managed_zone_id, "unspecified") == "unspecified" ? {} : google_compute_address.ext
   project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
   managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
-  name         = format("%s.", each.key)
+  name         = format("%s.", local.regional_domains[each.key])
   type         = "A"
   ttl          = 300
-  rrdatas      = compact([for k, v in local.regional_names : try(google_compute_address.ext[k].address, null)])
+  rrdatas = [
+    each.value.address,
+  ]
+}
+
+resource "google_dns_record_set" "ext_wildcard" {
+  for_each     = google_dns_record_set.ext
+  project      = each.value.project
+  managed_zone = each.value.managed_zone
+  name         = format("*.%s", each.value.name)
+  type         = "CNAME"
+  ttl          = each.value.ttl
+  rrdatas = [
+    each.value.name
+  ]
 }
 
 resource "google_compute_address" "gw" {

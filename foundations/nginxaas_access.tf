@@ -1,10 +1,10 @@
 module "nginxaas" {
   for_each   = var.nginxaas == null ? {} : { enabled = true }
   source     = "registry.terraform.io/memes/nginxaas/google"
-  version    = "0.1.0"
+  version    = "0.1.1"
   project_id = var.project_id
   workload_identity = {
-    pool_id = var.workload_identity_pool_id
+    pool_id = var.nginxaas.workload_identity_pool_id
     name    = format("%s-nginxaas", var.name)
   }
   attachments = { for k, v in local.regional_names : v => {

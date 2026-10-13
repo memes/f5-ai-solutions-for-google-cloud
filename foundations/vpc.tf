@@ -9,7 +9,7 @@ module "vpc" {
   description = "Foundational VPC for F5 AI Solutions for Google Cloud"
   regions     = var.regions
   cidrs = {
-    primary_ipv4_cidr = coalesce(try(var.global_cidrs.primary, null), "172.16.0.0/12")
+    primary_ipv4_cidr = coalesce(try(var.global_cidrs.primary, null), "172.16.0.0/16")
     secondaries = {
       pods = {
         ipv4_cidr        = coalesce(try(var.global_cidrs.pods, null), "10.0.0.0/9")
@@ -60,3 +60,5 @@ resource "google_compute_subnetwork" "proxy_subnet" {
   purpose       = "REGIONAL_MANAGED_PROXY"
   role          = "ACTIVE"
 }
+
+# Create a PSC subnet for attaching service providers

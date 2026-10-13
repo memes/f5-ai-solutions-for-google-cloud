@@ -39,13 +39,17 @@ resource "google_compute_region_security_policy" "allowlist" {
 module "managed_cert" {
   for_each   = var.nginxaas == null ? local.regional_names : {}
   source     = "registry.terraform.io/memes/tls-certificate/google//modules/managed"
-  version    = "0.1.1"
+  version    = "0.2.0"
   project_id = var.project_id
-  domains    = local.effective_domains
+  domains = merge(
+    { for k, v in local.regional_domains : v => { managed_zone_id = try(var.dns.managed_zone_id, null) } },
+    { for k, v in local.regional_cluster_domains : v => { managed_zone_id = try(var.dns.managed_zone_id, null) } },
+  )
   certificate_manager = {
-    name        = each.value
-    description = "Certificate for F5 AI Solutions for Google Cloud"
-    region      = each.key
+    name         = each.value
+    description  = "Certificate for F5 AI Solutions for Google Cloud"
+    region       = each.key
+    add_wildcard = true
   }
   ssl_policy = {
     name            = each.value
@@ -54,25 +58,4 @@ module "managed_cert" {
     profile         = "RESTRICTED"
     min_tls_version = "TLS_1_2"
   }
-}
-
-# If a Cloud DNS managed zone identifier has been provided we can add the supporting entries for Certificate Manager DNS
-# challenges.
-resource "google_dns_record_set" "challenges" {
-  for_each = var.nginxaas == null ? coalesce(var.dns.managed_zone_id, "unspecified") == "unspecified" ? {} : { for entry in setproduct(keys(local.regional_names), local.effective_domains) : replace(format("%s-%s", entry[0], entry[1]), "/[^a-z0-9-]/", "-") => {
-    region = entry[0]
-    domain = entry[1]
-  } } : {}
-  project      = coalesce(reverse(split("/", var.dns.managed_zone_id))[2], var.project_id)
-  managed_zone = reverse(split("/", var.dns.managed_zone_id))[0]
-  # NOTE: The use of example.com. and CNAME as fallback entries is to ensure that tofu/terraform plan does not fail when
-  # building entire infrastructure from scratch.
-  name    = one(distinct(coalescelist([for challenge in try(module.managed_cert[each.value.region].dns_challenges[each.value.domain], []) : challenge.name], ["example.com."])))
-  type    = one(distinct(coalescelist([for challenge in try(module.managed_cert[each.value.region].dns_challenges[each.value.domain], []) : challenge.type], ["CNAME"])))
-  ttl     = 300
-  rrdatas = [for challenge in try(module.managed_cert[each.value.region].dns_challenges[each.value.domain], []) : challenge.data]
-
-  depends_on = [
-    module.managed_cert,
-  ]
 }

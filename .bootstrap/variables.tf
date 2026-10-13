@@ -32,6 +32,7 @@ variable "github_options" {
     template           = optional(string)
     archive_on_destroy = optional(bool, true)
     collaborators      = optional(set(string))
+    org                = optional(string)
   })
   nullable = true
   default = {
@@ -41,6 +42,7 @@ variable "github_options" {
     template           = "memes/terraform-google-f5-demo-bootstrap-template"
     archive_on_destroy = true
     collaborators      = []
+    org                = null
   }
   description = <<-EOD
   Defines the parameters for the GitHub repository to create for the demo. By default the GitHub repo will be public,
@@ -67,15 +69,6 @@ variable "iac_impersonators" {
 }
 
 variable "nginx_jwt" {
-  type        = string
-  nullable    = true
-  default     = null
-  description = <<-EOD
-  An optional NGINX+ JWT to store in Google Secret Manager, with read-only access granted to AR service account.
-  EOD
-}
-
-variable "f5_ai_license" {
   type        = string
   nullable    = true
   default     = null
@@ -117,11 +110,31 @@ variable "allowlist_cidrs" {
   EOD
 }
 
-variable "nginxaas_combined_pems" {
-  type        = map(string)
+variable "secrets" {
+  type     = map(string)
+  nullable = true
+  validation {
+    condition     = try(length(var.secrets), 0) == 0 ? true : alltrue([for k, v in var.secrets : can(regex("^[a-zA-Z0-9_-]{1,255}$", k))])
+    error_message = "Each secrets entry key must be valid."
+  }
+  default     = null
+  description = <<-EOD
+  An optional map of Secret names to values (strings-only) that will be created. A Secret Manager secret will be created
+  for each key in the map, and a GitHub actions variable of the form `{KEY_NAME}_SECRET` containing the Secret Manager
+  identity.
+  NOTE: Values are allowed to be null/empty.
+  EOD
+}
+
+variable "f5_ai_repo_credentials" {
+  type = object({
+    username = string
+    password = string
+  })
   nullable    = true
   default     = null
   description = <<-EOD
-  An optional map of names to combined TLS certificate and key PEMs to add to Google Secret Manager.
+  If provided, a remote Artifact Registry will be created to reference the upstream F5 AI private Harbor repository for
+  transparent access to the private images, along with a Secret Manager secret to contain the Harbor password.
   EOD
 }

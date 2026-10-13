@@ -23,9 +23,12 @@ terraform {
   }
 }
 
-# This assumes the provider is configured via environment variables GITHUB_TOKEN and GITHUB_OWNER; change as necessary.
+# This assumes the provider is mostly configured via environment variables GITHUB_TOKEN, GITHUB_OWNER,
+# GITHUB_ORGANIZATION, etc.
 # See https://registry.terraform.io/providers/integrations/github/latest/docs
-provider "github" {}
+provider "github" {
+  owner = try(var.github_options.org, null)
+}
 
 # This assumes the provider is configured via ADC credentials and/or environment variables; change as necessary.
 # See https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference
@@ -38,28 +41,38 @@ provider "google" {
 }
 
 module "bootstrap" {
-  source            = "registry.terraform.io/memes/f5-demo-bootstrap/google"
-  version           = "0.6.0"
-  project_id        = var.project_id
-  name              = var.name
-  github_options    = var.github_options
-  iac_impersonators = var.iac_impersonators
-  nginx_jwt         = var.nginx_jwt
+  source = "git::https://github.com/memes/terraform-google-f5-demo-bootstrap?ref=feat%2F64_long-running-actions"
+  # source            = "registry.terraform.io/memes/f5-demo-bootstrap/google"
+  # version           = "0.6.0"
+  project_id             = var.project_id
+  name                   = var.name
+  github_options         = var.github_options
+  iac_impersonators      = var.iac_impersonators
+  nginx_jwt              = var.nginx_jwt
+  f5_ai_repo_credentials = var.f5_ai_repo_credentials
   bootstrap_apis = [
+    "agentregistry.googleapis.com",
     "aiplatform.googleapis.com",
+    "apphub.googleapis.com",
+    "apptopology.googleapis.com",
     "certificatemanager.googleapis.com",
+    "cloudapiregistry.googleapis.com",
     "cloudtrace.googleapis.com",
     "compute.googleapis.com",
     "container.googleapis.com",
+    "discoveryengine.googleapis.com",
     "dns.googleapis.com",
     "iam.googleapis.com",
     "kubernetesmetadata.googleapis.com",
     "logging.googleapis.com",
     "modelarmor.googleapis.com",
     "monitoring.googleapis.com",
+    "networksecurity.googleapis.com",
     "networkservices.googleapis.com",
+    "observability.googleapis.com",
     "redis.googleapis.com",
     "secretmanager.googleapis.com",
+    "servicedirectory.googleapis.com",
     "serviceusage.googleapis.com",
     "sql-component.googleapis.com",
     "sqladmin.googleapis.com",
@@ -79,8 +92,12 @@ module "bootstrap" {
     "roles/iam.serviceAccountAdmin",
     "roles/iam.serviceAccountUser",
     "roles/iam.serviceAccountTokenCreator",
+    "roles/modelarmor.editor",
+    "roles/networksecurity.editor",
+    "roles/networkservices.editor",
     "roles/redis.admin",
     "roles/secretmanager.admin",
+    "roles/servicedirectory.editor",
     "roles/serviceusage.serviceUsageAdmin",
     "roles/storage.admin",
   ]
@@ -90,29 +107,20 @@ module "bootstrap" {
   iac_options = {
     enable_workload_identity_pool_admin = true
   }
-}
-
-# F5 AI Guardrails and Red Team deployments need the license token; if provided, create a secret containing the token
-# but do not assign any accessors.
-module "f5_ai_license" {
-  for_each   = coalesce(try(var.f5_ai_license, null), "unspecified") == "unspecified" ? {} : { global = var.f5_ai_license }
-  source     = "memes/secret-manager/google"
-  version    = "2.2.2"
-  project_id = var.project_id
-  id         = format("%s-f5-ai-license", var.name)
-  secret     = each.value
-  accessors  = []
+  gcp_options = {
+    enable_cloud_deploy  = true
+    enable_infra_manager = true
+    create_state_bucket  = false
+  }
+  secrets = var.secrets
+  virtual_repo = {
+    enable     = true
+    docker_hub = true
+  }
 }
 
 locals {
   repo_name = reverse(split("/", module.bootstrap.github_repo))[0]
-}
-
-resource "github_actions_variable" "f5_ai_license" {
-  for_each      = { for secret in module.f5_ai_license : "F5_AI_LICENSE_SECRET" => secret.id }
-  repository    = local.repo_name
-  variable_name = each.key
-  value         = each.value
 }
 
 # Add the base domain to the GitHub repo as a variable, but let the value be changed from the initial value as needed.
@@ -144,58 +152,11 @@ resource "github_actions_variable" "allowlist_cidrs" {
   }
 }
 
-resource "google_storage_bucket" "model_cache" {
-  project                     = var.project_id
-  name                        = format("%s-model-cache", var.name)
-  force_destroy               = true
-  location                    = "US"
-  storage_class               = "STANDARD"
-  uniform_bucket_level_access = true
-  public_access_prevention    = "enforced"
-  versioning {
-    enabled = false
-  }
-  soft_delete_policy {
-    retention_duration_seconds = 0
-  }
-}
-
-# Add the model cache bucket to the GitHub repo as a variable,  but let the
-# value be changed from the initial value as needed.
-resource "github_actions_variable" "model_cache_bucket" {
-  repository    = local.repo_name
-  variable_name = "MODEL_CACHE_BUCKET"
-  value         = google_storage_bucket.model_cache.name
-  lifecycle {
-    ignore_changes = [
-      value,
-    ]
-  }
-}
-
-
-module "nginxaas_combined_pem" {
-  for_each   = var.nginxaas_combined_pems == null ? {} : var.nginxaas_combined_pems
-  source     = "memes/secret-manager/google"
-  version    = "2.2.2"
-  project_id = var.project_id
-  id         = format("%s-%s", var.name, replace(each.key, "/[^a-z0-9_-]/", "-"))
-  secret     = each.value
-  accessors  = []
-}
-
-# Add the list of TLS certificate PEM secrets as a GitHub variable.
-resource "github_actions_variable" "nginxaas_combined_pem_secrets" {
-  repository    = local.repo_name
-  variable_name = "NGINXAAS_COMBINED_PEM_SECRETS"
-  value         = jsonencode([for secret in module.nginxaas_combined_pem : secret.id])
-}
-
 # For NGINXaaS integration the workload identity pool identifier is needed.
 resource "github_actions_secret" "pool_id" {
-  repository      = local.repo_name
-  secret_name     = "WORKLOAD_IDENTITY_POOL_ID"
-  plaintext_value = module.bootstrap.workload_identity_pool_id
+  repository  = local.repo_name
+  secret_name = "WORKLOAD_IDENTITY_POOL_ID"
+  value       = module.bootstrap.workload_identity_pool_id
 
   depends_on = [
     module.bootstrap,

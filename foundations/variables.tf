@@ -48,9 +48,13 @@ variable "regions" {
     condition     = length(var.regions) > 0 && alltrue([for region in var.regions : can(regex("^[a-z]{2,}-[a-z]{2,}[0-9]$", region))])
     error_message = "There must be at least one value in regions, and each entry must be a valid Google Cloud region name."
   }
-  default     = ["us-central1"]
+  default = [
+    "us-central1",
+    "europe-west1",
+  ]
   description = <<-EOD
-  The Compute Engine region names in which to create resources. Default is the single region 'us-central1'.
+  The Compute Engine region names in which to create resources. Default will create resources in 'us-central1' and
+  'europe-west1'.
   EOD
 }
 
@@ -70,21 +74,21 @@ variable "labels" {
   EOD
 }
 
-variable "hugging_face" {
+variable "hugging_face_secret" {
   type = object({
-    token     = string
+    id        = string
     accessors = optional(list(string))
   })
   nullable = true
   validation {
-    condition     = var.hugging_face == null ? true : coalesce(var.hugging_face.token, "unspecified") != "unspecified" && (try(length(var.hugging_face.accessors), 0) == 0 ? true : alltrue([for accessor in var.hugging_face.accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))]))
-    error_message = "If set, the hugging_face token field must not be empty, and each accessor must be a valid Kubernetes service account."
+    condition     = var.hugging_face_secret == null ? true : can(regex("projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/secrets/[a-zA-Z0-9_-]{1,255}$", var.hugging_face_secret.id)) && (try(length(var.hugging_face_secret.accessors), 0) == 0 ? true : alltrue([for accessor in var.hugging_face_secret.accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))]))
+    error_message = "The hugging_face_secret id field must be a valid Secret Manager self-link or name."
   }
   default     = null
   description = <<-EOD
-  An optional Hugging Face token with access to models to store in Google Secret Manager. Each accessor must be a valid
-  KSA name in default namespace, or a qualified namespace/name. Default is empty, because access to Hugging Face should
-  not be required by deployments.
+  An existing Secret Manager secret containing a Hugging Face token, with an optional list of Kubernetes service
+  accounts to which read-only access will be granted. Each accessor must be a valid KSA name in default namespace, or
+  a qualified namespace/name. Default is empty.
   EOD
 }
 
@@ -187,7 +191,7 @@ variable "cai_moderator_auth_accessors" {
     error_message = "If provided, each cai_moderator_auth_accessors value must be a valid Kubernetes service account"
   }
   default = [
-    "f5-ai-moderator/cai-moderator-sa",
+    "cai-moderator/cai-moderator-sa",
   ]
   description = <<-EOD
   An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`
@@ -204,7 +208,7 @@ variable "prefect_server_auth_accessors" {
     error_message = "If provided, each prefect_server_auth_accessors value must be a valid Kubernetes service account"
   }
   default = [
-    "f5-ai-redteam/prefect-server",
+    "prefect/prefect-server",
   ]
   description = <<-EOD
   An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`
@@ -221,7 +225,7 @@ variable "cai_workflows_auth_accessors" {
     error_message = "If provided, each cai_workflows_auth_accessors value must be a valid Kubernetes service account"
   }
   default = [
-    "f5-ai-redteam/default",
+    "prefect/default",
   ]
   description = <<-EOD
   An optional list of Kubernetes service accounts to which read-only access will be granted to the `cai-moderator-auth`
@@ -247,34 +251,32 @@ variable "pgpass_accessors" {
   EOD
 }
 
-variable "model_cache_bucket" {
-  type = object({
-    name      = string
-    accessors = optional(list(string))
-  })
+variable "model_cache_bucket_accessors" {
+  type     = list(string)
   nullable = true
   validation {
-    condition     = var.model_cache_bucket == null ? true : can(regex("^[a-z][a-z0-9-_]{2,62}$", var.model_cache_bucket.name)) && (try(length(var.model_cache_bucket.accessors), 0) == 0 ? true : alltrue([for accessor in var.model_cache_bucket.accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))]))
-    error_message = "The model_cache_bucket name field must be a valid GCS Bucket name."
+    condition     = var.model_cache_bucket_accessors == null ? true : alltrue([for accessor in var.model_cache_bucket_accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))])
+    error_message = "Each model_cache_bucket_accessors must be a valid IAM member."
   }
   default     = null
   description = <<-EOD
-  An optional list of Kubernetes service accounts to which read-only access will be granted to objects in the bucket.
+  An optional list of Kubernetes service accounts to which read-only access will be granted to objects in the regional
+  buckets created for caching models.
   Each reader must be a valid KSA name in default namespace, or a qualified namespace/name. If none are provided the
   module will grant access to Kubernetes service account `vllm` in namespace `vllm` to read the bucket contents.
   EOD
 }
 
-variable "repository" {
-  type     = string
+variable "repositories" {
+  type     = set(string)
   nullable = false
   validation {
-    condition     = can(regex("^[a-z]{2,}(?:-[a-z]+[1-9])?-docker.pkg.dev/[^/]+/[^/]+", var.repository))
-    error_message = "Repository must be a valid Artifact Registry repository."
+    condition     = alltrue([for repo in var.repositories : can(regex("^[a-z]{2,}(?:-[a-z]+[1-9])?-docker.pkg.dev/[^/]+/[^/]+", repo))])
+    error_message = "Each repository entry must be a valid Artifact Registry repository."
   }
   description = <<-EOD
-  An existing private Artifact Registry that will be used for deployments. The service account for the clusters will be
-  given automatic IAM role to pull from this registry if it is not empty.
+  A set of existing Artifact Registry identifiers that will be used for deployments. The service account for the
+  clusters and Agent Platform will be given automatic IAM role to pull from these repositories.
   EOD
 }
 
@@ -299,29 +301,19 @@ variable "cloud_deploy" {
   EOD
 }
 
-variable "workload_identity_pool_id" {
-  type     = string
-  nullable = true
-  default  = null
-  validation {
-    condition     = coalesce(var.workload_identity_pool_id, "unspecified") == "unspecified" ? true : can(regex("^projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/locations/global/workloadIdentityPools/[a-z0-9-]{4,32}$", var.workload_identity_pool_id))
-    error_message = "The workload_identity_pool_id must be empty or a valid Workload Identity name or id."
-  }
-  description = <<-EOD
-    An optional identifier of an *existing* Workload Identity pool to which a new provider for NGINXaaS will be created.
-    EOD
-}
-
 variable "nginxaas" {
   type = object({
+    workload_identity_pool_id   = string
     attachments                 = optional(map(string))
     secrets                     = optional(set(string))
     service_accounts            = optional(set(string))
+    managed_endpoints           = optional(map(list(string)))
     has_managed_public_endpoint = optional(bool, false)
   })
   nullable = true
   validation {
     condition = var.nginxaas == null ? true : (
+      coalesce(var.nginxaas.workload_identity_pool_id, "unspecified") == "unspecified" ? false : can(regex("^projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/locations/global/workloadIdentityPools/[a-z0-9-]{4,32}$", var.nginxaas.workload_identity_pool_id)) &&
       var.nginxaas.attachments == null ? true :
       alltrue([
         for k, v in var.nginxaas.attachments :
@@ -344,5 +336,33 @@ variable "nginxaas" {
   description = <<-EOD
   If not null, the properties will be used to attach NGINXaaS for Google Cloud. If null, resources to support Google
   managed load balancers and certificates will be provisioned.
+  EOD
+}
+
+variable "agent_gateway" {
+  type = object({
+    enforce_iap = optional(bool, true)
+  })
+  nullable    = true
+  default     = null
+  description = <<-EOD
+  EOD
+}
+
+variable "f5_ai_iap_client_secret" {
+  type = object({
+    id        = string
+    accessors = optional(list(string))
+  })
+  nullable = true
+  validation {
+    condition     = var.f5_ai_iap_client_secret == null ? true : can(regex("projects/[a-z][a-z0-9-]{4,28}[a-z0-9]/secrets/[a-zA-Z0-9_-]{1,255}$", var.f5_ai_iap_client_secret.id)) && (try(length(var.f5_ai_iap_client_secret.accessors), 0) == 0 ? true : alltrue([for accessor in var.f5_ai_iap_client_secret.accessors : can(regex("^(?:[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?/)?[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$", accessor))]))
+    error_message = "The f5_ai_iap_client_secret id field must be a valid Secret Manager self-link or name."
+  }
+  default     = null
+  description = <<-EOD
+  An existing Secret Manager secret containing an IAP client secret for F5 AI, with an optional list of Kubernetes
+  service accounts to which read-only access will be granted. Each accessor must be a valid KSA name in default namespace, or
+  a qualified namespace/name. Default is empty.
   EOD
 }

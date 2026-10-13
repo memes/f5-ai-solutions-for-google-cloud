@@ -28,14 +28,6 @@ output "subnets" {
   EOD
 }
 
-output "hugging_face_secret" {
-  value       = one([for k, v in google_secret_manager_secret.hugging_face : v.id])
-  description = <<-EOD
-  If a Hugging Face token was provided as input this output will contain the Secret Manager secret identifier that
-  contains the token value.
-  EOD
-}
-
 output "dns_challenges" {
   value       = { for k, v in module.managed_cert : k => v.dns_challenges }
   description = <<-EOD
@@ -115,26 +107,27 @@ output "deploy_pipeline_ids" {
 }
 
 output "cai_moderator_auth_secret" {
-  value       = { for k, v in google_secret_manager_secret.cai_moderator_auth : k => v.id }
+  value       = { for k, v in try(google_secret_manager_secret.cai_moderator_auth, {}) : k => v.id }
   description = <<-EOD
   A map of Compute Engine region names to the Secret Manager secret identifiers for cai-moderator-auth secret injection.
   EOD
 }
 
 output "prefect_server_auth_secret" {
-  value       = { for k, v in google_secret_manager_secret.prefect_server_auth : k => v.id }
+  value       = { for k, v in try(google_secret_manager_secret.prefect_server_auth, {}) : k => v.id }
   description = <<-EOD
   A map of Compute Engine region names to the Secret Manager secret identifiers for prefect-server-auth secret injection.
   EOD
 }
 
 output "cai_workflows_auth" {
-  value       = { for k, v in google_secret_manager_secret.cai_workflows_auth : k => v.id }
+  value       = { for k, v in try(google_secret_manager_secret.cai_workflows_auth, {}) : k => v.id }
   description = <<-EOD
   A map of Compute Engine region names to the Secret Manager secret identifiers for cai-workflows-auth secret injection.
   EOD
 }
 
+# TODO(@memes): Remove?
 output "cache_hosts" {
   value       = { for k, v in google_redis_instance.cache : k => v.host }
   description = <<-EOD
@@ -146,5 +139,26 @@ output "nginxaas" {
   value       = one([for k, v in module.nginxaas : v])
   description = <<-EOD
   A map of Compute Engine region names to F5 NGINXaaS module outputs.
+  EOD
+}
+
+output "model_caches" {
+  value       = { for k, v in google_storage_bucket.model_cache : k => v.name }
+  description = <<-EOD
+  A map of Compute Engine region names to GCS bucket for model caching.
+  EOD
+}
+
+output "dns_psc_address" {
+  value       = local.restricted_apis_psc_host
+  description = <<-EOD
+  The Cloud DNS via PSC address to use for resolution.
+  EOD
+}
+
+output "agent_gateway_ids" {
+  value       = { for k, v in google_network_services_agent_gateway.egress : k => v.id }
+  description = <<-EOD
+  A map of Compute Engine region names to Egress Agent Gateway identifiers.
   EOD
 }

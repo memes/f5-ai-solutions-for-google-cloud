@@ -1,7 +1,14 @@
-output "ar_repo" {
-  value       = one([for k, v in module.bootstrap.repo_identifiers : v if k == "oci"])
+output "ar_repos" {
+  value       = module.bootstrap.repo_identifiers
   description = <<-EOD
-  The Artifact Registry created for OCI artifacts.
+  The Artifact Registries created by the module.
+  EOD
+}
+
+output "iac_sa" {
+  value       = module.bootstrap.iac_sa
+  description = <<-EOD
+  The fully-qualified email address of the Infrastructure as Code execution service account.
   EOD
 }
 
@@ -20,29 +27,16 @@ output "nginx_jwt" {
   EOD
 }
 
-output "f5_ai_license" {
-  value = {
-    secret_id            = one([for k, v in module.f5_ai_license : v.secret_id])
-    id                   = one([for k, v in module.f5_ai_license : v.id])
-    expiration_timestamp = one([for k, v in module.f5_ai_license : v.expiration_timestamp])
-  }
+output "secrets" {
+  value       = module.bootstrap.secrets
   description = <<-EOD
-  If an F5 AI Guardrails/Red Team secret was created during bootstrap, return the fully-qualified and local identifiers,
-  and expiration timestamp, if appropriate.
+  A map of Secret Manager secrets created during bootstrap, if any.
   EOD
 }
 
-output "model_cache_bucket" {
-  value       = google_storage_bucket.model_cache.name
+output "workload_identity_pool_id" {
+  value       = module.bootstrap.workload_identity_pool_id
   description = <<-EOD
-  The Google Cloud Storage bucket names to be used for model caching.
+  The fully-qualified workload identity pool identifier created during bootstrap.
   EOD
-}
-
-output "nginxaas_combined_pems" {
-  value = { for k, v in module.nginxaas_combined_pem : k => {
-    secret_id            = v.secret_id
-    id                   = v.id
-    expiration_timestamp = v.expiration_timestamp
-  } }
 }

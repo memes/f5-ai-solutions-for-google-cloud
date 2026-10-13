@@ -1,6 +1,6 @@
 {
     "name": "memes-f5-ai-solutions-for-google-cloud",
-    "image": "mcr.microsoft.com/devcontainers/base:debian",
+    "dockerFile": "Dockerfile",
     "features": {
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
             "moby": false
@@ -11,7 +11,9 @@
             "helm": "latest",
             "minikube": "none"
         },
-        "ghcr.io/memes/devcontainers-features/direnv:1": {},
+        "ghcr.io/devcontainers-extra/features/direnv:1": {},
+        "ghcr.io/devcontainers-extra/features/opentofu:1": {},
+        "ghcr.io/devcontainers-extra/features/terraform-docs:1": {},
         "ghcr.io/memes/devcontainers-features/hashicorp:1": {
             "terraform": "1.5.7"
         },
@@ -19,24 +21,12 @@
         "ghcr.io/memes/devcontainers-features/google-cloud-cli:1": {
             "components": "kpt kubectl gke-gcloud-auth-plugin skaffold"
         },
-        "ghcr.io/memes/devcontainers-features/opentofu:1": {
-            "version": "1.11.6"
-        },
-        "ghcr.io/memes/devcontainers-features/starship:1": {},
-        "ghcr.io/memes/devcontainers-features/talisman:1": {
-            "version": "1.37.0"
-        },
-        "ghcr.io/memes/devcontainers-features/terraform-docs:1": {
-            "version": "0.22.0"
-        },
-        "ghcr.io/memes/devcontainers-features/tflint:1": {
-            "version": "0.62.0"
-        }
+        "ghcr.io/memes/devcontainers-features/talisman:1": {},
+        "ghcr.io/memes/devcontainers-features/tflint:1": {}
     },
     "customizations": {
         "vscode": {
             "extensions": [
-                "Gruntfuggly.todo-tree",
                 "redhat.vscode-yaml",
                 "streetsidesoftware.code-spell-checker",
                 "opentofu.vscode-opentofu",
@@ -50,6 +40,7 @@
     },
     "containerUser": "vscode",
     "containerEnv": {
+        "CLOUDSDK_CORE_CUSTOM_CA_CERTS_FILE": "/etc/ssl/certs/ca-certificates.crt",
         "HF_HOME": "/var/lib/hf_cache"
     },
     "updateRemoteUserUID": true,
@@ -59,7 +50,7 @@
 
     ],
     "onCreateCommand": {
-        "install-deps": "sudo sh -c 'apt update && apt install -y --no-install-recommends shellcheck kustomize pipx njs && rm -rf /var/lib/apt/lists/*'",
+        "install-deps": "sudo sh -c 'apt update && apt install -y --no-install-recommends fzf shellcheck kustomize pipx njs && rm -rf /var/lib/apt/lists/*'",
         "modify-default-omz-plugins": ["/usr/bin/sed", "-i.onCreateCommand" , "-e", "/^plugins=/c\\plugins=(git dotenv)", "/home/vscode/.zshrc"]
     },
     "updateContentCommand": {
