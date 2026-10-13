@@ -143,7 +143,7 @@ jobs:
           allowlist_cidrs = ${{ vars.ALLOWLIST_CIDRS || '[]' }}
           dns = {
             base_domain = "${{ vars.DNS_BASE_DOMAIN }}"
-            managed_zone_id = "${{ var.DNS_MANAGED_ZONE_ID }}"
+            managed_zone_id = "${{ vars.DNS_MANAGED_ZONE_ID }}"
           }
           EOF
       - name: Generate preview plan
