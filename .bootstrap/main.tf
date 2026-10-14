@@ -80,7 +80,6 @@ module "bootstrap" {
   iac_roles = [
     "roles/aiplatform.user",
     "roles/certificatemanager.owner",
-    "roles/clouddeploy.operator",
     "roles/cloudsql.admin",
     "roles/compute.loadBalancerAdmin",
     "roles/compute.networkAdmin",
@@ -100,14 +99,11 @@ module "bootstrap" {
     "roles/serviceusage.serviceUsageAdmin",
     "roles/storage.admin",
   ]
-  cloud_deploy_roles = [
-    "roles/container.developer",
-  ]
   iac_options = {
     enable_workload_identity_pool_admin = true
   }
   gcp_options = {
-    enable_cloud_deploy  = true
+    enable_cloud_deploy  = false
     enable_infra_manager = true
     create_state_bucket  = false
   }
