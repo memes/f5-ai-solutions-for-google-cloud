@@ -41,9 +41,8 @@ provider "google" {
 }
 
 module "bootstrap" {
-  source = "git::https://github.com/memes/terraform-google-f5-demo-bootstrap?ref=feat%2F64_long-running-actions"
-  # source            = "registry.terraform.io/memes/f5-demo-bootstrap/google"
-  # version           = "0.6.0"
+  source                 = "registry.terraform.io/memes/f5-demo-bootstrap/google"
+  version                = "0.7.0"
   project_id             = var.project_id
   name                   = var.name
   github_options         = var.github_options
