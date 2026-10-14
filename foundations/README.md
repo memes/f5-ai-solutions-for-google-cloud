@@ -30,9 +30,6 @@ This module establishes the foundational Google Cloud resources used by clusters
 | Name | Type |
 | ---- | ---- |
 | [google-beta_google_network_services_agent_gateway.egress](https://registry.terraform.io/providers/hashicorp/google-beta/latest/docs/resources/google_network_services_agent_gateway) | resource |
-| [google_clouddeploy_delivery_pipeline.all](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/clouddeploy_delivery_pipeline) | resource |
-| [google_clouddeploy_target.all](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/clouddeploy_target) | resource |
-| [google_clouddeploy_target.cluster](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/clouddeploy_target) | resource |
 | [google_compute_address.ext](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
 | [google_compute_address.gw](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
 | [google_compute_address.pg](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
@@ -114,7 +111,6 @@ This module establishes the foundational Google Cloud resources used by clusters
 | <a name="output_cai_workflows_auth"></a> [cai\_workflows\_auth](#output\_cai\_workflows\_auth) | A map of Compute Engine region names to the Secret Manager secret identifiers for cai-workflows-auth secret injection. |
 | <a name="output_cert_manager_certs"></a> [cert\_manager\_certs](#output\_cert\_manager\_certs) | A map of Compute Engine region names to Certificate Manager certificate identifiers, if any were created. |
 | <a name="output_clusters"></a> [clusters](#output\_clusters) | A map of Compute Engine region names to GKE Autopilot cluster identifiers. |
-| <a name="output_deploy_pipeline_ids"></a> [deploy\_pipeline\_ids](#output\_deploy\_pipeline\_ids) | A map of Compute Engine region names to Cloud Deploy pipeline identifiers. |
 | <a name="output_dns_challenges"></a> [dns\_challenges](#output\_dns\_challenges) | A map of Compute Engine region names to DNS challenge records that may need to be inserted in a DNS zone to satisfy<br/>Certificate Manager and have it provision certificates. If the input variable `dns.managed_zone_id` was provided this<br/>may have already been completed. Provided anyway for manual verification of DNS CNAME records. |
 | <a name="output_dns_psc_address"></a> [dns\_psc\_address](#output\_dns\_psc\_address) | The Cloud DNS via PSC address to use for resolution. |
 | <a name="output_ext_addresses"></a> [ext\_addresses](#output\_ext\_addresses) | A map of Compute Engine region names to reserved public IP addresses. |
