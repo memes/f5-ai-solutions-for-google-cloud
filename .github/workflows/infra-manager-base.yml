@@ -202,7 +202,7 @@ jobs:
               if (isNaN(pr)) {
                 process.stdout.write(output);
               } else {
-                const title = '## ${{ github.workflow }} (${{ inputs.source_directory || "root" }}): output values';
+                const title = '## ${{ github.workflow }} (${{ inputs.source_directory || 'root' }}): output values';
                 github.rest.issues.createComment({
                   issue_number: pr,
                   owner: context.repo.owner,
