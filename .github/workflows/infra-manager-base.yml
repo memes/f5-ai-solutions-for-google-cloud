@@ -1,4 +1,4 @@
-# Declares a reusable action that triggers Google Cloud Infrastructure Manager tasks based on the parameters passed in
+# Declares a reusable job that triggers Google Cloud Infrastructure Manager tasks based on the parameters passed in
 # by the caller.
 #
 # yamllint disable rule:line-length
@@ -107,7 +107,6 @@ jobs:
           cat <<'EOF' > "${{ env.DEPLOYMENT_INPUTS_FILE }}"
           ${{ inputs.tf_vars_content }}
           EOF
-          cat "${{ env.DEPLOYMENT_INPUTS_FILE }}"
       - name: Generate preview plan
         id: generate-tf-plan
         if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) }}
