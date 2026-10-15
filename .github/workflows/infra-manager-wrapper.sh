@@ -72,7 +72,7 @@ plan()
 
     # Export the tfplan from preview
     [ -z "${DEPLOYMENT_GIT_SHA}" ] && error "DEPLOYMENT_GIT_SHA environment variable must be set"
-    gcloud infra-manager previews export "${preview_name}" --file="${DEPLOYMENT_GIT_SHA}"
+    gcloud infra-manager previews export "${preview_name}" --file="infra-manager-state/${DEPLOYMENT_GIT_SHA}"
 }
 
 apply()
@@ -95,7 +95,7 @@ cleanup()
         gcloud infra-manager deployments unlock --quiet "${deployment_name}" --lock-id "${lock_id}" >/dev/null || \
             echo "$0: ERROR: Failed to unlock ${deployment_name}"
     fi
-    [ -f "${DEPLOYMENT_GIT_SHA}.tfstate" ] && rm "${DEPLOYMENT_GIT_SHA}.tfstate"
+    [ -f "infra-manager-state/${DEPLOYMENT_GIT_SHA}.tfstate" ] && rm "infra-manager-state/${DEPLOYMENT_GIT_SHA}.tfstate"
     return 0
 }
 
@@ -109,14 +109,15 @@ output()
         [ -z "${lock_id}" ] && error "Failed to get lock on ${deployment_name}"
         state_url="$(gcloud infra-manager deployments export-statefile "${deployment_name}" --format "get(signedUri)" || true)"
         [ -z "${state_url}" ] && error "Failed to get storage URL for statefile"
-        curl -fsSL --output "${DEPLOYMENT_GIT_SHA}.tfstate" "${state_url}" || \
+        curl -fsSL --output "infra-manager-state/${DEPLOYMENT_GIT_SHA}.tfstate" "${state_url}" || \
             error "Failed to retrieve state file from storage"
-        [ -s "${DEPLOYMENT_GIT_SHA}.tfstate" ] || error "State file appears to be missing or empty"
-        terraform output -no-color -state="${DEPLOYMENT_GIT_SHA}.tfstate" > "${DEPLOYMENT_GIT_SHA}.output.hcl" || \
-            error "Failed to generate output from ${DEPLOYMENT_GIT_SHA}.tfstate"
+        [ -s "infra-manager-state/${DEPLOYMENT_GIT_SHA}.tfstate" ] || error "State file appears to be missing or empty"
+        terraform output -no-color -state="infra-manager-state/${DEPLOYMENT_GIT_SHA}.tfstate" > "infra-manager-state/${DEPLOYMENT_GIT_SHA}.output.hcl" || \
+            error "Failed to generate output from infra-manager-state/${DEPLOYMENT_GIT_SHA}.tfstate"
     fi
 }
 
+mkdir -p infra-manager-state || error "Failed to create infra-manager-state directory"
 trap cleanup 0 1 2 3 6 15
 
 case "$1" in

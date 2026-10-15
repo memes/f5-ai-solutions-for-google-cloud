@@ -59,7 +59,7 @@ jobs:
       DEPLOYMENT_GIT_REF: "${{ github.head_ref || github.ref_name }}"
       DEPLOYMENT_GIT_SOURCE_DIRECTORY: foundations
       DEPLOYMENT_RUN_ID: "${{ github.run_id }}"
-      DEPLOYMENT_INPUTS_FILE: "${{ github.sha }}.tfvars"
+      DEPLOYMENT_INPUTS_FILE: "infra-manager-state/${{ github.sha }}.tfvars"
     steps:
       - name: Checkout source
         id: checkout
@@ -73,24 +73,6 @@ jobs:
       - name: Google Cloud CLI
         id: gcloud-cli
         uses: google-github-actions/setup-gcloud@v3
-      - name: Get PR number
-        id: get_pr_number
-        uses: actions/github-script@v9
-        with:
-          result-encoding: string
-          script: |
-            if (context.issue.number) {
-              return context.issue.number;
-            } else {
-              data = (
-                await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                  commit_sha: context.sha,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                })
-              ).data;
-              return data.length > 0 ? data[0].number : undefined;
-            }
       - name: Get Infra Manager action steps
         id: get_im_action_steps
         uses: actions/github-script@v9
@@ -113,13 +95,6 @@ jobs:
         if: ${{ fromJson(steps.get_im_action_steps.outputs.exec_output) }}
         with:
           terraform_version: "${{ env.DEPLOYMENT_TF_VERSION}}"
-      - name: Install tfplandoc
-        id: install-tfplandoc
-        if: ${{ fromJson(steps.get_im_action_steps.outputs.exec_plan) }}
-        uses: jaxxstorm/action-install-gh-release@v1
-        with:
-          repo: Azure/tfplandoc
-          tag: v${{ env.TFPLANDOC_VERSION }}
       - name: Create local terraform variables file
         id: create-tf-vars-file
         if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) || fromJson(steps.get_im_action_steps.outputs.exec_apply) }}
@@ -150,64 +125,100 @@ jobs:
         id: generate-tf-plan
         if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) }}
         run: ./.github/workflows/infra-manager-wrapper.sh plan
-      - name: Generate markdown summary of plan for PR
-        id: generate-md-from-plan
-        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) }}
-        run: |
-          tfplandoc_v${{ env.TFPLANDOC_VERSION }} generate "${{ github.sha }}.json" > "${{ github.sha }}.plan.md"
-      - name: Echo markdown plan summary to stdout if not associated with a PR
-        id: cat-md-plan
-        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) && !steps.get_pr_number.outputs.result }}
-        run: |
-          cat "${{ github.sha }}.plan.md"
-      - name: Add markdown output as comment on PR
-        id: pr-md-plan
-        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) && steps.get_pr_number.outputs.result }}
-        uses: actions/github-script@v9
-        env:
-          ISSUE_NUMBER: ${{ steps.get_pr_number.outputs.result }}
-        with:
-          script: |
-            const fs = require('fs');
-            const plan = fs.readFileSync('${{ github.sha }}.plan.md', 'utf8');
-            const title = '## ${{ github.workflow }} Proposed Changes';
-            github.rest.issues.createComment({
-              issue_number: process.env.ISSUE_NUMBER,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: title + '\n\nInfrastructure Manager will make the following changes on merge to main, or on manual apply.\n\n' + plan,
-            })
       - name: Apply changes
         id: apply-tf
         if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_apply) }}
         run: ./.github/workflows/infra-manager-wrapper.sh apply
+      - name: Delete deployment
+        id: delete-tf
+        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_delete) }}
+        run: ./.github/workflows/infra-manager-wrapper.sh delete
       - name: Generate a markdown output summary
         id: generate-tf-output
         if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_output) }}
         run: ./.github/workflows/infra-manager-wrapper.sh output
-      - name: Echo output summary to stdout if not associated with a PR
-        id: cat-tf-output
-        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_output) && !steps.get_pr_number.outputs.result }}
+      - name: Store any infra-manager generated artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: infra-manager-state
+          path: infra-manager-state/
+          if-no-files-found: warn
+          retention-days: 1
+  update-pr:
+    runs-on: ubuntu-latest
+    needs: infra-manager
+    steps:
+      - name: Checkout source
+        id: checkout
+        uses: actions/checkout@v7
+      - name: Restore infra-manager artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: infra-manager-state
+          path: infra-manager-state/
+      - name: Get PR number
+        id: get_pr_number
+        uses: actions/github-script@v9
+        with:
+          result-encoding: string
+          script: |
+            if (context.issue.number) {
+              return context.issue.number;
+            } else {
+              data = (
+                await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  commit_sha: context.sha,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                })
+              ).data;
+              return data.length > 0 ? data[0].number : undefined;
+            }
+      - name: Generate markdown summary of plan for PR
+        id: generate-md-from-plan
+        if: ${{ hashFiles("infra-manager-state/${{ github.sha }}.json") != "" }}
         run: |
-          cat "${{ github.sha }}.output.json"
-      - name: Add markdown output as comment on PR
-        id: pr-tf-output
-        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_output) && steps.get_pr_number.outputs.result }}
+          docker run -v $(pwd)/infra-manager-state:/data oocx/tfplan2md "/data/${{ github.sha }}.json" --output "/data/${{ github.sha }}.plan.md" --render-target github --report-title "${{ github.workflow }} Proposed Changes"
+      - name: Write terraform plan to PR or stdout
+        id: tf-plan
+        if: ${{ hashFiles("infra-manager-state/${{ github.sha }}.plan.md") != "" }}
         uses: actions/github-script@v9
         env:
           ISSUE_NUMBER: ${{ steps.get_pr_number.outputs.result }}
         with:
           script: |
             const fs = require('fs');
-            const output = fs.readFileSync('${{ github.sha }}.output.hcl', 'utf8');
-            const title = '## ${{ github.workflow }} output values';
-            github.rest.issues.createComment({
-              issue_number: process.env.ISSUE_NUMBER,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: title + '\n\n```hcl\n' + output + '\n```\n',
-            })
-      - name: Delete deployment
-        id: delete-tf
-        if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_delete) }}
-        run: ./.github/workflows/infra-manager-wrapper.sh delete
+            const plan = fs.readFileSync('infra-manager-state/${{ github.sha }}.plan.md', 'utf8');
+            const pr = parseInt(process.env.ISSUE_NUMBER);
+            if (isNaN(pr)) {
+              process.stdout.write(plan);
+            } else {
+              github.rest.issues.createComment({
+                issue_number: pr,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: plan,
+              });
+            }
+      - name: Add terraform output to PR or stdout
+        id: tf-output
+        if: ${{ hashFiles("infra-manager-state/${{ github.sha }}.output.hcl") != "" }}
+        uses: actions/github-script@v9
+        env:
+          ISSUE_NUMBER: ${{ steps.get_pr_number.outputs.result }}
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('infra-manager-state/${{ github.sha }}.output.hcl', 'utf8');
+            const pr = parseInt(process.env.ISSUE_NUMBER);
+            if (isNaN(pr)) {
+              process.stdout.write(output);
+            } else {
+              const title = '## ${{ github.workflow }} output values';
+              github.rest.issues.createComment({
+                issue_number: process.env.ISSUE_NUMBER,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: title + '\n\n```hcl\n' + output + '\n```\n',
+              });
+            }
