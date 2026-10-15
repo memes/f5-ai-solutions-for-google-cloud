@@ -74,6 +74,7 @@ jobs:
       iac_service_account: ${{ secrets.IAC_SERVICE_ACCOUNT}}
       workload_identity_provider_id: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER_ID }}
   vertex-ai:
+    if: false  # TODO(@memes): Disabled for now
     needs: foundations
     uses: ./.github/workflows/infra-manager-base.yml
     with:

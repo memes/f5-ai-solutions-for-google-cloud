@@ -119,4 +119,4 @@ fileignoreconfig:
 - filename: .devcontainer/devcontainer-lock.json
   checksum: 3a2513ab2fefdeb03aa301177f31c64c45872c6a29cad8e8f905294b4141bf8a
 - filename: .github/workflows/infra-manager-base.yml
-  checksum: d9c23bfbf4b06bac9708987a28e76c8b4c2ea375e5ce105c9e7b5dfd8d6cbcc6
+  checksum: 2d15b8b83472fbd351249e4f60264f9c4ad0db8f04407d4bac1c931450eddac6

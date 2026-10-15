@@ -29,7 +29,7 @@ on:
         type: string
       source_directory:
         description: The source directory containing Terraform to be executed by Infrastructure Manager
-        required: true
+        required: false
         type: string
       tf_vars_content:
         description: Optional content of a tfvars file
@@ -163,7 +163,7 @@ jobs:
       - name: Generate markdown summary of plan for PR
         id: generate-md-from-plan
         run: |
-          [ ! -f "infra-manager-state/${{ github.sha }}.json" ] || docker run -v $(pwd)/infra-manager-state/${{ github.sha }}.json:/data/plan.json:ro oocx/tfplan2md /data/plan.json --render-target github --report-title "${{ github.workflow }} Proposed Changes" > "infra-manager-state/${{ github.sha }}.plan.md"
+          [ ! -f "infra-manager-state/${{ github.sha }}.json" ] || docker run -v $(pwd)/infra-manager-state/${{ github.sha }}.json:/data/plan.json:ro oocx/tfplan2md /data/plan.json --render-target github --report-title "${{ github.workflow }} (${{ inputs.source_directory || 'root' }}): Proposed Changes" > "infra-manager-state/${{ github.sha }}.plan.md"
       - name: Write terraform plan to PR or stdout
         id: tf-plan
         uses: actions/github-script@v9
@@ -202,7 +202,7 @@ jobs:
               if (isNaN(pr)) {
                 process.stdout.write(output);
               } else {
-                const title = '## ${{ github.workflow }} output values';
+                const title = '## ${{ github.workflow }} (${{ inputs.source_directory || "root" }}): output values';
                 github.rest.issues.createComment({
                   issue_number: pr,
                   owner: context.repo.owner,
