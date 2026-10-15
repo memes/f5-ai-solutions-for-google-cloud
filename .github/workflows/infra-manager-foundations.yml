@@ -41,7 +41,6 @@ permissions:
   pull-requests: write
 
 env:
-  TFPLANDOC_VERSION: 0.4.1
   # These values define the properties used by Infrastructure Manager
   # NOTE: DEPLOYMENT_ID must be less than 40 chars or Infra Manager will throw an error
   DEPLOYMENT_ID: f5-ai-solutions-foundations
@@ -176,12 +175,12 @@ jobs:
             }
       - name: Generate markdown summary of plan for PR
         id: generate-md-from-plan
-        if: ${{ hashFiles("infra-manager-state/${{ github.sha }}.json") != "" }}
+        if: ${{ hashFiles('infra-manager-state/${{ github.sha }}.json') != "" }}
         run: |
           docker run -v $(pwd)/infra-manager-state:/data oocx/tfplan2md "/data/${{ github.sha }}.json" --output "/data/${{ github.sha }}.plan.md" --render-target github --report-title "${{ github.workflow }} Proposed Changes"
       - name: Write terraform plan to PR or stdout
         id: tf-plan
-        if: ${{ hashFiles("infra-manager-state/${{ github.sha }}.plan.md") != "" }}
+        if: ${{ hashFiles('infra-manager-state/${{ github.sha }}.plan.md') != "" }}
         uses: actions/github-script@v9
         env:
           ISSUE_NUMBER: ${{ steps.get_pr_number.outputs.result }}
@@ -202,7 +201,7 @@ jobs:
             }
       - name: Add terraform output to PR or stdout
         id: tf-output
-        if: ${{ hashFiles("infra-manager-state/${{ github.sha }}.output.hcl") != "" }}
+        if: ${{ hashFiles'infra-manager-state/${{ github.sha }}.output.hcl') != "" }}
         uses: actions/github-script@v9
         env:
           ISSUE_NUMBER: ${{ steps.get_pr_number.outputs.result }}
