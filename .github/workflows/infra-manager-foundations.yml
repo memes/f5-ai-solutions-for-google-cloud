@@ -146,6 +146,8 @@ jobs:
   update-pr:
     runs-on: ubuntu-latest
     needs: infra-manager
+    env:
+      PLAN_JSON_FILE: "infra-manager-state/${{ github.sha }}.json"
     steps:
       - name: Checkout source
         id: checkout
@@ -175,49 +177,52 @@ jobs:
             }
       - name: Generate markdown summary of plan for PR
         id: generate-md-from-plan
-        if: ${{ hashFiles('infra-manager-state/${{ github.sha }}.json') != "" }}
         run: |
-          docker run -v $(pwd)/infra-manager-state:/data oocx/tfplan2md "/data/${{ github.sha }}.json" --output "/data/${{ github.sha }}.plan.md" --render-target github --report-title "${{ github.workflow }} Proposed Changes"
+          [ ! -f "infra-manager-state/${{ github.sha }}.json" ] || docker run -v $(pwd)/infra-manager-state:/data oocx/tfplan2md "/data/${{ github.sha }}.json" --output "/data/${{ github.sha }}.plan.md" --render-target github --report-title "${{ github.workflow }} Proposed Changes"
       - name: Write terraform plan to PR or stdout
         id: tf-plan
-        if: ${{ hashFiles('infra-manager-state/${{ github.sha }}.plan.md') != "" }}
         uses: actions/github-script@v9
         env:
           ISSUE_NUMBER: ${{ steps.get_pr_number.outputs.result }}
         with:
           script: |
             const fs = require('fs');
-            const plan = fs.readFileSync('infra-manager-state/${{ github.sha }}.plan.md', 'utf8');
-            const pr = parseInt(process.env.ISSUE_NUMBER);
-            if (isNaN(pr)) {
-              process.stdout.write(plan);
-            } else {
-              github.rest.issues.createComment({
-                issue_number: pr,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: plan,
-              });
+            const planFile = 'infra-manager-state/${{ github.sha }}.plan.md';
+            if (fs.existsSync(planFile)) {
+              const plan = fs.readFileSync(planFile, 'utf8');
+              const pr = parseInt(process.env.ISSUE_NUMBER);
+              if (isNaN(pr)) {
+                process.stdout.write(plan);
+              } else {
+                github.rest.issues.createComment({
+                  issue_number: pr,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: plan,
+                });
+              }
             }
       - name: Add terraform output to PR or stdout
         id: tf-output
-        if: ${{ hashFiles'infra-manager-state/${{ github.sha }}.output.hcl') != "" }}
         uses: actions/github-script@v9
         env:
           ISSUE_NUMBER: ${{ steps.get_pr_number.outputs.result }}
         with:
           script: |
             const fs = require('fs');
-            const output = fs.readFileSync('infra-manager-state/${{ github.sha }}.output.hcl', 'utf8');
-            const pr = parseInt(process.env.ISSUE_NUMBER);
-            if (isNaN(pr)) {
-              process.stdout.write(output);
-            } else {
-              const title = '## ${{ github.workflow }} output values';
-              github.rest.issues.createComment({
-                issue_number: process.env.ISSUE_NUMBER,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: title + '\n\n```hcl\n' + output + '\n```\n',
-              });
+            const outputFile = 'infra-manager-state/${{ github.sha }}.output.hcl';
+            if (fs.existsSync(outputFile)) {
+              const output = fs.readFileSync(outputFile, 'utf8');
+              const pr = parseInt(process.env.ISSUE_NUMBER);
+              if (isNaN(pr)) {
+                process.stdout.write(output);
+              } else {
+                const title = '## ${{ github.workflow }} output values';
+                github.rest.issues.createComment({
+                  issue_number: process.env.ISSUE_NUMBER,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: title + '\n\n```hcl\n' + output + '\n```\n',
+                });
+              }
             }
