@@ -40,19 +40,18 @@ permissions:
   id-token: write
   pull-requests: write
 
-env:
-  # These values define the properties used by Infrastructure Manager
-  # NOTE: DEPLOYMENT_ID must be less than 40 chars or Infra Manager will throw an error
-  DEPLOYMENT_ID: f5-ai-solutions-foundations
-  DEPLOYMENT_PROJECT_ID: ${{ vars.PROJECT_ID }}
-  DEPLOYMENT_REGION: us-central1
-  DEPLOYMENT_TF_VERSION: "1.5.7"
-  DEPLOYMENT_SERVICE_ACCOUNT_NAME: "projects/${{ vars.PROJECT_ID }}/serviceAccounts/${{ secrets.IAC_SERVICE_ACCOUNT }}"
-  DEPLOYMENT_LABELS: "owner=emes,email=m_dot_emes_at_f5_dot_com"
 jobs:
   infra-manager:
     runs-on: ubuntu-latest
     env:
+      # These values define the properties used by Infrastructure Manager
+      # NOTE: DEPLOYMENT_ID must be less than 40 chars or Infra Manager will throw an error
+      DEPLOYMENT_ID: f5-ai-solutions-foundations
+      DEPLOYMENT_PROJECT_ID: ${{ vars.PROJECT_ID }}
+      DEPLOYMENT_REGION: us-central1
+      DEPLOYMENT_TF_VERSION: "1.5.7"
+      DEPLOYMENT_SERVICE_ACCOUNT_NAME: "projects/${{ vars.PROJECT_ID }}/serviceAccounts/${{ secrets.IAC_SERVICE_ACCOUNT }}"
+      DEPLOYMENT_LABELS: "owner=emes,email=m_dot_emes_at_f5_dot_com"
       DEPLOYMENT_GIT_URL: "${{ github.server_url }}/${{ github.repository }}"
       DEPLOYMENT_GIT_SHA: "${{ github.sha }}"
       DEPLOYMENT_GIT_REF: "${{ github.head_ref || github.ref_name }}"
@@ -147,8 +146,6 @@ jobs:
   update-pr:
     runs-on: ubuntu-latest
     needs: infra-manager
-    env:
-      PLAN_JSON_FILE: "infra-manager-state/${{ github.sha }}.json"
     steps:
       - name: Checkout source
         id: checkout
@@ -179,7 +176,7 @@ jobs:
       - name: Generate markdown summary of plan for PR
         id: generate-md-from-plan
         run: |
-          [ ! -f "infra-manager-state/${{ github.sha }}.json" ] || docker run -v $(pwd)/infra-manager-state:/data oocx/tfplan2md "/data/${{ github.sha }}.json" --output "/data/${{ github.sha }}.plan.md" --render-target github --report-title "${{ github.workflow }} Proposed Changes"
+          [ ! -f "infra-manager-state/${{ github.sha }}.json" ] || docker run -v $(pwd)/infra-manager-state/${{ github.sha }}.json:/data/plan.json:ro oocx/tfplan2md /data/plan.json --render-target github --report-title "${{ github.workflow }} Proposed Changes" > "infra-manager-state/${{ github.sha }}.plan.md"
       - name: Write terraform plan to PR or stdout
         id: tf-plan
         uses: actions/github-script@v9
