@@ -99,13 +99,6 @@ output "gw_addresses" {
   EOD
 }
 
-output "deploy_pipeline_ids" {
-  value       = { for k, v in google_clouddeploy_delivery_pipeline.all : k => v.id }
-  description = <<-EOD
-  A map of Compute Engine region names to Cloud Deploy pipeline identifiers.
-  EOD
-}
-
 output "cai_moderator_auth_secret" {
   value       = { for k, v in try(google_secret_manager_secret.cai_moderator_auth, {}) : k => v.id }
   description = <<-EOD

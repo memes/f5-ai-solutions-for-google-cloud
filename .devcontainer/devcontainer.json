@@ -1,6 +1,8 @@
 {
     "name": "memes-f5-ai-solutions-for-google-cloud",
-    "dockerFile": "Dockerfile",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
     "features": {
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
             "moby": false
@@ -17,7 +19,6 @@
         "ghcr.io/memes/devcontainers-features/hashicorp:1": {
             "terraform": "1.5.7"
         },
-        "ghcr.io/memes/devcontainers-features/gcrane:1": {},
         "ghcr.io/memes/devcontainers-features/google-cloud-cli:1": {
             "components": "kpt kubectl gke-gcloud-auth-plugin skaffold"
         },
@@ -41,7 +42,8 @@
     "containerUser": "vscode",
     "containerEnv": {
         "CLOUDSDK_CORE_CUSTOM_CA_CERTS_FILE": "/etc/ssl/certs/ca-certificates.crt",
-        "HF_HOME": "/var/lib/hf_cache"
+        "HF_HOME": "/var/lib/hf_cache",
+        "XDG_RUNTIME_DIR": "/run/user/vscode"
     },
     "updateRemoteUserUID": true,
     "mounts": [
@@ -50,13 +52,11 @@
 
     ],
     "onCreateCommand": {
-        "install-deps": "sudo sh -c 'apt update && apt install -y --no-install-recommends fzf shellcheck kustomize pipx njs && rm -rf /var/lib/apt/lists/*'",
-        "modify-default-omz-plugins": ["/usr/bin/sed", "-i.onCreateCommand" , "-e", "/^plugins=/c\\plugins=(git dotenv)", "/home/vscode/.zshrc"]
+        "install-deps": "sudo sh -c 'apt update && apt install -y --no-install-recommends fzf shellcheck kustomize pipx njs skopeo && rm -rf /var/lib/apt/lists/*'",
+        "modify-default-omz-plugins": ["/usr/bin/sed", "-i.onCreateCommand" , "-e", "/^plugins=/c\\plugins=(git dotenv)", "/home/vscode/.zshrc"],
+        "xdg-runtime-dir": "sudo sh -c 'mkdir -p /run/user/vscode && chown -R vscode:vscode /run/user/vscode'"
     },
     "updateContentCommand": {
-        "install-pipx-packages": "pipx install pre-commit huggingface_hub"
-    },
-    "postCreateCommand": {
-        "config-pre-commit": "pre-commit install --hook-type commit-msg --hook-type pre-commit"
+        "pipx-install": "pipx install pre-commit huggingface_hub && pre-commit install --hook-type commit-msg --hook-type pre-commit"
     }
 }
