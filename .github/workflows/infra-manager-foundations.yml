@@ -41,7 +41,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  infra-manager:
+  foundations:
     uses: ./.github/workflows/infra-manager-base.yml
     with:
       action: "${{ case(github.event_name == 'workflow_dispatch', inputs.action || 'plan', '') }}"

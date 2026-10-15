@@ -65,9 +65,6 @@ jobs:
       - name: Checkout source
         id: checkout
         uses: actions/checkout@v7
-      - name: Google Cloud CLI
-        id: gcloud-cli
-        uses: google-github-actions/setup-gcloud@v3
       - name: Get Infra Manager action steps
         id: get_im_action_steps
         uses: actions/github-script@v9
@@ -94,6 +91,9 @@ jobs:
         with:
           project_id: ${{ inputs.project_id }}
           workload_identity_provider: ${{ secrets.workload_identity_provider_id }}
+      - name: Google Cloud CLI
+        id: gcloud-cli
+        uses: google-github-actions/setup-gcloud@v3
       - name: Create local terraform variables file
         id: create-tf-vars-file
         # if: ${{ success() && fromJson(steps.get_im_action_steps.outputs.exec_plan) || fromJson(steps.get_im_action_steps.outputs.exec_apply) }}
